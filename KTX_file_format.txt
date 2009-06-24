@@ -1,0 +1,236 @@
+PROPOSED FILE FORMAT
+===========================================================================
+ 
+	Byte[12]   identifier
+	UInt32     endianness
+	UInt32     glType
+	UInt32     glTypeSize
+	UInt32     glFormat
+	Uint32     glInternalFormat
+	Uint32     glBaseInternalFormat
+	UInt32     pixelWidth
+	UInt32     pixelHeight
+	UInt32     pixelDepth
+	UInt32     numberOfArrayElements
+	UInt32     numberOfFaces
+	UInt32     numberOfMipmapLevels
+	UInt32     bytesOfKeyValueData
+
+	for each keyValuePair that fits in bytesOfKeyValueData
+		UInt32              keyAndValueByteSize
+		Byte                keyAndValue[keyAndValueByteSize]
+		Byte                zeroPadding[4-(keyAndValueByteSize%4)]
+	end
+
+	for each mipmap_level in numberOfMipmapLevels*
+		UInt32 faceLodSize;   
+		for each array_element in numberOfArrayElements*
+			for each face in numberOfFaces
+				for each z_slice in pixelDepth*
+					for each row or row_of_blocks in pixelHeight*
+						for each pixel or block_of_pixels in pixelWidth
+							Byte data[format-specific-number-of-bytes]**
+						end
+					end
+				end
+			end
+		end
+		Byte padding[3 - ((faceLodSize + 3) % 4)]
+	end
+
+	* replace with 1 if this field is 0
+	** Uncompressed texture data matches a GL_UNPACK_ALIGNMENT of 1.
+
+identifier
+
+	The file identifier is a unique set of bytes that will differentiate the 
+	file from other types of files. It consists of 12 bytes, as follows:
+
+	Byte[12] FileIdentifier = { 
+		0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A 
+	}
+	This can also be expressed using C-style character definitions as:
+	Byte[12] FileIdentifier = { 
+		'«', 'K', 'T', 'X', ' ', '1', '1', '»', '\r', '\n', '\x1A', '\n' 
+	}
+	
+	The rationale behind the choice values in the identifier is based on the 
+	rationale for the identifier in the PNG specification. This identifier 
+	both identifies the file as an KTX file and provides for immediate 
+	detection of common file-transfer problems.
+
+	Byte [0] is chosen as a non-ASCII value to reduce the probability that a 
+	text file may be misrecognized as an KTX file. It also catches bad file 
+	transfers that clear bit 7. 
+	Bytes [1..6] identify the format, and are the ascii values for the string 
+	"KTX 11". 
+	Byte [7] is for aesthetic balance with byte 1 (they are a matching pair 
+	of double-angle quotation marks). 
+	Bytes [8..9] form a CR-LF sequence which catches bad file transfers that 
+	alter newline sequences. 
+	Byte [10] is a control-Z character, which stops file display under MS-DOS, 
+	and further reduces the chance that a text file will be falsely recognised. 
+	Byte [11] is a final line feed, which checks for the inverse of the CR-LF 
+	translation problem. 
+
+endianness
+
+	endianness contains the number 0x04030201 written as a 32 bit integer 
+	using the endianness of the originating platform.  When read back as a 
+	32 bit integer it will contain 0x04030201 if the endianness matches the 
+	originating platform’s.
+
+glType
+ 
+	For compressed textures, glType must equal 0. For non-compressed textures, 
+	glType specifies the type argument passed to glTexImage*D, usually one of 
+	the values from table 3.5 of the OpenGL 3.0 specification (UNSIGNED_BYTE, 
+	UNSIGNED_SHORT_5_6_5, etc.)
+
+glTypeSize
+
+	glTypeSize specifies the data type size that should be used when 
+	endianness conversion is required for the texture data stored in the 
+	file. If glType is not 0, this should be the size in bytes corresponding 
+	to glType. For texture data which does not depend on platform endianness, 
+	including compressed texture data, glTypeSize must equal 1.
+
+glFormat
+ 
+	For compressed textures, glFormat must equal 0. For non-compressed 
+	textures, glFormat specifies the format argument passed to glTexImage*D, 
+	usually one of the values from table 3.6 of the OpenGL 3.0 specification 
+	(RGB, RGBA, BGRA, etc.)
+
+glInternalformat
+
+	For compressed textures, glInternalformat must equal the compressed 
+	internalformat. For non-compressed textures, glInternalformat specifies 
+	the internalformat argument passed to glTexImage*D, usually one of the 
+	sized internalformats from tables 3.16-3.18 of the OpenGL 3.0 
+	specification. The sized format should be chosen to match the bit depth 
+	of the data provided.
+
+glBaseInternalformat
+
+	For both compressed and non-compressed textures, glBaseInternalformat 
+	specifies the base internalformat corresponding to glInternalformat, 
+	usually one of the values from table 3.15 of the OpenGL 3.0 specification 
+	(RGB, RGBA, ALPHA, etc.). For non-compressed textures, loader 
+	implementations should be able to pass this value instead of 
+	glInternalformat as internalformat argument to glTexImage*D, as OpenGL ES 
+	does not accept sized internalformats.
+
+pixelWidth, pixelHeight, pixelDepth
+
+	The size of the texture image for level 0, in pixels. No rounding to block
+	sizes should be applied for block compressed textures.
+
+	For 1D textures pixelHeight and pixelDepth must be 0.
+	For 2D and cube textures pixelDepth must be 0.
+
+numberOfArrayElements
+ 
+	numberOfArrayElements specifies the number of array elements. If the 
+	texture is not an array texture, numberOfArrayElements must equal 0.
+ 
+numberOfFaces
+ 
+	numberOfFaces specifies the number of cubemap faces. For cubemaps and 
+	cubemap arrays this should be 6. For non cubemaps this should be 1. 
+	Cube map faces are stored in the order: +X, -X, +Y, -Y, +Z, -Z.
+ 
+numberOfMipmapLevels
+ 
+	numberOfMipmapLevels must equal 1 for non-mipmapped textures. For 
+	mipmapped textures, it equals the number of mipmaps.  Mipmaps are stored 
+	in order from largest size to smallest size. The first mipmap level is 
+	always level 0. A KTX file does not need to	contain a complete mipmap 
+	pyramid. If numberOfMipmapLevels equals 0, it indicates that a full 
+	mipmap pyramid should be generated from level 0 at load time (this is 
+	usually not allowed for compressed formats).
+ 
+bytesOfKeyValueData
+ 
+	bytesOfKeyValueData is the number of bytes of key/Value data that follows
+	the header, up to but not including the first faceLodSize field in the 
+	file. This includes all key and value data as well as the zero-padding 
+	after each key/value pair. If the file contains no metadata 
+	bytesOfKeyValueData must be 0. 
+
+keyAndValueByteSize
+ 
+	keyAndValueByteSize is the number of bytes of combined key and value data 
+	in each key/value pair following the header. This includes the size of 
+	the key, the NUL byte terminating the key, and all the bytes of data in 
+	the value. It does not include the bytes in zeroPadding.
+
+keyAndValue
+ 
+	keyAndValue contains 2 separate sections.  First it contains a key encoded 
+	in UTF8. The key must be terminated by a NUL character (U0000). Immediately 
+	following the NUL character that terminates the key is the Value data. The 
+	value may consist of any arbitrary data bytes. Any byte value is allowed. 
+	It is encouraged that the value be a UTF8 string, but this is not required. 
+	If the Value data is a string of bytes then the NUL termination should not 
+	be included in the keyAndValueByteSize byte count.
+ 
+zeroPadding
+ 
+	zeroPadding is between 1 and 4 bytes with the value 0x00. The number of 
+	bytes must ensure that the byte following the last byte in zeroPadding is 
+	in a file offset that is a multiple of 4. This ensures that every 
+	keyAndValueByteSize field, and the first faceLodSize field, is 4 byte 
+	aligned.
+
+faceLodSize
+ 
+	faceLodSize is the number of bytes of pixel data per face for the current 
+	LOD level. This includes all z slices, all rows (or rows of blocks) and 
+	all pixels (or blocks) in a row for each face. The total number of data
+	bytes for each level equals faceLodSize times the number of array
+	elements times the number of faces. Note that for this calculation non-
+	cubemap textures are considered to have one face and non-array textures
+	are considered to have one element.
+ 
+padding
+	
+	Between 0 and 3 bytes to make sure that all faceLodSize fields are at a
+	file offset that is a multiple of 4.
+
+General comments
+ 
+	The unpack alignment is 1, i.e. uncompressed pixel data is packed according 
+	to the rules described in the OpenGL 1.5 spec for an unpack alignment 
+	of 1.
+ 
+An example KTX file:
+ 
+	// HEADER
+	0xAB, 0x4B, 0x54, 0x58,  //    first four bytes of Byte[12] identifier
+	0x20, 0x31, 0x31, 0xBB,  //    next four bytes of  Byte[12] identifier
+	0x0D, 0x0A, 0x1A, 0x0A.  //    final for bytes of  Byte[12] identifier
+	0x04, 0x03, 0x02, 0x01,  //    Byte[4] endianess (Big endian in this case)
+	0x00, 0x00, 0x00, 0x00,  //    UInt32 glType = 0
+	0x00, 0x00, 0x00, 0x01,  //    UInt32 glTypeSize = 1
+	0x00, 0x00, 0x00, 0x00,  //    UInt32 glFormat = 0
+	0x00, 0x00, 0x8D, 0x64,  //    UInt32 glInternalFormat = GL_ETC1_RGB8_OES
+	0x00, 0x00, 0x19, 0x07,  //    UInt32 glBaseInternalFormat = GL_RGB
+	0x00, 0x00, 0x00, 0x20,  //    UInt32 pixelWidth = 32
+	0x00, 0x00, 0x00, 0x20,  //    UInt32 pixelHeight = 32
+	0x00, 0x00, 0x00, 0x00,  //    UInt32 pixelDepth = 0 
+	0x00, 0x00, 0x00, 0x00,  //    UInt32 numberOfArrayElements = 0 
+	0x00, 0x00, 0x00, 0x01,  //    UInt32 numberOfFaces = 1 
+	0x00, 0x00, 0x00, 0x01,  //    UInt32 numberOfMipmapLevels = 1
+	0x00, 0x00, 0x00, 0x10,  //    UInt32 bytesOfKeyValueData = 16 
+	// METADATA
+	0x00, 0x00, 0x00, 0x01,  //    UInt32 keyAndValueByteSize = 8
+	0x61, 0x70, 0x69, 0x00,  //    UTF8   key:   'api\0'
+	0x6A, 0x6F, 0x6B, 0x65,  //    UTF8   value: 'gles'
+	0x00, 0x00, 0x00, 0x00,  //    Byte[4]   zeroPadding (4 bytes)
+	// TEXTURE DATA
+	0x00, 0x00, 0x02, 0x00,  //    UInt32 faceLodSize = 512 bytes 
+	0xD8, 0xD8, 0xD8, 0xDA,  //    Byte[512] ETC compressed texture data...
+	... 
+===========================================================================
+END PROPOSED FILE FORMAT
