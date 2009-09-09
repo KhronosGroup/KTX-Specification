@@ -22,7 +22,7 @@ texture object from the file contents.
     for each keyValuePair that fits in bytesOfKeyValueData
         UInt32              keyAndValueByteSize
         Byte                keyAndValue[keyAndValueByteSize]
-        Byte                zeroPadding[4-(keyAndValueByteSize%4)]
+        Byte                valuePadding[(4-(keyAndValueByteSize%4))%4]
     end
 
     for each mipmap_level in numberOfMipmapLevels*
@@ -170,7 +170,7 @@ bytesOfKeyValueData
     An arbitrary number of key/value pairs may follow the header.  This can be
     used to encode any arbitrary data.  The bytesOfKeyValueData field
     indicates the total number of bytes of key/value data including all
-    keyAndValueByteSize fields, all keyAndValue fields, and all zeroPadding
+    keyAndValueByteSize fields, all keyAndValue fields, and all valuePadding
     fields.  The file offset of the first imageSize field is located at the
     file offset of the bytesOfKeyValueData field plus the value of the
     bytesOfKeyValueData field.
@@ -178,10 +178,12 @@ bytesOfKeyValueData
 keyAndValueByteSize
  
     keyAndValueByteSize is the number of bytes of combined key and value data 
-    in each key/value pair following the header. This includes the size of 
+    in one key/value pair following the header. This includes the size of 
     the key, the NUL byte terminating the key, and all the bytes of data in 
-    the value. It does not include the bytes in zeroPadding (and therefore
-    does not include the Nul terminator of value).
+	the value. If the value is a UTF8 string it should be NUL terminated and
+	the keyAndValueByteSize should include the NUL character (but code that
+	reads KTX files must not assume that value fields are NUL terminated).
+	keyAndValueByteSize does not include the bytes in valuePadding.
 
 keyAndValue
  
@@ -189,22 +191,22 @@ keyAndValue
     in UTF8. The key must be terminated by a NUL character (a single 0x00
     byte). Keys that begin with the 3 ascii characters 'KTX' are reserved and
     must not be used except as described by this spec (this version of the KTX
-    spec does not define any keys).  Immediately following the NUL character
-    that terminates the key is the Value data. The value may consist of any
-    arbitrary data bytes. Any byte value is allowed.  It is encouraged that
-    the value be a UTF8 string, but this is not required.  If the Value data
-    is a string of bytes then the NUL termination should not be included in
-    the keyAndValueByteSize byte count.
+	spec does not define any keys).  Immediately following the NUL character
+	that terminates the key is the Value data. The value may consist of any
+	arbitrary data bytes. Any byte value is allowed.  It is encouraged that
+	the value be a NUL terminated UTF8 string, but this is not required.  If
+	the Value data is a string of bytes then the NUL termination should be
+	included in the keyAndValueByteSize byte count (but programs that read KTX
+	files must not rely on this).
  
-zeroPadding
+valuePadding
  
-    zeroPadding is between 1 and 4 bytes with the value 0x00. The number of 
-    bytes must ensure that the byte following the last byte in zeroPadding is 
-    in a file offset that is a multiple of 4. This ensures that every 
-    keyAndValueByteSize field, and the first imageSize field, is 4 byte 
-    aligned.  There is always at least 1 zero byte following the value, and
-    this can be considered the Nul terminator byte of the string.  Note that
-    this Nul terminator is not included in the keyAndValueByteSize.
+	valuePadding is between 0 and 3 bytes of padding which must ensure that
+	the byte following the last byte in valuePadding is in a file offset that
+	is a multiple of 4. This ensures that every keyAndValueByteSize field, and
+	the first imageSize field, is 4 byte aligned.  This padding is included in
+	the bytesOfKeyValueData field but not the individual keyAndValueByteSize
+	fields.
 
 imageSize
  
@@ -256,10 +258,10 @@ An example KTX file:
     0x00, 0x00, 0x00, 0x01,  //    UInt32 numberOfMipmapLevels = 1
     0x00, 0x00, 0x00, 0x10,  //    UInt32 bytesOfKeyValueData = 16 
     // METADATA
-    0x00, 0x00, 0x00, 0x01,  //    UInt32 keyAndValueByteSize = 8
+    0x00, 0x00, 0x00, 0x0A,  //    UInt32 keyAndValueByteSize = 10
     0x61, 0x70, 0x69, 0x00,  //    UTF8   key:   'api\0'
-    0x6A, 0x6F, 0x6B, 0x65,  //    UTF8   value: 'gles'
-    0x00, 0x00, 0x00, 0x00,  //    Byte[4]   zeroPadding (4 bytes)
+    0x6A, 0x6F, 0x6B, 0x65,  //    UTF8   value: 'gles2\0'
+    0x32, 0x00, 0x00, 0x00,  //    Byte[2]   valuePadding (2 bytes)
     // TEXTURE DATA
     0x00, 0x00, 0x02, 0x00,  //    UInt32 imageSize = 512 bytes 
     0xD8, 0xD8, 0xD8, 0xDA,  //    Byte[512] ETC compressed texture data...
