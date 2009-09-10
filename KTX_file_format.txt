@@ -22,7 +22,7 @@ texture object from the file contents.
     for each keyValuePair that fits in bytesOfKeyValueData
         UInt32              keyAndValueByteSize
         Byte                keyAndValue[keyAndValueByteSize]
-        Byte                valuePadding[(4-(keyAndValueByteSize%4))%4]
+        Byte                valuePadding[3 - ((keyAndValueByteSize + 3) % 4)]
     end
 
     for each mipmap_level in numberOfMipmapLevels*
@@ -180,10 +180,10 @@ keyAndValueByteSize
     keyAndValueByteSize is the number of bytes of combined key and value data 
     in one key/value pair following the header. This includes the size of 
     the key, the NUL byte terminating the key, and all the bytes of data in 
-	the value. If the value is a UTF8 string it should be NUL terminated and
-	the keyAndValueByteSize should include the NUL character (but code that
-	reads KTX files must not assume that value fields are NUL terminated).
-	keyAndValueByteSize does not include the bytes in valuePadding.
+    the value. If the value is a UTF8 string it should be NUL terminated and
+    the keyAndValueByteSize should include the NUL character (but code that
+    reads KTX files must not assume that value fields are NUL terminated).
+    keyAndValueByteSize does not include the bytes in valuePadding.
 
 keyAndValue
  
@@ -191,22 +191,22 @@ keyAndValue
     in UTF8. The key must be terminated by a NUL character (a single 0x00
     byte). Keys that begin with the 3 ascii characters 'KTX' are reserved and
     must not be used except as described by this spec (this version of the KTX
-	spec does not define any keys).  Immediately following the NUL character
-	that terminates the key is the Value data. The value may consist of any
-	arbitrary data bytes. Any byte value is allowed.  It is encouraged that
-	the value be a NUL terminated UTF8 string, but this is not required.  If
-	the Value data is a string of bytes then the NUL termination should be
-	included in the keyAndValueByteSize byte count (but programs that read KTX
-	files must not rely on this).
+    spec does not define any keys).  Immediately following the NUL character
+    that terminates the key is the Value data. The value may consist of any
+    arbitrary data bytes. Any byte value is allowed.  It is encouraged that
+    the value be a NUL terminated UTF8 string, but this is not required.  If
+    the Value data is a string of bytes then the NUL termination should be
+    included in the keyAndValueByteSize byte count (but programs that read KTX
+    files must not rely on this).
  
 valuePadding
  
-	valuePadding is between 0 and 3 bytes of padding which must ensure that
-	the byte following the last byte in valuePadding is in a file offset that
-	is a multiple of 4. This ensures that every keyAndValueByteSize field, and
-	the first imageSize field, is 4 byte aligned.  This padding is included in
-	the bytesOfKeyValueData field but not the individual keyAndValueByteSize
-	fields.
+    valuePadding is between 0 and 3 bytes of padding which must ensure that
+    the byte following the last byte in valuePadding is in a file offset that
+    is a multiple of 4. This ensures that every keyAndValueByteSize field, and
+    the first imageSize field, is 4 byte aligned.  This padding is included in
+    the bytesOfKeyValueData field but not the individual keyAndValueByteSize
+    fields.
 
 imageSize
  
