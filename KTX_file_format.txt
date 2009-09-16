@@ -173,7 +173,7 @@ bytesOfKeyValueData
     keyAndValueByteSize fields, all keyAndValue fields, and all valuePadding
     fields.  The file offset of the first imageSize field is located at the
     file offset of the bytesOfKeyValueData field plus the value of the
-    bytesOfKeyValueData field.
+    bytesOfKeyValueData field plus 4.
 
 keyAndValueByteSize
  
