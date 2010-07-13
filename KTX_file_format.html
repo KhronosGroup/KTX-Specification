@@ -213,17 +213,16 @@ end</pre>
   reads KTX files must not assume that value fields are NUL terminated).
   keyAndValueByteSize does not include the bytes in valuePadding.</p>
 <h3>keyAndValue</h3>
-<p>keyAndValue contains 2 separate sections. First it contains a key encoded
-  in UTF8. The key must be terminated by a NUL character (a single 0x00
-  byte). Keys that begin with the 3 ascii characters 'KTX' are reserved and
-  must not be used except as described by this spec (this version of the KTX
-  spec does not define any keys). Immediately following the NUL character
-  that terminates the key is the Value data. The value may consist of any
-  arbitrary data bytes. Any byte value is allowed. It is encouraged that
-  the value be a NUL terminated UTF8 string, but this is not required. If
-  the Value data is a string of bytes then the NUL termination should be
-  included in the keyAndValueByteSize byte count (but programs that read KTX
-  files must not rely on this).</p>
+<p>keyAndValue contains 2 separate sections. First it contains a key encoded in 
+  UTF8. The key must be terminated by a NUL character (a single 0x00 byte). Keys 
+  that begin with the 3 ascii characters 'KTX' or 'ktx' are reserved and must 
+  not be used except as described by this spec (this version of the KTX spec does 
+  not define any keys). Immediately following the NUL character that terminates 
+  the key is the Value data. The value may consist of any arbitrary data bytes. 
+  Any byte value is allowed. It is encouraged that the value be a NUL terminated 
+  UTF8 string, but this is not required. If the Value data is a string of bytes 
+  then the NUL termination should be included in the keyAndValueByteSize byte 
+  count (but programs that read KTX files must not rely on this).</p>
 <h3>valuePadding</h3>
 <p>valuePadding contains between 0 and 3 bytes to ensure that the byte following 
   the last byte in valuePadding is at a file offset that is a multiple of 4. This 
@@ -255,6 +254,18 @@ end</pre>
   supplemented by extensions. The references are given as examples and do not 
   imply that all of those texture types can be loaded in OpenGL ES or earlier 
   versions of OpenGL.</p>
+<p>Image data from the KTX file is passed directly to OpenGL therefore the image 
+  data origin is at the lower-left, i.e with default PixelStore state, texture 
+  coordinates and texture transform (if applicable) the first pixel in the data 
+  stream will be at s=0, t=0. It is strongly recommended that tools for generating 
+  KTX files from other image formats make their handling of the image origin extremely 
+  clear. Preferred practice when handling image formats with upper-left origin 
+  is to invert the image data so that a KTX file displayed with default state 
+  in OpenGL will appear the same way up as the image from which it was generated 
+  when that image is displayed by an image viewer or editor. It is recognized 
+  that there are cases where this behavior is not suitable, such as a texture 
+  compression tool being used to generate compressed versions of existing textures 
+  for which texture coordinates and transforms are already set in the application.</p>
 <h2>An example KTX file:</h2>
 <pre class="example">// HEADER
 0xAB, 0x4B, 0x54, 0x58, // first four bytes of Byte[12] identifier
