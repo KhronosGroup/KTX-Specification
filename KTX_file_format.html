@@ -27,7 +27,7 @@
     
     
 <h1>KTX File Format Specification</h1>
-<h2 class="no-toc">Proposed Final Draft 16 June 2010</h2>
+<h2 class="no-toc">Proposed Final Draft 14 July 2010</h2>
 <dl>
   <dt>Editor: 
   <dd> Jacob Str&ouml;m (<a href="http://www.ericsson.com/">Ericsson AB</a>) </dd>
@@ -255,17 +255,29 @@ end</pre>
   imply that all of those texture types can be loaded in OpenGL ES or earlier 
   versions of OpenGL.</p>
 <p>Image data from the KTX file is passed directly to OpenGL therefore the image 
-  data origin is at the lower-left, i.e with default PixelStore state, texture 
+  origin is nominally at the lower left; i.e. with default PixelStore state, texture 
   coordinates and texture transform (if applicable) the first pixel in the data 
-  stream will be at s=0, t=0. It is strongly recommended that tools for generating 
-  KTX files from other image formats make their handling of the image origin extremely 
-  clear. Preferred practice when handling image formats with upper-left origin 
-  is to invert the image data so that a KTX file displayed with default state 
-  in OpenGL will appear the same way up as the image from which it was generated 
-  when that image is displayed by an image viewer or editor. It is recognized 
-  that there are cases where this behavior is not suitable, such as a texture 
-  compression tool being used to generate compressed versions of existing textures 
-  for which texture coordinates and transforms are already set in the application.</p>
+  stream will be at s=0, t=0, r=0. Because many popular image file formats use 
+  an opposite convention, the first pixel is the upper-right corner, there is 
+  plenty of room for confusion. Therefore it is strongly recommended that tools 
+  for generating KTX files have an option to choose the texture axis orientation 
+  relative to the physical orientation of the source image. At minimum they should 
+  provide a choice between top-left and bottom-left as origin for 2D source images, 
+  with the positive S axis pointing right.</p>
+<p>The required texture axis orientation is often predetermined by, e.g. a DCC 
+  tool's or existing application's use of the non-KTX source version of the image. 
+  Therefore tools must decide for themselves the appropriate default setting for 
+  their orientation option. Where possible, the preferred default is to invert 
+  the image data as necessary so that the logical lower-left pixel of the image 
+  will be at s=0, t=0.</p>
+<p>To allow a KTX file to be shown as intended in an image viewer, it is recommended 
+  that KTX tools add the following metadata to the KTX file describing which direction 
+  corresponds to the positive S, T, and R axes. </p>
+<blockquote> 
+  <p>KTXorigin: s[01]t[01]r[01]</p>
+</blockquote>
+<p>If this metadata is not given, an image viewer should use the GL default of 
+  S+ = right, T+ = up, R+ = in which corresponds to a value of s0t0r0.</p>
 <h2>An example KTX file:</h2>
 <pre class="example">// HEADER
 0xAB, 0x4B, 0x54, 0x58, // first four bytes of Byte[12] identifier
@@ -287,11 +299,16 @@ end</pre>
 // METADATA
 0x00, 0x00, 0x00, 0x0A, // UInt32 keyAndValueByteSize = 10
 0x61, 0x70, 0x69, 0x00, // UTF8 key:   'api\0'
-0x6A, 0x6F, 0x6B, 0x65, // UTF8 value: 'gles2\0'
+0x6A, 0x6F, 0x6B, 0x65, // UTF8 v: 'gles2\0'
 0x32, 0x00, 0x00, 0x00, // Byte[2] valuePadding (2 bytes)
 // TEXTURE DATA
 0x00, 0x00, 0x02, 0x00, // UInt32 imageSize = 512 bytes
 0xD8, 0xD8, 0xD8, 0xDA, // Byte[512] ETC compressed texture data...
 ...</pre>
+<h2>Acknowledgements</h2>
+<p>This specification was produced by the Khronos OpenGL<sup>&reg;</sup> ES Working 
+  Group.</p>
+<p>Special thanks to: Georg Kolling (Imagination Technology), Acorn Pooley (NVIDIA) 
+  and Mark Callow (HI Corporation).</p>
 </body>
 </html>
