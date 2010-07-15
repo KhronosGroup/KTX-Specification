@@ -15,7 +15,7 @@
     <!--begin-logo-->
     <div class=head>
         <p>
-            <a href="http://khronos.org/">
+            <a href="http://www.khronos.org/">
                 <img alt=Khronos height=60 src="KhronosGroup-3D.png" width=220>
             </a>
 
@@ -29,9 +29,14 @@
 <h1>KTX File Format Specification</h1>
 <h2 class="no-toc">Proposed Final Draft 14 July 2010</h2>
 <dl>
-  <dt>Editor: 
-  <dd> Jacob Str&ouml;m (<a href="http://www.ericsson.com/">Ericsson AB</a>) </dd>
+  <dt>Editors: 
+  <dd> Mark Callow (<a href="http://www.hicorp.co.jp">HI Corp</a>), 
+       Georg Kolling (<a href="www.imgtec.com">Imagination Technologies</a>), and 
+       Jacob Str&ouml;m (<a href="http://www.ericsson.com/">Ericsson AB</a>)
+  </dd>
 </dl>
+<p class="copyright">&copy; 2010 The Khronos Group Inc. All Rights Reserved. See 
+  <a href="#license">license</a>.</p>
 
     <hr />
     
@@ -254,30 +259,48 @@ end</pre>
   supplemented by extensions. The references are given as examples and do not 
   imply that all of those texture types can be loaded in OpenGL ES or earlier 
   versions of OpenGL.</p>
-<p>Image data from the KTX file is passed directly to OpenGL therefore the image 
-  origin is nominally at the lower left; i.e. with default PixelStore state, texture 
-  coordinates and texture transform (if applicable) the first pixel in the data 
-  stream will be at s=0, t=0, r=0. Because many popular image file formats use 
-  an opposite convention, the first pixel is the upper-right corner, there is 
-  plenty of room for confusion. Therefore it is strongly recommended that tools 
-  for generating KTX files have an option to choose the texture axis orientation 
-  relative to the physical orientation of the source image. At minimum they should 
+<p>Texture data in a KTX file are arranged so that the first pixel in the data 
+  stream for each face and/or array element is closest to the origin of the texture 
+  coordinate system. In OpenGL that origin is conventionally described as being 
+  at the lower left, but this convention is not shared by all image file formats 
+  and content creation tools, so there is abundant room for confusion.</p>
+<p>The desired texture axis orientation is often predetermined by, e.g. a content 
+  creation tool's or existing application's use of the image. Therefore it is 
+  strongly recommended that tools for generating KTX files clearly describe their 
+  behaviour, and provide an option to specify the texture axis origin and orientation 
+  relative to the logical orientation of the source image. At minimum they should 
   provide a choice between top-left and bottom-left as origin for 2D source images, 
-  with the positive S axis pointing right.</p>
-<p>The required texture axis orientation is often predetermined by, e.g. a DCC 
-  tool's or existing application's use of the non-KTX source version of the image. 
-  Therefore tools must decide for themselves the appropriate default setting for 
-  their orientation option. Where possible, the preferred default is to invert 
-  the image data as necessary so that the logical lower-left pixel of the image 
-  will be at s=0, t=0.</p>
-<p>To allow a KTX file to be shown as intended in an image viewer, it is recommended 
-  that KTX tools add the following metadata to the KTX file describing which direction 
-  corresponds to the positive S, T, and R axes. </p>
-<blockquote> 
-  <p>KTXorigin: s[01]t[01]r[01]</p>
-</blockquote>
-<p>If this metadata is not given, an image viewer should use the GL default of 
-  S+ = right, T+ = up, R+ = out which corresponds to a value of s0t0r0.</p>
+  with the positive S axis pointing right. Where possible, the preferred default 
+  is to use the logical upper-left corner of the image as the texture origin. 
+  Note that this is contrary to the standard interpretation of GL texture coordinates. 
+  However, the majority of texture compression tools use this convention.</p>
+<p>As an aid to writing image manipulation tools and viewers, the logical orientation 
+  of the data in a KTX file may be indicated in the file's key/value metadata. 
+  Note that this metadata affects only the logical interpretation of the data, 
+  has no effect on the mapping from pixels in the file byte stream to texture 
+  coordinates. The recommended key to use is:</p>
+<ul>
+  <li>KTXorientation </li>
+</ul>
+<p>and possible values are:</p>
+<ul>
+  <li> S=r,T=d</li>
+  <li>S=r,T=u</li>
+  <li>S=r,T=d,R=i</li>
+  <li>S=r,T=u,R=o </li>
+</ul>
+<p>where</p>
+<ul>
+  <li>S indicates the direction of increasing S values</li>
+  <li>T indicates the direction of increasing T values</li>
+  <li>R indicates the direction of increasing R values</li>
+  <li>r indicates increasing to the right</li>
+  <li>l indicates increasing to the left</li>
+  <li>d indicates increasing downwards</li>
+  <li>u indicates increasing upwards</li>
+  <li>o indicates increasing out from the screen (moving towards viewer)</li>
+  <li>i indicates increasing in towards the screen (moving away from viewer) </li>
+</ul>
 <h2>An example KTX file:</h2>
 <pre class="example">// HEADER
 0xAB, 0x4B, 0x54, 0x58, // first four bytes of Byte[12] identifier
@@ -303,12 +326,88 @@ end</pre>
 0x32, 0x00, 0x00, 0x00, // Byte[2] valuePadding (2 bytes)
 // TEXTURE DATA
 0x00, 0x00, 0x02, 0x00, // UInt32 imageSize = 512 bytes
-0xD8, 0xD8, 0xD8, 0xDA, // Byte[512] ETC compressed texture data...
+0xD8, 0xD8, 0sxDxDA,  Byte[512] ETC compressed texture data...
 ...</pre>
+<h2>IANA Mime-Type Registration Information</h2>
+<p>(Registration is expected but not yet approved)</p>
+<p> Type name: Image</p>
+<p> Subtype name: ktx</p>
+<p> Required parameters: none</p>
+<p> Optional parameters: none</p>
+<p> Encoding considerations: binary</p>
+Security considerations: The ktx type is a binary data stream which contains no 
+executable code that could disrupt a client processor. There is no provision in 
+the type specification that would allow authors to insert executable code that 
+would present any security risk to a client machine. </dt> 
+<p> Interoperability considerations: ktx data includes a field identifying the 
+  endianness of the machine which created the data. Applications reading the data 
+  are expected to check this field and convert the endianness of the data, if 
+  necessary. The texture data payload may be compressed using a OpenGL-vendor-specific 
+  scheme in which case. Only machines having a way of decompressing that data 
+  will be able to display it.</p>
+<p> Published specification: The KTX file format specification will be published 
+  on www.khronos.org within the next 2 weeks by the Khronos Group, an industry 
+  consortium responsible for such standards as OpenGL, OpenGL ES, WebGL and OpenCL.</p>
+<p> Applications that use this media type : Currently none. It is anticipated 
+  it will be widely used by applications built on top of the OpenGL family of 
+  standards, OpenGL, OpenGL ES and WebGL, as the means of delivering texture data.</p>
+<p> Additional information:</p>
+<blockquote>
+  <p> Magic number(s): 12 octets - { 0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 
+    0xBB, 0x0D, 0x0A, 0x1A, 0x0A }<br />
+    File extension(s): .ktx<br />
+    Macintosh file type code(s):</p>
+</blockquote>
+<p> Person &amp; email address to contact for further information: Mark Callow 
+  (callow_mark at hicorp.co.jp)</p>
+<p> Intended usage: COMMON</p>
+<p> Restrictions on usage: none</p>
+<p> Authors: Mark Callow, Georg Kolling, Jacob Str&ouml;m</p>
+<p> Change controller: The Khronos Group</p>
 <h2>Acknowledgements</h2>
 <p>This specification was produced by the Khronos OpenGL<sup>&reg;</sup> ES Working 
   Group.</p>
-<p>Special thanks to: Georg Kolling (Imagination Technology), Acorn Pooley (NVIDIA) 
-  and Mark Callow (HI Corporation).</p>
+<p>Special thanks to: Acorn Pooley (NVIDIA).</p>
+<p>&nbsp;</p>
+<hr />
+<h3 class="no-toc"><a name="license" id="license"/>License</h3>
+<p class="copyright">This specification is protected by copyright laws and contains 
+  material proprietary to the Khronos Group, Inc. It or any components may not 
+  be reproduced, republished, distributed, transmitted, displayed, broadcast or 
+  otherwise exploited in any manner without the express prior written permission 
+  of Khronos Group. You may use this specification for implementing the functionality 
+  therein, without altering or removing any trademark, copyright or other notice 
+  from the specification, but the receipt or possession of this specification 
+  does not convey any rights to reproduce, disclose, or distribute its contents, 
+  or to manufacture, use, or sell anything that it may describe, in whole or in 
+  part.</p>
+<p class="copyright">Khronos Group grants express permission to any current Promoter, 
+  Contributor or Adopter member of Khronos to copy and redistribute UNMODIFIED 
+  versions of this specification in any fashion, provided that NO CHARGE is made 
+  for the specification and the latest available update of the specification for 
+  any version of the API is used whenever possible. Such distributed specification 
+  may be re-formatted AS LONG AS the contents of the specification are not changed 
+  in any way. The specification may be incorporated into a product that is sold 
+  as long as such product includes significant independent work developed by the 
+  seller. A link to the current version of this specification on the Khronos Group 
+  web-site should be included whenever possible with specification distributions.</p>
+<p class="copyright">Khronos Group makes no, and expressly disclaims any, representations 
+  or warranties, express or implied, regarding this specification, including, 
+  without limitation, any implied warranties of merchantability or fitness for 
+  a particular purpose or non-infringement of any intellectual property. Khronos 
+  Group makes no, and expressly disclaims any, warranties, express or implied, 
+  regarding the correctness, accuracy, completeness, timeliness, and reliability 
+  of the specification. Under no circumstances will the Khronos Group, or any 
+  of its Promoters, Contributors or Members or their respective partners, officers, 
+  directors, employees, agents or representatives be liable for any damages, whether 
+  direct, indirect, special or consequential damages for lost revenues, lost profits, 
+  or otherwise, arising from or in connection with these materials.</p>
+<p class="copyright">Khronos, OpenKODE, OpenKOGS, OpenVG, OpenMAX, OpenSL ES and 
+  OpenWF are trademarks of the Khronos Group Inc. COLLADA is a trademark of Sony 
+  Computer Entertainment Inc. used by permission by Khronos. OpenGL and OpenML 
+  are registered trademarks and the OpenGL ES logo is a trademark of Silicon Graphics 
+  Inc. used by permission by Khronos. All other product names, trademarks, and/or 
+  company names are used solely for identification and belong to their respective 
+  owners. </p>
 </body>
 </html>
