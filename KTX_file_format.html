@@ -282,12 +282,13 @@ end</pre>
 <ul>
   <li>KTXorientation </li>
 </ul>
-<p>and possible values are:</p>
+<p>It is recommended that viewing and editing tools support at least the following 
+  values:</p>
 <ul>
   <li> S=r,T=d</li>
   <li>S=r,T=u</li>
   <li>S=r,T=d,R=i</li>
-  <li>S=r,T=u,R=o </li>
+  <li>S=r,T=u,R=o</li>
 </ul>
 <p>where</p>
 <ul>
@@ -301,6 +302,9 @@ end</pre>
   <li>o indicates increasing out from the screen (moving towards viewer)</li>
   <li>i indicates increasing in towards the screen (moving away from viewer) </li>
 </ul>
+<p>Although other orientations can be represented, it is recommended that tools 
+  that create KTX files use only the values listed above as other values may not 
+  be widely supported by other tools.</p>
 <h2>An example KTX file:</h2>
 <pre class="example">// HEADER
 0xAB, 0x4B, 0x54, 0x58, // first four bytes of Byte[12] identifier
@@ -330,27 +334,41 @@ end</pre>
 ...</pre>
 <h2>IANA Mime-Type Registration Information</h2>
 <p>(Registration is expected but not yet approved)</p>
+<p><em>Permission is expressly granted to IANA to copy this section as necessary 
+  for managing the MIME types registry.</em></p>
 <p> Type name: Image</p>
 <p> Subtype name: ktx</p>
 <p> Required parameters: none</p>
 <p> Optional parameters: none</p>
 <p> Encoding considerations: binary</p>
-Security considerations: The ktx type is a binary data stream which contains no 
-executable code that could disrupt a client processor. There is no provision in 
-the type specification that would allow authors to insert executable code that 
-would present any security risk to a client machine. </dt> 
-<p> Interoperability considerations: ktx data includes a field identifying the 
-  endianness of the machine which created the data. Applications reading the data 
-  are expected to check this field and convert the endianness of the data, if 
-  necessary. The texture data payload may be compressed using a OpenGL-vendor-specific 
-  scheme in which case. Only machines having a way of decompressing that data 
-  will be able to display it.</p>
-<p> Published specification: The KTX file format specification will be published 
-  on www.khronos.org within the next 2 weeks by the Khronos Group, an industry 
-  consortium responsible for such standards as OpenGL, OpenGL ES, WebGL and OpenCL.</p>
-<p> Applications that use this media type : Currently none. It is anticipated 
-  it will be widely used by applications built on top of the OpenGL family of 
-  standards, OpenGL, OpenGL ES and WebGL, as the means of delivering texture data.</p>
+<p>Security considerations:</p>
+<blockquote>
+  <p>The ktx type is a binary data stream which contains no executable code that 
+    could disrupt a client processor. There is no provision in the type specification 
+    that would allow authors to insert executable code that would present any 
+    security risk to a client machine. </dt> </p>
+</blockquote>
+<p> Interoperability considerations:</p>
+<blockquote>
+  <p>ktx data includes a field identifying the endianness of the machine which 
+    created the data. Applications reading the data are expected to check this 
+    field and convert the endianness of the data, if necessary. The texture data 
+    payload may be compressed using an OpenGL-vendor-specific scheme. In this 
+    case, only devices or applications having a way of decompressing that data 
+    will be able to display it.</p>
+</blockquote>
+<p> Published specification:</p>
+<blockquote> 
+  <p>The KTX file format specification can be found at <a href="http://www.khronos.org/opengles/sdk/sdk/tools/KTX">http://www.khronos.org/opengles/sdk/sdk/tools/KTX</a>. 
+    This is a temporary location. The Khronos Group, an industry consortium, is 
+    responsible for such standards as OpenGL, OpenGL ES, WebGL and OpenCL.</p>
+</blockquote>
+<p> Applications that use this media type :</p>
+<blockquote>
+  <p>Currently none. It is anticipated it will be widely used by applications 
+    built on top of the OpenGL family of standards, OpenGL, OpenGL ES and WebGL, 
+    as the means of delivering texture data.</p>
+</blockquote>
 <p> Additional information:</p>
 <blockquote>
   <p> Magic number(s): 12 octets - { 0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 
