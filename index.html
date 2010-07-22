@@ -210,24 +210,28 @@ end</pre>
   file offset of the bytesOfKeyValueData field plus the value of the
   bytesOfKeyValueData field plus 4.</p>
 <h3>keyAndValueByteSize</h3>
-<p>keyAndValueByteSize is the number of bytes of combined key and value data 
-  in one key/value pair following the header. This includes the size of 
-  the key, the NUL byte terminating the key, and all the bytes of data in 
-  the value. If the value is a UTF8 string it should be NUL terminated and
-  the keyAndValueByteSize should include the NUL character (but code that
-  reads KTX files must not assume that value fields are NUL terminated).
-  keyAndValueByteSize does not include the bytes in valuePadding.</p>
+<p>keyAndValueByteSize is the number of bytes of combined key and value data in 
+  one key/value pair following the header. This includes the size of the key, 
+  the NUL byte terminating the key, and all the bytes of data in the value. If 
+  the value is a UTF-8 string it should be NUL terminated and the keyAndValueByteSize 
+  should include the NUL character (but code that reads KTX files must not assume 
+  that value fields are NUL terminated). keyAndValueByteSize does not include 
+  the bytes in valuePadding.</p>
 <h3>keyAndValue</h3>
 <p>keyAndValue contains 2 separate sections. First it contains a key encoded in 
-  UTF8. The key must be terminated by a NUL character (a single 0x00 byte). Keys 
+  UTF-8. The key must be terminated by a NUL character (a single 0x00 byte). Keys 
   that begin with the 3 ascii characters 'KTX' or 'ktx' are reserved and must 
   not be used except as described by this spec (this version of the KTX spec defines 
-  a single key). Immediately following the NUL character that terminates the key 
-  is the Value data. The value may consist of any arbitrary data bytes. Any byte 
-  value is allowed. It is encouraged that the value be a NUL terminated UTF8 string, 
-  but this is not required. If the Value data is a string of bytes then the NUL 
-  termination should be included in the keyAndValueByteSize byte count (but programs 
-  that read KTX files must not rely on this).</p>
+  a <a href="#key">single key</a>). Immediately following the NUL character that 
+  terminates the key is the Value data.</p>
+<p>The Value data may consist of any arbitrary data bytes. Any byte value is allowed. 
+  It is encouraged that the value be a NUL terminated UTF-8 string, but this is 
+  not required. If the Value data is binary, it is a sequence of bytes rather 
+  than of words. It is up to the vendor defining the key to specify how those 
+  bytes are to be interpreted (including the endianness of any encoded numbers). 
+  If the Value data is a string of bytes then the NUL termination should be included 
+  in the keyAndValueByteSize byte count (but programs that read KTX files must 
+  not rely on this).</p>
 <h3>valuePadding</h3>
 <p>valuePadding contains between 0 and 3 bytes to ensure that the byte following 
   the last byte in valuePadding is at a file offset that is a multiple of 4. This 
@@ -280,6 +284,7 @@ end</pre>
   has no effect on the mapping from pixels in the file byte stream to texture 
   coordinates. The recommended key to use is:</p>
 <ul>
+  <a name="keys" id="keys"></a> 
   <li>KTXorientation </li>
 </ul>
 <p>It is recommended that viewing and editing tools support at least the following 
@@ -360,8 +365,7 @@ end</pre>
 <p> Published specification:</p>
 <blockquote> 
   <p>The KTX file format specification can be found at <a href="http://www.khronos.org/opengles/sdk/sdk/tools/KTX">http://www.khronos.org/opengles/sdk/sdk/tools/KTX</a>. 
-    This is a temporary location. The Khronos Group, an industry consortium, is 
-    responsible for such standards as OpenGL, OpenGL ES, WebGL and OpenCL.</p>
+    This is a temporary location.</p>
 </blockquote>
 <p> Applications that use this media type :</p>
 <blockquote>
@@ -381,11 +385,12 @@ end</pre>
 <p> Intended usage: COMMON</p>
 <p> Restrictions on usage: none</p>
 <p> Authors: Mark Callow, Georg Kolling, Jacob Str&ouml;m</p>
-<p> Change controller: The Khronos Group</p>
+<p> Change controller: The Khronos Group, an industry consortium, which is responsible 
+  for such standards as OpenGL, OpenGL ES, WebGL and OpenCL.</p>
 <h2>Acknowledgements</h2>
 <p>This specification was produced by the Khronos OpenGL<sup>&reg;</sup> ES Working 
   Group.</p>
-<p>Special thanks to: Acorn Pooley (NVIDIA).</p>
+<p>Special thanks to: Acorn Pooley (NVIDIA), Bruce Merry (ARM).</p>
 <p>&nbsp;</p>
 <hr />
 <h3 class="no-toc"><a name="license" id="license"/>License</h3>
