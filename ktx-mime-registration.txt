@@ -1,0 +1,64 @@
+Type name: Image
+
+Subtype name: ktx
+
+Required parameters: none
+
+Optional parameters: none
+
+Encoding considerations: binary
+
+Security considerations:
+
+The ktx type is a binary data stream which contains no executable code that
+could disrupt a client processor. There is no provision in the type
+specification that would allow authors to insert executable code that would
+present any security risk to a client machine. 
+
+Interoperability considerations:
+
+ktx data includes a field identifying the endianness of the machine which
+created the data. Applications reading the data are expected to check this
+field and convert the endianness of the data, if necessary. The texture data
+payload may be compressed using an OpenGL-vendor-specific scheme. In this
+case, only devices or applications having a way of decompressing that data
+will be able to display it.
+
+Published specification:
+
+The KTX file format specification can be found at
+
+    http://www.khronos.org/opengles/sdk/sdk/tools/KTX.
+
+This is a temporary location. The spec. will be announced next week 7/28
+and the permanent location will settled then.
+
+Applications that use this media type :
+
+Currently none. It is anticipated it will be widely used by applications built
+on top of the OpenGL family of standards, OpenGL, OpenGL ES and WebGL, as
+the means of delivering texture data. WebGL is likely to support this
+media type as a first class citizen.
+
+Additional information:
+
+    Magic number(s): 12 octets
+				 { 0xAB,0x4B,0x54,0x58,0x20,0x31,0x31,0xBB,0x0D,0x0A,0x1A,0x0A }
+    File extension(s): .ktx
+    Macintosh file type code(s):
+
+Person & email address to contact for further information:
+
+    Mark Callow (callow_mark at hicorp.co.jp)
+
+Intended usage: COMMON
+
+Restrictions on usage: none
+
+Authors: Mark Callow, Georg Kolling, Jacob Ström
+
+Change controller:
+
+The Khronos Group, an industry consortium, which is responsible for such
+standards as OpenGL, OpenGL ES, WebGL and OpenCL.
+
