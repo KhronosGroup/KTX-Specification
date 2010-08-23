@@ -28,17 +28,13 @@ Published specification:
 
 The KTX file format specification can be found at
 
-    http://www.khronos.org/opengles/sdk/sdk/tools/KTX.
-
-This is a temporary location. The spec. will be announced next week 7/28
-and the permanent location will settled then.
+    http://www.khronos.org/opengles/sdk/tools/KTX.
 
 Applications that use this media type :
 
 Currently none. It is anticipated it will be widely used by applications built
 on top of the OpenGL family of standards, OpenGL, OpenGL ES and WebGL, as
-the means of delivering texture data. WebGL is likely to support this
-media type as a first class citizen.
+the means of delivering texture data.
 
 Additional information:
 
@@ -55,10 +51,10 @@ Intended usage: COMMON
 
 Restrictions on usage: none
 
-Authors: Mark Callow, Georg Kolling, Jacob Ström
+Authors: Mark Callow, Georg Kolling, Jacob Strom
 
 Change controller:
 
-The Khronos Group, an industry consortium, which is responsible for such
-standards as OpenGL, OpenGL ES, WebGL and OpenCL.
+The Khronos Group, an industry consortium responsible for such standards
+as OpenGL, OpenGL ES, WebGL and OpenCL.
 
