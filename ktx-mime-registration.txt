@@ -15,9 +15,10 @@ could disrupt a client processor. There is no provision in the type
 specification that would allow authors to insert executable code that would
 present any security risk to a client machine. 
 
-Because every item's length is available at it's beginning, there is robust
-defense agains corrupted or fraudelent data. Also the signature bytes
-provide early detection of common file transmission errors.
+Because every item's length is available at its beginning, there is robust
+defense against corrupted or fraudulent data that might overflow a decoder's
+buffer. Also the signature bytes provide early detection of common file
+transmission errors.
 
 Interoperability considerations:
 
