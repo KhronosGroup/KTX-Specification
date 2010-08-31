@@ -15,6 +15,10 @@ could disrupt a client processor. There is no provision in the type
 specification that would allow authors to insert executable code that would
 present any security risk to a client machine. 
 
+Because every item's length is available at it's beginning, there is robust
+defense agains corrupted or fraudelent data. Also the signature bytes
+provide early detection of common file transmission errors.
+
 Interoperability considerations:
 
 ktx data includes a field identifying the endianness of the machine which
@@ -28,13 +32,14 @@ Published specification:
 
 The KTX file format specification can be found at
 
-    http://www.khronos.org/opengles/sdk/tools/KTX.
+    http://www.khronos.org/opengles/sdk/tools/KTX/file_format_spec/
 
 Applications that use this media type :
 
-Currently none. It is anticipated it will be widely used by applications built
-on top of the OpenGL family of standards, OpenGL, OpenGL ES and WebGL, as
-the means of delivering texture data.
+Currently only etcpack (http://devtools.ericsson.com/etc). It is anticipated
+it will be widely used by applications built on top of the OpenGL family of
+standards, OpenGL, OpenGL ES and WebGL, as the means of delivering texture
+data.
 
 Additional information:
 
@@ -55,6 +60,6 @@ Authors: Mark Callow, Georg Kolling, Jacob Strom
 
 Change controller:
 
-The Khronos Group, an industry consortium responsible for such standards
-as OpenGL, OpenGL ES, WebGL and OpenCL.
+The Khronos Group (www.khronos.org), the industry consortium responsible for
+standards such as OpenGL, OpenGL ES, WebGL and OpenCL.
 

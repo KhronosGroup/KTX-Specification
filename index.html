@@ -350,7 +350,10 @@ end</pre>
   <p>The ktx type is a binary data stream which contains no executable code that 
     could disrupt a client processor. There is no provision in the type specification 
     that would allow authors to insert executable code that would present any 
-    security risk to a client machine. </dt> </p>
+    security risk to a client machine.</p>
+  <p>Because every item's length is available at it's beginning, there is robust 
+    defense agains corrupted or fraudelent data. Also the signature bytes provide 
+    early detection of common file transmission errors.</p>
 </blockquote>
 <p> Interoperability considerations:</p>
 <blockquote>
@@ -367,9 +370,10 @@ end</pre>
 </blockquote>
 <p> Applications that use this media type :</p>
 <blockquote>
-  <p>Currently none. It is anticipated it will be widely used by applications 
-    built on top of the OpenGL family of standards, OpenGL, OpenGL ES and WebGL, 
-    as the means of delivering texture data.</p>
+  <p>Currently only <a href="http://devtools.ericsson.com/etc">etcpack</a>. It 
+    is anticipated it will be widely used by applications built on top of the 
+    OpenGL family of standards, OpenGL, OpenGL ES and WebGL, as the means of delivering 
+    texture data.</p>
 </blockquote>
 <p> Additional information:</p>
 <blockquote>
@@ -383,8 +387,9 @@ end</pre>
 <p> Intended usage: COMMON</p>
 <p> Restrictions on usage: none</p>
 <p> Authors: Mark Callow, Georg Kolling, Jacob Str&ouml;m</p>
-<p> Change controller: The Khronos Group, an industry consortium responsible 
-  for such standards as OpenGL, OpenGL ES, WebGL and OpenCL.</p>
+<p> Change controller: <a href="http://www.khronos.org">The Khronos Group</a>, 
+  the industry consortium responsible for standards such as OpenGL, OpenGL ES, 
+  WebGL and OpenCL.</p>
 <h2>Acknowledgements</h2>
 <p>This specification was produced by the Khronos OpenGL<sup>&reg;</sup> ES Working 
   Group.</p>
