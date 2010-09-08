@@ -128,7 +128,11 @@ ul.toc, ol.toc {
 @media aural {  
   h1, h2, h3 { stress: 20; richness: 90 }
   .hide { speak: none }
-  p.copyright { volume: x-soft; speech-rate: x-fast }
+  p.copyright {
+	volume: x-soft;
+	speech-rate: x-fast;
+	color: #666666;
+}
   dt { pause-before: 20% }
   pre { speak-punctuation: code } 
 }

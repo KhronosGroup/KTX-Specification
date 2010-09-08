@@ -20,14 +20,29 @@ defense against corrupted or fraudulent data that might overflow a decoder's
 buffer. Also the signature bytes provide early detection of common file
 transmission errors.
 
+The ktx type may contain texture data compressed using OpenGL standard or
+vendor-specific schemes. These compression schemes are designed so small
+blocks of data (typically around 64 bits) can be decompressed in real time
+into a small block of pixels (typically 4x4) during texel fetch. In such
+schemes it is not possible for a small amount of data to expand enormously
+because the level of compression is limited; the compressed size is
+related directly to the number of pixels in the uncompressed image and
+not to the content of the data.
+
+The ktx type does not provide encryption of the data payload. Users or
+applications wishing or needing to keep their images confidential must
+overlay their own encryption on the ktx data during transmission.
+
 Interoperability considerations:
 
-ktx data includes a field identifying the endianness of the machine which
-created the data. Applications reading the data are expected to check this
-field and convert the endianness of the data, if necessary. The texture data
-payload may be compressed using an OpenGL-vendor-specific scheme. In this
-case, only devices or applications having a way of decompressing that data
-will be able to display it.
+The ktx type includes a field identifying the endianness of the machine
+which created the data. Applications reading the data are expected to
+check this field and convert the endianness, if necessary. The texture
+data payload may be compressed using an OpenGL-vendor-specific scheme. In
+this case, only devices or applications having a matching decompressor
+will be able to display the data. The compression scheme is identified in
+the ktx data so applications can quickly reject data using unsupported
+schemes.
 
 Published specification:
 
