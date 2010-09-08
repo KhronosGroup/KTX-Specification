@@ -69,8 +69,8 @@ div.head { margin-bottom: 1em }
 div.head h1 { margin-top: 2em; clear: both }
 div.head table { margin-left: 2em; margin-top: 2em }
 
-p.copyright { font-size: small }
-p.copyright small { font-size: small }
+p.copyright { font-size: small;	color: #666666 }
+p.copyright small { font-size: small; color: #666666 }
 
 @media screen {  /* hide from IE3 */
 a[href]:hover { background: #ffa }
@@ -128,11 +128,7 @@ ul.toc, ol.toc {
 @media aural {  
   h1, h2, h3 { stress: 20; richness: 90 }
   .hide { speak: none }
-  p.copyright {
-	volume: x-soft;
-	speech-rate: x-fast;
-	color: #666666;
-}
+  p.copyright { volume: x-soft; speech-rate: x-fast; }
   dt { pause-before: 20% }
   pre { speak-punctuation: code } 
 }
