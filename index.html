@@ -27,7 +27,7 @@
     
     
 <h1>KTX File Format Specification</h1>
-<h2 class="no-toc">8 September 2010</h2>
+<h2 class="no-toc">13 September 2010</h2>
 <dl>
   <dt>Editors:</dt> 
   <dd> Mark Callow (<a href="http://www.hicorp.co.jp">HI Corp</a>), 
@@ -334,7 +334,7 @@ end</pre>
 0x32, 0x00, 0x00, 0x00, // Byte[2] valuePadding (2 bytes)
 // TEXTURE DATA
 0x00, 0x00, 0x02, 0x00, // UInt32 imageSize = 512 bytes
-0xD8, 0xD8, 0sxDxDA,  Byte[512] ETC compressed texture data...
+0xD8, 0xD8, 0xD8, 0xDA, // Byte[512] ETC compressed texture data...
 ...</pre>
 <a name="mimeregistration" id="mimeregistration"></a><h2>IANA Mime-Type Registration 
   Information</h2>
