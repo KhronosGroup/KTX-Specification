@@ -129,7 +129,7 @@ end</pre>
   to the endianness of the program (i.e. a little endian program must convert 
   from big endian, and a big endian program must convert to little endian).</p>
 <h3>glType</h3>
-<p>For compressed textures, glType must equal 0. For non-compressed textures, 
+<p>For compressed textures, glType must equal 0. For uncompressed textures, 
   glType specifies the type argument passed to glTexImage*D, usually one of the 
   values from <a href="http://www.opengl.org/registry/doc/glspec44.core.pdf#nameddest=table-8.2">table 8.2</a> of the OpenGL 4.4 specification <a href="#refsGL44">[OPENGL44]</a> (UNSIGNED_BYTE, UNSIGNED_SHORT_5_6_5, 
   etc.)</p>
@@ -140,21 +140,21 @@ end</pre>
   to glType. For texture data which does not depend on platform endianness, 
   including compressed texture data, glTypeSize must equal 1.</p>
 <h3>glFormat</h3>
-<p>For compressed textures, glFormat must equal 0. For non-compressed textures, 
+<p>For compressed textures, glFormat must equal 0. For uncompressed textures, 
   glFormat specifies the format argument passed to glTexImage*D, usually one of 
   the values from <a href="http://www.opengl.org/registry/doc/glspec44.core.pdf#nameddest=table-8.3">table 8.3</a> of the OpenGL 4.4 specification <a href="#refsGL44">[OPENGL44]</a> (RGB, RGBA, BGRA, 
   etc.)</p>
 <h3>glInternalFormat</h3>
 <p> For compressed textures, glInternalFormat must equal the compressed internalformat, 
   usually one of the values from <a href="http://www.opengl.org/registry/doc/glspec44.core.pdf#nameddest=table-8.14">table 8.14</a> of the OpenGL 4.4 specification <a href="#refsGL44">[OPENGL44]</a>. For 
-  non-compressed textures, glInternalFormat specifies the internalformat argument 
+  uncompressed textures, glInternalFormat specifies the internalformat argument 
   passed to glTexImage*D, usually one of the sized internalformats from <a href="http://www.opengl.org/registry/doc/glspec44.core.pdf#nameddest=table-8.12">tables 8.12 & 8.13</a> of the OpenGL 4.4 specification <a href="#refsGL44">[OPENGL44]</a>. The sized format should be chosen 
-  to match the bit depth of the data provided. The glInternalFormat is used when 
-  loading both compressed and uncompressed textures, except when loading into a context that does not support sized formats, such as an OpenGL ES 2.0 context where  the interna lformat is required to be the same value 
+  to match the bit depth of the data provided. glInternalFormat is used when 
+  loading both compressed and uncompressed textures, except when loading into a context that does not support sized formats, such as an OpenGL ES 2.0 context where  the internal format is required to be the same value 
   as the format.</p>
 <h3>glBaseInternalFormat</h3>
-<p> For both compressed and non-compressed textures, glBaseInternalFormat specifies 
-  the base internalformat of the texture, usually one of the values from <a href="http://www.opengl.org/registry/doc/glspec44.core.pdf#nameddest=table-8.11">table 8.11</a> of the OpenGL 4.4 specification <a href="#refsGL44">[OPENGL44]</a> (RGB, RGBA, ALPHA, etc.). For non-compressed 
+<p> For both compressed and uncompressed textures, glBaseInternalFormat specifies 
+  the base internalformat of the texture, usually one of the values from <a href="http://www.opengl.org/registry/doc/glspec44.core.pdf#nameddest=table-8.11">table 8.11</a> of the OpenGL 4.4 specification <a href="#refsGL44">[OPENGL44]</a> (RGB, RGBA, ALPHA, etc.). For uncompressed 
   textures, this value will be the same as glFormat and is used as the internal format 
   when loading into a context that does not support sized formats, such as an OpenGL ES 2.0 context.</p>
 <h3>pixelWidth, pixelHeight, pixelDepth</h3>
