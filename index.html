@@ -20,14 +20,14 @@
 <!--end-logo-->
 
 <h1>KTX File Format Specification</h1>
-<h2 class="no-toc">27 August 2013</h2>
+<h2 class="no-toc">3<sup>rd</sup> September 2013</h2>
 <dl>
   <dt>Editors:</dt>
-  <dd> Mark Callow (<a href="http://www.hicorp.co.jp">HI Corp</a>), 
+  <dd> Mark Callow (<a href="http://www.artspark.co.jp">ArtSpark</a>/<a href="http://www.hicorp.co.jp">HI Corp</a>), 
     Georg Kolling (<a href="www.imgtec.com">Imagination Technologies</a>), and 
     Jacob Str&ouml;m (<a href="http://www.ericsson.com/">Ericsson AB</a>) </dd>
 </dl>
-<p class="copyright">&copy; 2010 The Khronos Group Inc. All Rights Reserved. See <a href="#license">license</a>.</p>
+<p class="copyright">&copy; 2013 The Khronos Group Inc. All Rights Reserved. See <a href="#license">license</a>.</p>
 <hr />
 <h2 class="no-toc">Abstract</h2>
 <p> KTX is a format for storing textures for OpenGL and OpenGL ES applications. 
@@ -130,7 +130,7 @@ end</pre>
   from big endian, and a big endian program must convert to little endian).</p>
 <h3>glType</h3>
 <p>For compressed textures, glType must equal 0. For uncompressed textures, 
-  glType specifies the type argument passed to glTexImage*D, usually one of the 
+  glType specifies the <code>type</code> parameter passed to <code>glTex{,Sub}Image*D</code>, usually one of the 
   values from <a href="http://www.opengl.org/registry/doc/glspec44.core.pdf#nameddest=table-8.2">table 8.2</a> of the OpenGL 4.4 specification <a href="#refsGL44">[OPENGL44]</a> (UNSIGNED_BYTE, UNSIGNED_SHORT_5_6_5, 
   etc.)</p>
 <h3>glTypeSize</h3>
@@ -141,22 +141,21 @@ end</pre>
   including compressed texture data, glTypeSize must equal 1.</p>
 <h3>glFormat</h3>
 <p>For compressed textures, glFormat must equal 0. For uncompressed textures, 
-  glFormat specifies the format argument passed to glTexImage*D, usually one of 
+  glFormat specifies the <code>format</code> parameter passed to <code>glTex{,Sub}Image*D</code>, usually one of 
   the values from <a href="http://www.opengl.org/registry/doc/glspec44.core.pdf#nameddest=table-8.3">table 8.3</a> of the OpenGL 4.4 specification <a href="#refsGL44">[OPENGL44]</a> (RGB, RGBA, BGRA, 
   etc.)</p>
 <h3>glInternalFormat</h3>
-<p> For compressed textures, glInternalFormat must equal the compressed internalformat, 
+<p> For compressed textures, glInternalFormat must equal the compressed internal format, 
   usually one of the values from <a href="http://www.opengl.org/registry/doc/glspec44.core.pdf#nameddest=table-8.14">table 8.14</a> of the OpenGL 4.4 specification <a href="#refsGL44">[OPENGL44]</a>. For 
-  uncompressed textures, glInternalFormat specifies the internalformat argument 
-  passed to glTexImage*D, usually one of the sized internalformats from <a href="http://www.opengl.org/registry/doc/glspec44.core.pdf#nameddest=table-8.12">tables 8.12 & 8.13</a> of the OpenGL 4.4 specification <a href="#refsGL44">[OPENGL44]</a>. The sized format should be chosen 
+  uncompressed textures, glInternalFormat specifies the <code>internalformat</code> parameter 
+  passed to <code>glTexStorage*D</code> or <code>glTexImage*D</code>, usually one of the sized internal formats from <a href="http://www.opengl.org/registry/doc/glspec44.core.pdf#nameddest=table-8.12">tables 8.12 & 8.13</a> of the OpenGL 4.4 specification <a href="#refsGL44">[OPENGL44]</a>. The sized format should be chosen 
   to match the bit depth of the data provided. glInternalFormat is used when 
-  loading both compressed and uncompressed textures, except when loading into a context that does not support sized formats, such as an OpenGL ES 2.0 context where  the internal format is required to be the same value 
-  as the format.</p>
+  loading both compressed and uncompressed textures, except when loading into a context that does not support sized formats, such as an unextended OpenGL ES 2.0 context where  the <code>internalformat</code> parameter is required to have the same value 
+  as the <code>format</code> parameter.</p>
 <h3>glBaseInternalFormat</h3>
 <p> For both compressed and uncompressed textures, glBaseInternalFormat specifies 
-  the base internalformat of the texture, usually one of the values from <a href="http://www.opengl.org/registry/doc/glspec44.core.pdf#nameddest=table-8.11">table 8.11</a> of the OpenGL 4.4 specification <a href="#refsGL44">[OPENGL44]</a> (RGB, RGBA, ALPHA, etc.). For uncompressed 
-  textures, this value will be the same as glFormat and is used as the internal format 
-  when loading into a context that does not support sized formats, such as an OpenGL ES 2.0 context.</p>
+  the base internal format of the texture, usually one of the values from <a href="http://www.opengl.org/registry/doc/glspec44.core.pdf#nameddest=table-8.11">table 8.11</a> of the OpenGL 4.4 specification <a href="#refsGL44">[OPENGL44]</a> (RGB, RGBA, ALPHA, etc.). For uncompressed 
+  textures, this value will be the same as glFormat and is used as the <code>internalformat</code> parameter when loading into a context that does not support sized formats, such as an unextended OpenGL ES 2.0 context.</p>
 <h3>pixelWidth, pixelHeight, pixelDepth</h3>
 <p> The size of the texture image for level 0, in pixels. No rounding to block
   sizes should be applied for block compressed textures.</p>
@@ -384,8 +383,11 @@ end</pre>
 <dl>
   <dt id="refsGL44">[OPENGL44]</dt>
   <dd><cite><a href="http://www.opengl.org/registry/doc/glspec44.core.pdf"> OpenGL® 4.4 Core Profile</a></cite>, 
-    Mark Segal, Kurt Akeley, Jon Leech, July 2013. </dd>
+    Mark Segal, Kurt Akeley, Jon Leech, July 2013.</dd>
 </dl>
+<div class="note">
+  <p> This reference is not intended to imply that values in file header fields are limited to those in the referenced tables. New values may be introduced at any time by OpenGL {,ES} extensions or new versions.</p>
+</div>
 <h3>Other references</h3>
 <h2>Acknowledgements</h2>
 <p>This specification was produced by the Khronos OpenGL<sup>&reg;</sup> ES Working 
@@ -393,9 +395,9 @@ end</pre>
 <p>Special thanks to: Acorn Pooley (NVIDIA), Bruce Merry (ARM).</p>
 <h2>Revision History</h2>
 <dl>
-  <dt>27 August 2013</dt>
+  <dt>03  Sept 2013</dt>
   <dd>Clarified that glBaseInternalFormat is only used when a context does not support sized
-    formats and updated references to point to the OpenGL 4.4 specification. Made normative reference to the OpenGL specification and added hyperlinks.</dd>
+    formats, updated references to point to the OpenGL 4.4 specification with hyperlinks and included TexStorage*D and TexSubImage*D with the functions whose parameters are provided by a KTX file header.</dd>
 </dl>
 <hr />
 <h3 class="no-toc"><a name="license" id="license"/>License</h3>
