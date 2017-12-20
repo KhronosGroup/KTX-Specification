@@ -1,9 +1,12 @@
-= KTX File Format Specification: Version 2
+= KTX File Format Specification
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL and Vulkan textures.
-:revnumber: 0.0
+:docver: 2
+:ktxver: 2.0
+:revnumber: {ktxver}.{docver}
 :revdate: {docdate}
+:version-label: Format and Document Version
 :lang: en
 :docinfo1:
 :doctype: article
@@ -20,17 +23,16 @@
 :icons: font
 
 [discrete]
-=== Document Revision: {revnumber}
+==== Format Version: 2.0
 
 [discrete]
-=== Revision Date: {revdate}
+==== Document Version: {revnumber}
 
 [discrete]
-==== Editor
-{author} ({author_org})
+==== Editor: {author} ({author_org})
 
-[discrete]
-=== Abstract
+[abstract]
+== Abstract
 KTX2 is a format for storing textures for OpenGL, OpenGL ES and Vulkan applications.
 It is distinguished by the simplicity of the loader required to instantiate texture
 objects from the file contents.
@@ -76,7 +78,6 @@ for each keyValuePair that fits in bytesOfKeyValueData
     Byte     valuePadding[3 - ((keyAndValueByteSize + 3) % 4)]
 end
 
-UInt32 totalImagesSize
 for each mipmap_level in numberOfMipmapLevels <2>
     UInt32 imageSize; 
     for each array_element in numberOfArrayElements <2>
@@ -113,7 +114,7 @@ This can also be expressed using C-style character definitions as:
 [listing]
 ----
 Byte[12] FileIdentifier = {
-  '«', 'K', 'T', 'X', ' ', '2', '0', '»', '\r', '\n', '\x1A', '\n'
+  '«', 'K', 'T', 'X', ' ', '2', '2', '»', '\r', '\n', '\x1A', '\n'
 }
 ----
 The rationale behind the choice values in the identifier is based on the rationale 
@@ -125,7 +126,7 @@ problems.
     text file may be misrecognized as a KTX file.
   * Byte [0] also catches bad file transfers that clear bit 7.
   * Bytes [1..6] identify the format, and are the ascii values for the string 
-    "KTX 20".
+    "KTX 22".
   * Byte [7] is for aesthetic balance with byte 1 (they are a matching pair 
     of double-angle quotation marks).
   * Bytes [8..9] form a CR-LF sequence which catches bad file transfers that 
@@ -288,7 +289,7 @@ An arbitrary number of key/value pairs may follow the header. This
 can be used to encode any arbitrary data. The `bytesOfKeyValueData`
 field indicates the total number of bytes of key/value data including
 all `keyAndValueByteSize` fields, all `keyAndValue` fields, and all
-`valuePadding` fields. The file offset of the `totalImagesSize` field
+`valuePadding` fields. The file offset of the first `imagesSize` field
 is located at the file offset of the `bytesOfKeyValueData` field plus
 the value of the `bytesOfKeyValueData` field plus 4.
 
@@ -325,37 +326,10 @@ that read KTX files must not rely on this).
 `valuePadding` contains between 0 and 3 bytes to ensure that the byte
 following the last byte in `valuePadding` is at a file offset that
 is a multiple of 4. This ensures that every `keyAndValueByteSize`
-ifdef::totalImagesSize[]
-field, and the `totalImagesSize` Size field, is 4 byte aligned.
-endif::[]
-ifndef::totalImagesSize[]
-field is 4 byte aligned.
-endif::[]
-This padding is included in the `bytesOfKeyValueData` field but not
-the individual `keyAndValueByteSize` fields.
+field is 4 byte aligned. This padding is included in the
+`bytesOfKeyValueData` field but not the individual `keyAndValueByteSize`
+fields.
 
-ifdef::totalImagesSize[]
-=== totalImagesSize
-For most textures `totalImagesSize` is the number of bytes of pixel data
-in all the LOD levels. It is the sum of all the `imageSize`s plus all
-the `mipPadding`s.
-
-The exception is non-array cubemap textures (any texture where
-`numberOfFaces` is 6 and `numberOfArrayElements` is 0). For these
-textures `totalImamgesSize` = `imagesize` * 6 + sum(`cubePadding`)
-+ sum(`mipPadding`).
-
-[TIP]
-.Rationale
-====
-This value is useful for smooth creation of a buffer to hold all
-the image data, e.g, a Vulkan staging buffer. Without this field,
-applications need either large switch statements to determine size from
-`glInternalformat` or `vkFormat` or they will have to read, rewind and
-read the file again.
-====
-
-endif::totalImagesSize[]
 === imageSize
 For most textures `imageSize` is the number of bytes of pixel data
 in the current LOD level. This includes all z slices, all faces,
@@ -514,15 +488,12 @@ Can we guarantee the DF descriptor blocks are always a multple of 4 bytes?::
 +
 _Unresolved._
 
-ifdef::totalImagesSize[]
-Should KTX2 support texture or level sizes > 4GB?::
-  _Discussion:_ In other words, should `totalImagesSize` or
-  `imageSize` be 64-bit type?
-endif::[]
-ifndef::totalImagesSize[]
 Should KTX2 support level sizes > 4GB?::
-  _Discussion:_ In other words, should `imageSize` be 64-bit type?
-endif::[]
+  _Discussion:_ Users have reported needing base levels > 4GB for 3D
+  textures.  For this the `imageSize` field needs to be 64-bits. Loaders
+  on 32-bit systems will have to ensure correct handling of this and
+  check that `imageSize` \<= 4GB, before loading.
+  system?
 +
 _Unresolved:_
 
@@ -611,10 +582,11 @@ You must insert a new row containing the current values of the
 revnumber and revdate attributes into the table when creating
 a new revision.
 ////
-[.revhistory]
+[.revhistory,cols="^25,^20,<55",options="header"]
 |===
-| Version | Date | Remark
-| {revnumber} | {revdate} | First incarnation.
+| Document Version |    Date     | Remark
+|         1        | 2017-12-08  | First incarnation.
+|     {docver}     |  {revdate}  | Update discussion in >4GB issue.
 |===
 
 // vim: filetype=asciidoc ai expandtab tw=72 ts=4 sts=2 sw=2
