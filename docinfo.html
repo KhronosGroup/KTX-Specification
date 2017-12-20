@@ -1,0 +1,38 @@
+<link rel="shortcut icon" href="images/ktx_document.ico" type="image/x-icon" />
+<style>
+body {
+  /* Put Khronos ribbon on left side */
+  background-attachment: fixed;
+  background-image: url(images/logo-WD.png);
+  background-position: left top;
+  background-repeat: no-repeat/*, no-repeat*/;
+  /* Override default Asciidoctor margin settings to center the page. */
+  margin: 2em auto 2em auto;
+  max-width: 50em;
+}
+
+div.legal p {
+  font-size: 60%;
+}
+
+#header {
+  /* Show logos before the document title. The only way is to include
+   * them in docinfo.html and the only way with valid HTML5 is to put
+   * it in the style sheet which means making it part of the
+   * background. Do it in #header not body to get the logos aligned
+   * with the margins.
+   */
+  background-attachment: scroll, scroll;
+  /*background-image: urlnot(images/KhronosGroup-3D.png), urlnot(images/cubemap.png);*/
+  background-image: url(images/KhronosGroup-3D.png), url(images/ktx_document.svg);
+  /* To align exactly with the text, change 'left' to .9375em,
+   * the Asciidoctor style-sheet specified padding.
+   */
+  background-position: left 30px, right top;
+  background-repeat: no-repeat;
+  /*background-size: auto auto, 120px auto;*/
+  background-size: auto auto, 90px auto;
+  /* Give the logos some space. */
+  padding-top: 90px;
+}
+</style>

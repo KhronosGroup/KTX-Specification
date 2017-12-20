@@ -1,8 +1,16 @@
 ## Home of the KTX File Format Specification
 
-Publication requires copying all the files in this repo to the web server except for `KTX_file_format.txt` and `ktx-mime-registration.txt`.
+Run
 
-The canonical spec. text is in the file `index.html`.
+```.bash
+make
+```
+
+in a Unix-like environment to generate the publishable spec.
+This is the single file `out/index.html`. Everything needed
+is inlined.
+
+The canonical spec. text is in the file `ktxspec.adoc`.
 
 
 
