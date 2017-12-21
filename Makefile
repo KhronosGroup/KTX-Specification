@@ -15,7 +15,7 @@ $(out)/index.html: ktxspec.adoc $(out) $(intermediate)/docinfo.html
 $(out)/ktx.pdf:
 
 $(intermediate) $(out):
-	mkdir $@
+	mkdir -p $@
 
 clean:
 	rm -rf $(intermediate)
