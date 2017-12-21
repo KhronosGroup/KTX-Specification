@@ -6,7 +6,7 @@
 :ktxver: 2.0
 :revnumber: {ktxver}.{docver}
 :revdate: {docdate}
-:version-label: Format and Document Version
+:version-label: Version
 :lang: en
 :docinfo1:
 :doctype: article
