@@ -2,9 +2,9 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL and Vulkan textures.
-:docver: 2
+:docrev: 1
 :ktxver: 2.0
-:revnumber: {ktxver}.{docver}
+:revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
 :version-label: Version
 :lang: en
@@ -26,7 +26,7 @@
 ==== Format Version: 2.0
 
 [discrete]
-==== Document Version: {docver}
+==== Document Revision: {docrev}
 
 [discrete]
 ==== Editor: {author} ({author_org})
@@ -154,8 +154,8 @@ and a big endian program must convert to little endian).
 === glType
 For compressed textures, `glType` must equal 0. For uncompressed
 textures, `glType` specifies the type parameter passed to glTex{,Sub}Image*D,
-usually one of the values from table 8.2 of the OpenGL 4.4 specification
-<<OPENGL44>> (UNSIGNED_BYTE, UNSIGNED_SHORT_5_6_5, etc.)
+usually one of the values from table 8.2 of the OpenGL 4.6 specification
+<<OPENGL46>> (UNSIGNED_BYTE, UNSIGNED_SHORT_5_6_5, etc.)
 
 === glTypeSize
 `glTypeSize` specifies the data type size that should be used when
@@ -169,16 +169,16 @@ must equal 1.
 For compressed textures, `glFormat` must equal 0. For uncompressed
 textures, `glFormat` specifies the format parameter passed to
 glTex{,Sub}Image*D, usually one of the values from table 8.3 of the
-OpenGL 4.4 specification <<OPENGL44>> (RGB, RGBA, BGRA, etc.)
+OpenGL 4.6 specification <<OPENGL46>> (RGB, RGBA, BGRA, etc.)
 
 === glInternalFormat
 For compressed textures, `glInternalFormat` must equal the compressed
 internal format, usually one of the values from table 8.14 of the
-OpenGL 4.4 specification <<OPENGL44>>. For uncompressed textures,
+OpenGL 4.6 specification <<OPENGL46>>. For uncompressed textures,
 `glInternalFormat` specifies the internalformat parameter passed to
 glTexStorage*D or glTexImage*D, usually one of the sized internal
-formats from tables 8.12 & 8.13 of the OpenGL 4.4 specification
-<<OPENGL44>>. The sized format should be chosen to match the bit depth
+formats from tables 8.12 & 8.13 of the OpenGL 4.6 specification
+<<OPENGL46>>. The sized format should be chosen to match the bit depth
 of the data provided. `glInternalFormat` is used when loading both
 compressed and uncompressed textures, except when loading into a
 context that does not support sized formats, such as an unextended
@@ -199,7 +199,7 @@ and `gl.h` will have to be discussed by the working groups.
 === glBaseInternalFormat
 For both compressed and uncompressed textures, `glBaseInternalFormat`
 specifies the base internal format of the texture, usually one of
-the values from table 8.11 of the OpenGL 4.4 specification <<OPENGL44>>
+the values from table 8.3 of the OpenGL 4.6 specification <<OPENGL46>>
 (RGB, RGBA, ALPHA, etc.). For uncompressed textures, this value
 will be the same as `glFormat` and is used as the internalformat
 parameter when loading into a context that does not support sized
@@ -356,10 +356,10 @@ at a file offset that is a multiple of 4.
 == General comments
 The unpack alignment is 4. I.e. uncompressed pixel data is packed
 according to the rules described in section 8.4.4.1 of the OpenGL
-4.4 specification <<OPENGL44>> for a GL_UNPACK_ALIGNMENT of 4.
+4.6 specification <<OPENGL46>> for a GL_UNPACK_ALIGNMENT of 4.
 
-Values listed in tables and sections referred to in the OpenGL 4.4
-<<OPENGL44>> and Vulkan 1.0 <<VULKAN10>> specifications may be
+Values listed in tables and sections referred to in the OpenGL 4.6
+<<OPENGL46>> and Vulkan 1.0 <<VULKAN10>> specifications may be
 supplemented by extensions. The references are given as examples
 and do not imply that all of those texture types can be loaded in
 any particular version of OpenGL {,ES} or Vulkan.
@@ -544,8 +544,9 @@ _Unresolved:_
 [bibliography]
 === Normative References
 
-- [[[OPENGL44]]] http://www.opengl.org/registry/doc/glspec44.core.pdf[OpenGL^®^ 4.4 Core Profile].
-Mark Segal, Kurt Akeley, Jon Leech. The Khronos Group, July 2013.
+- [[[OPENGL46]]] https://www.khronos.org/registry/OpenGL/specs/gl/glspec46.core.pdf[The
+  OpenGL^®^ Graphics System, A Specification (Version 4.6 (Core Profile))].
+Mark Segal, Kurt Akeley; Editor: Jon Leech. The Khronos Group, July 2017.
 
 - [[[VULKAN10]]] https://www.khronos.org/registry/vulkan/specs/1.0/html/vkspec.html[Vulkan^®^
 1.0.66 Specification].
@@ -584,9 +585,10 @@ a new revision.
 ////
 [.revhistory,cols="^25,^20,<55",options="header"]
 |===
-| Document Version |    Date     | Remark
-|         1        | 2017-12-08  | First incarnation.
-|     {docver}     |  {revdate}  | Update discussion in >4GB issue.
+| Document Revision |    Date     | Remark
+|         0         | 2017-12-08  | First incarnation.
+|     {docrev}      |  {revdate}  | Update discussion in >4GB issue and
+                                    OpenGL references.
 |===
 
 // vim: filetype=asciidoc ai expandtab tw=72 ts=4 sts=2 sw=2
