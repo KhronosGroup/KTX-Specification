@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL and Vulkan textures.
-:docrev: 1
+:docrev: draft1
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -524,7 +524,7 @@ Should KTX2 support contexts that do not support sized internal fomats?::
 +
 _Unresolved:_
 
-Use character or binary values for component swizzles?::
+Use alphanumeric characters or binary values for component swizzles?::
   _Discussion:_ Values in the swizzle metadata could be either a
   character from the set [01rgba] or numeric values corresponding to the
   VkComponentSwizzle enum values from 0 to 6. In the latter case values
@@ -532,11 +532,12 @@ Use character or binary values for component swizzles?::
   GL token values have been eliminated from this choice because they
   are not user friendly.
 +
-_Unresolved:_
+_Resolved:_ Use alphanumeric characters from the set [01rgba].
 
-What is needed to support tiling?::
-  _Discussion:_ Vulkan and recent versions of OpenGL have texture
-  tiling. What is needed here to support it?
+What is needed to support sparse textures?::
+  _Discussion:_ Sparse textures are provided by the
+  `GL_ARB_sparse_textures` extension and are a standard feature of
+  Vulkan.  Are any additional KTX features needed to support them?
 +
 _Unresolved:_
 
@@ -586,9 +587,9 @@ a new revision.
 [.revhistory,cols="^25,^20,<55",options="header"]
 |===
 | Document Revision |    Date     | Remark
-|         0         | 2017-12-08  | First incarnation.
-|     {docrev}      |  {revdate}  | Update discussion in >4GB issue and
-                                    OpenGL references.
+|      draft0       | 2017-12-08  | First incarnation.
+|     {docrev}      |  {revdate}  | Update issue discussions and change
+                                    OpenGL references to 4.6.
 |===
 
 // vim: filetype=asciidoc ai expandtab tw=72 ts=4 sts=2 sw=2
