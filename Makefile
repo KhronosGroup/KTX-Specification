@@ -6,7 +6,10 @@ intermediate=build
 
 all: $(out)/index.html #$(out)/ktx.pdf
 
-$(intermediate)/docinfo.html: docinfo.html $(intermediate) inlineimages.pl
+inlined_images := ktx_document.svg ktx_document.ico khronos.svg
+inlined_images := $(addprefix images/,${inlined_images})
+
+$(intermediate)/docinfo.html: docinfo.html $(intermediate) inlineimages.pl $(inlined_images)
 	./inlineimages.pl < $< > $@
 
 $(out)/index.html: ktxspec.adoc $(out) $(intermediate)/docinfo.html
