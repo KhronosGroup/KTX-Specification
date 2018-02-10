@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL and Vulkan textures.
-:docrev: draft1
+:docrev: draft2
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -40,7 +40,7 @@ objects from the file contents.
 
 It extends the KTX format with support for easier loading of Vulkan
 textures, easier use by non-OpenGL and non-Vulkan applications, storage of
-multisample images and streaming.
+multisample images, streaming and global compression.
 
 [discrete]
 === Status of this document
@@ -49,6 +49,7 @@ WIP. Ready for initial review; definitely not ready for implementation.
 
 == File Structure
 
+.Basic Structure
 [source,c]
 ----
 Byte[12] identifier
@@ -80,14 +81,27 @@ for each keyValuePair that fits in bytesOfKeyValueData
     Byte     valuePadding[3 - ((keyAndValueByteSize + 3) % 4)]
 end
 
-for each mipmap_level in numberOfMipmapLevels <2>
+UInt32 dataCompressionScheme
+UInt32 totalDataSize
+UInt32 uncompressedDataSize
+
+Byte images[totalDataSize] <2>
+----
+<1> These 5 lines are a Data Format Descriptor. See <<_data_format_descriptor>>.
+<2> When `dataCompressionScheme == 0` or after decompression `images`
+    has the following structure.
+
+.Uncompressed `images` Structure
+[source, c]
+----
+for each mipmap_level in numberOfMipmapLevels <1>
     UInt32 imageSize; 
-    for each array_element in numberOfArrayElements <2>
+    for each array_element in numberOfArrayElements <1>
        for each face in numberOfFaces
-           for each z_slice in pixelDepth <2>
-               for each row or row_of_blocks in pixelHeight <2>
+           for each z_slice in pixelDepth <1>
+               for each row or row_of_blocks in pixelHeight <1>
                    for each pixel or block_of_pixels in pixelWidth
-                       Byte data[format-specific-number-of-bytes] <3>
+                       Byte data[format-specific-number-of-bytes] <2>
                    end
                end
            end
@@ -97,9 +111,8 @@ for each mipmap_level in numberOfMipmapLevels <2>
     Byte mipPadding[3 - ((imageSize + 3) % 4)]
 end
 ----
-<1> These 5 lines are a Data Format Descriptor. See <<KDF12>>.
-<2> Replace with 1 if this field is 0.
-<3> Uncompressed texture data matches a GL_UNPACK_ALIGNMENT of 4.
+<1> Replace with 1 if this field is 0.
+<2> Uncompressed texture data matches a GL_UNPACK_ALIGNMENT of 4.
 
 == Field Descriptions
 
@@ -155,36 +168,38 @@ of the program (i.e. a little endian program must convert from big
 endian, and a big endian program must convert from little endian).
 
 === glType
-For compressed textures, `glType` must equal 0. For uncompressed
-textures, `glType` specifies the type parameter passed to glTex{,Sub}Image*D,
-usually one of the values from table 8.2 of the OpenGL 4.6 specification
-<<OPENGL46>> (UNSIGNED_BYTE, UNSIGNED_SHORT_5_6_5, etc.)
+For block compressed textures, `glType` must equal 0. For uncompressed
+textures, `glType` specifies the type parameter passed to
+glTex{,Sub}Image*D, usually one of the values from table 8.2 of the
+OpenGL 4.6 specification <<OPENGL46>> (UNSIGNED_BYTE, UNSIGNED_SHORT_5_6_5,
+etc.)
 
 === glTypeSize
 `glTypeSize` specifies the data type size that should be used when
 endianness conversion is required for the texture data stored in
 the file. If glType is not 0, this should be the size in bytes
 corresponding to glType. For texture data which does not depend on
-platform endianness, including compressed texture data, `glTypeSize`
-must equal 1.
+platform endianness, including block compressed texture data,
+`glTypeSize` must equal 1.
 
 === glFormat
-For compressed textures, `glFormat` must equal 0. For uncompressed
-textures, `glFormat` specifies the format parameter passed to
-glTex{,Sub}Image*D, usually one of the values from table 8.3 of the
-OpenGL 4.6 specification <<OPENGL46>> (RGB, RGBA, BGRA, etc.)
+For block compressed textures, `glFormat` must equal 0. For
+uncompressed textures, `glFormat` specifies the format parameter
+passed to glTex{,Sub}Image*D, usually one of the values from table
+8.3 of the OpenGL 4.6 specification <<OPENGL46>> (RGB, RGBA, BGRA,
+etc.)
 
 === glInternalFormat
-For compressed textures, `glInternalFormat` must equal the compressed
-internal format, usually one of the values from table 8.14 of the
-OpenGL 4.6 specification <<OPENGL46>>. For uncompressed textures,
-`glInternalFormat` specifies the internalformat parameter passed to
-glTexStorage*D or glTexImage*D, usually one of the sized internal
-formats from tables 8.12 & 8.13 of the OpenGL 4.6 specification
-<<OPENGL46>>. The sized format should be chosen to match the bit depth
-of the data provided. `glInternalFormat` is used when loading both
-compressed and uncompressed textures, except when loading into a
-context that does not support sized formats, such as an unextended
+For block compressed textures, `glInternalFormat` must equal the
+compressed internal format, usually one of the values from table
+8.14 of the OpenGL 4.6 specification <<OPENGL46>>. For uncompressed
+textures, `glInternalFormat` specifies the internalformat parameter
+passed to glTexStorage*D or glTexImage*D, usually one of the sized
+internal formats from tables 8.12 & 8.13 of the OpenGL 4.6 specification
+<<OPENGL46>>. The sized format should be chosen to match the bit
+depth of the data provided. `glInternalFormat` is used when loading
+both compressed and uncompressed textures, except when loading into
+a context that does not support sized formats, such as an unextended
 OpenGL ES 2.0 context where the internalformat parameter is required
 to have the same value as the format parameter.
 
@@ -200,7 +215,7 @@ and `gl.h` will have to be discussed by the working groups.
 ====
 
 === glBaseInternalFormat
-For both compressed and uncompressed textures, `glBaseInternalFormat`
+For both block compressed and uncompressed textures, `glBaseInternalFormat`
 specifies the base internal format of the texture, usually one of
 the values from table 8.3 of the OpenGL 4.6 specification <<OPENGL46>>
 (RGB, RGBA, ALPHA, etc.). For uncompressed textures, this value
@@ -235,17 +250,18 @@ be 1. Cube map faces are stored in the order: +X, -X, +Y, -Y, +Z,
 === numberOfMipmapLevels
 `numberOfMipmapLevels` must equal 1 for non-mipmapped textures. For
 mipmapped textures, it equals the number of mipmaps. Mipmaps are
-stored in order from largest size to smallest size. The first mipmap
-level is always level 0. A KTX file does not need to contain a
-complete mipmap pyramid. If `numberOfMipmapLevels` equals 0, it
-indicates that a full mipmap pyramid should be generated from level
-0 at load time (this is usually not allowed for compressed formats).
+ordered according to the value of the `levelOrder` field.  A KTX
+file does not need to contain a complete mipmap pyramid. If
+`numberOfMipmapLevels` equals 0, it indicates that a full mipmap
+pyramid should be generated from level 0 at load time (this is
+usually not allowed for compressed formats).
 
 === levelOrder
 `levelOrder` indicates the ordering of the mipmap levels.  If 0,
-it indicates the data is ordered from base level (the largest) to
-max level (the smallest).  If 1, it indicates that image data is
-ordered from the max level to base level.
+it indicates the levels are ordered from base level (the largest)
+to max level (the smallest).  If 1, it indicates the levels ordered
+from the max level to base level. If `numberOfMipmapLevels == 0`,
+`levelOrder` must equal 0.
 
 [TIP]
 .Rationale
@@ -257,15 +273,18 @@ quickly without waiting for the entire texture data.
 ====
 
 === Data Format Descriptor
-The next 4 items combined form a _Data Format Descriptor, (dfDescriptor)_,
-that describes the layout of the texel blocks in the image data.
+The next 3 items combined form a _Data Format Descriptor_, (dfDescriptor),
+that describing the layout of the texel blocks in `data`.
 The full specification for this can be found in the Khronos Data
 Format 1.2 Specification <<KDF12>>.
 
 The dfDescriptor is partially expanded here in order to provide
 sufficient information for a KTX2 file to be parsed without having to
-refer to <<KDF12>>. If consists of one or more _Descriptor Blocks
-(dfDescriptorBlock)_.
+refer to <<KDF12>>. If consists of one or more _Descriptor Blocks_
+(dfDescriptorBlock).
+
+The Data Format Descriptor describes the  data as it is when
+`dataCompressionScheme == 0` or after decompression.
 
 [TIP]
 .Rationale
@@ -289,7 +308,7 @@ indicates the total number of bytes in the dfDescriptor including
 all dfDescriptorBlocks and all `blockPadding` fields.
 
 ==== descriptorBlock
-A `Descriptor block` as defined in <<KDF12>>, the high-order 16
+A `Descriptor Block` as defined in <<KDF12>>, the high-order 16
 bits of its first UInt32 give the descriptor type and the high-order
 16 bits of the second UInt32 give the `descriptor_block_size`.
 
@@ -310,16 +329,16 @@ An arbitrary number of key/value pairs may follow the header. This
 can be used to encode any arbitrary data. The `bytesOfKeyValueData`
 field indicates the total number of bytes of key/value data including
 all `keyAndValueByteSize` fields, all `keyAndValue` fields, and all
-`valuePadding` fields. The file offset of the first `imagesSize` field
-is located at the file offset of the `bytesOfKeyValueData` field plus
-the value of the `bytesOfKeyValueData` field plus 4.
+`valuePadding` fields. The file offset of the `dataCompressionScheme`
+field is located at the file offset of the `bytesOfKeyValueData`
+field plus the value of the `bytesOfKeyValueData` field plus 4.
 
 === keyAndValueByteSize
 `keyAndValueByteSize` is the number of bytes of combined key and value
 data in one key/value pair following the header. This includes the
 size of the key, the NUL byte terminating the key, and all the bytes
 of data in the value. If the value is a UTF-8 string it should be
-NUL terminated and the `keyAndValueByteSize` should include the NUL
+NUL terminated and the `keyAndValueByteSize` should include tlhe NUL
 character (but code that reads KTX files must not assume that value
 fields are NUL terminated). `keyAndValueByteSize` does not include
 the bytes in `valuePadding`.
@@ -350,6 +369,49 @@ is a multiple of 4. This ensures that every `keyAndValueByteSize`
 field is 4-byte aligned. This padding is included in the
 `bytesOfKeyValueData` field but not the individual `keyAndValueByteSize`
 fields.
+
+=== dataCompressionScheme
+`dataCompressionScheme` indicates if an optional compression scheme
+has been applied globally to `images`. This is entirely separate
+from, and should not be confused with, block compressed texture
+formats where the texture in compressed form can be  sampled by the
+GPU. When a global compression scheme is used, the image data must
+be decompressed prior to GPU sampling. `dataCompressionScheme` must
+be one of the following values:
+
+[width=50%,cols="^30,<70"]
+|===
+| 0           | Uncompressed
+| 1           | ZLib compression
+| 2           | tANS (?)
+| 3･･･2^32^-1 | Reserved
+|===
+
+WARNING: Need references.
+
+A registry will be established to issue values in the reserved range
+for vendor compression schemes thus avoiding conflicts.
+
+[NOTE]
+====
+Global compression is incompatible with streaming. The entire file
+content must be available before it can be decompressed.
+====
+
+=== totalDataSize
+The total size of the data in `images`.
+
+=== uncompressedDataSize
+The size of the data in `images` when uncompressed. When
+`dataCompressionScheme` is 0, `totalDataSize` must have the same
+value as this. `uncompressedDataSize` includes the sum of all
+`mipPadding` fields.
+
+=== images
+A block containing all image data for all the images in the texture.
+When `dataCompressionScheme != 0` the content is defined by the
+compression scheme. The result of decompression must be a structure
+identical to that when `dataCompressionScheme == 0`.
 
 === imageSize
 For most textures `imageSize` is the number of bytes of pixel data
@@ -564,15 +626,16 @@ Is anything needed to support sparse textures?::
 _Unresolved:_
 
 Should KTX2 support metadata for effective use of Vulkan SCALED formats?::
-  _Discussion:_ Vulkan SCALED formats have int (or uint) values converted
+  _Discussion:_ Vulkan SCALED formats convert int (or uint) values
   to unnormalized floating point values, equivalent to specifying a
   value of `GL_FALSE` for the `normalized` parameter to
   `glVertexAttribFormat`. Generally when using such data, associated
   scale and bias values are folded into the transformation matrix.
   Should KTX2 specify standard metadata for these?
 +
-_Resolved:_ No. These formats are primarily for vertex data and several
-Vulkan vendors have said they can't support them as texture formats.
+_Resolved:_ Not at this time. These formats are primarily for vertex
+data and several Vulkan vendors have said they can't support them
+as texture formats. Metadata can be easily added in future.
 
 == References
 [bibliography]
@@ -609,6 +672,7 @@ any particular version of OpenGL {,ES} or Vulkan.
 - `vkFormat` added.
 - `maxLevelFirst` added.
 - Data format descriptor added.
+- ZLib and ANS compression added.
 
 [discreet]
 == Revision History
@@ -621,8 +685,11 @@ a new revision.
 |===
 | Document Revision |    Date     | Remark
 |      draft0       | 2017-12-08  | First incarnation.
-|     {docrev}      |  {revdate}  | Update issue discussions and change
+|      draft1       | 2018-01-02  | Update issue discussions and change
                                     OpenGL references to 4.6.
+|     {docrev}      |  {revdate}  | Clarify relation to Data Format
+                                    Descriptor spec. Add global
+                                    compression. Update issues.
 |===
 
 // vim: filetype=asciidoc ai expandtab tw=72 ts=4 sts=2 sw=2
