@@ -21,6 +21,7 @@
 //:max-width: 50em
 :data-uri:
 :icons: font
+:source-highlighter: prettify
 
 [discrete]
 ==== Format Version: 2.0
@@ -48,7 +49,7 @@ WIP. Ready for initial review; definitely not ready for implementation.
 
 == File Structure
 
-[listing]
+[source,c]
 ----
 Byte[12] identifier
 UInt32 endianness
@@ -64,11 +65,12 @@ UInt32 pixelDepth
 UInt32 numberOfArrayElements
 UInt32 numberOfFaces
 UInt32 numberOfMipmapLevels
-UInt32 maxLevelFirst
+UInt32 levelOrder
 
-UInt32 bytesOfDataFormatDescriptors
+UInt32 bytesOfDataFormatDescriptor <1>
 for each dfDescriptorBlock that fits in bytesOfDataFormatDescriptors
-    dfDescriptorBlock dfFormatDescriptor <1>
+    dfDescriptorBlock descriptorBlock
+    blockPadding[3 - ((descriptor_block_size + 3) % 4)]
 end
 
 UInt32 bytesOfKeyValueData
@@ -95,7 +97,7 @@ for each mipmap_level in numberOfMipmapLevels <2>
     Byte mipPadding[3 - ((imageSize + 3) % 4)]
 end
 ----
-<1> See Khronos Data Format Specificaton for structure of this block.
+<1> These 5 lines are a Data Format Descriptor. See <<KDF12>>.
 <2> Replace with 1 if this field is 0.
 <3> Uncompressed texture data matches a GL_UNPACK_ALIGNMENT of 4.
 
@@ -117,7 +119,7 @@ Byte[12] FileIdentifier = {
   '«', 'K', 'T', 'X', ' ', '2', '2', '»', '\r', '\n', '\x1A', '\n'
 }
 ----
-The rationale behind the choice values in the identifier is based on the rationale 
+The rationale behind the choice of values in the identifier is based on the rationale 
 for the identifier in the PNG specification. This identifier both identifies 
 the file as a KTX file and provides for immediate detection of common file-transfer 
 problems.
@@ -142,14 +144,15 @@ integer. If the file is little endian then this is represented as
 the bytes 0x01 0x02 0x03 0x04. If the file is big endian then this
 is represented as the bytes 0x04 0x03 0x02 0x01. When reading
 `endianness` as a 32 bit integer produces the value 0x04030201 then
-the `endianness` of the file matches the the `endianness` of the program
-that is reading the file and no conversion is necessary. When reading
-`endianness` as a 32 bit integer produces the value 0x01020304 then
-the `endianness` of the file is opposite the `endianness` of the program
-that is reading the file, and in that case the program reading the
-file must endian convert all header bytes to the `endianness` of the
-program (i.e. a little endian program must convert from big endian,
-and a big endian program must convert to little endian).
+the endianness of the file matches the the endianness of the
+program that is reading the file and no conversion is necessary.
+When reading `endianness` as a 32 bit integer produces the value
+0x01020304 then the endianness of the file is opposite the
+endianness of the program that is reading the file. In that
+case the program reading the file must endian convert all header
+UInt32s and, when `glTypeSize != 1`, all `data` to the endianness
+of the program (i.e. a little endian program must convert from big
+endian, and a big endian program must convert from little endian).
 
 === glType
 For compressed textures, `glType` must equal 0. For uncompressed
@@ -238,11 +241,11 @@ complete mipmap pyramid. If `numberOfMipmapLevels` equals 0, it
 indicates that a full mipmap pyramid should be generated from level
 0 at load time (this is usually not allowed for compressed formats).
 
-=== maxLevelFirst
-`maxLevelFirst` indicates the ordering of the mipmap levels. If 1, it
-indicates that image data is ordered from the max level (the smallest)
-to the base level. If 0, it indicates the data is ordered from base
-level to max level.
+=== levelOrder
+`levelOrder` indicates the ordering of the mipmap levels.  If 0,
+it indicates the data is ordered from base level (the largest) to
+max level (the smallest).  If 1, it indicates that image data is
+ordered from the max level to base level.
 
 [TIP]
 .Rationale
@@ -253,10 +256,16 @@ used together with, e.g., the `GL_TEXTURE_MAX_LEVEL` and
 quickly without waiting for the entire texture data.
 ====
 
-=== dfFormatDescriptor
-`dfFormatDescriptor` describes the layout of the texel blocks in the
-image data using the Khronos data format descriptor structure specified
-in the Khronos Data Format 1.2 Specification <<KDF12>>.
+=== Data Format Descriptor
+The next 4 items combined form a _Data Format Descriptor, (dfDescriptor)_,
+that describes the layout of the texel blocks in the image data.
+The full specification for this can be found in the Khronos Data
+Format 1.2 Specification <<KDF12>>.
+
+The dfDescriptor is partially expanded here in order to provide
+sufficient information for a KTX2 file to be parsed without having to
+refer to <<KDF12>>. If consists of one or more _Descriptor Blocks
+(dfDescriptorBlock)_.
 
 [TIP]
 .Rationale
@@ -274,15 +283,27 @@ in the Khronos Data Format 1.2 Specification <<KDF12>>.
   the data. Again there will be no need for large tables.
 ====
 
-[WARNING]
-====
-There are a couple of important issues regarding the DF spec. that need
-resolving. See the Issues list.
-====
+==== bytesOfDataFormatDescriptor
+Called `total_size` in <<KFD12>>, `bytesOfDataFormatDescriptor`
+indicates the total number of bytes in the dfDescriptor including
+all dfDescriptorBlocks and all `blockPadding` fields.
 
-[sidebar]
-Why does df_vk_format_list_entry have the intOrScaled enum? It seems the
-information is already in the format.
+==== descriptorBlock
+A `Descriptor block` as defined in <<KDF12>>, the high-order 16
+bits of its first UInt32 give the descriptor type and the high-order
+16 bits of the second UInt32 give the `descriptor_block_size`.
+
+==== blockPadding
+`blockPadding` contains between 0 and 3 bytes to ensure that the byte
+following the last byte in `blockPadding` is at a file offset that is a
+multiple of 4. This ensures that every `descriptorBlock` field and the
+following `bytesOfKeyValueData` field are 4-byte aligned. This padding
+is included in `bytesOfFormatDescriptor` but not in the individual
+`descriptor_block_sizes`.
+
+The _Khronos Basic Data Format Descriptor Block_ which will be the type
+used in the vast majority of cases has a length guaranteed to be a
+multiple of 4 so typically there will be 0 bytes of padding.
 
 === bytesOfKeyValueData
 An arbitrary number of key/value pairs may follow the header. This
@@ -326,7 +347,7 @@ that read KTX files must not rely on this).
 `valuePadding` contains between 0 and 3 bytes to ensure that the byte
 following the last byte in `valuePadding` is at a file offset that
 is a multiple of 4. This ensures that every `keyAndValueByteSize`
-field is 4 byte aligned. This padding is included in the
+field is 4-byte aligned. This padding is included in the
 `bytesOfKeyValueData` field but not the individual `keyAndValueByteSize`
 fields.
 
@@ -470,7 +491,8 @@ How to refer to the DF descriptor block?::
   using primitive types would effectively mean repeating the
   definition of a descriptor block here which we do not want to do.
 +
-_Unresolved._
+_Resolved:_ Show that `dfDescriptorBlock` is used as a shorthand for
+<<KDF12>>'s _Descriptor block_.
 
 How to handle endianness of the DF descriptor block?::
   _Discussion_: The DF spec says data structures are assumed to be
@@ -486,7 +508,8 @@ Can we guarantee the DF descriptor blocks are always a multiple of 4 bytes?::
   anything to require that extensions' block sizes be a multiple of
   4 bytes? Need to maintain alignment.
 +
-_Unresolved._
+_Resolved:_ The Data Format Specification will be updated to recommend
+but not require padding. This spec. will require padding.
 
 Should KTX2 support level sizes > 4GB?::
   _Discussion:_ Users have reported needing base levels > 4GB for 3D
@@ -533,12 +556,23 @@ Use alphanumeric characters or binary values for component swizzles?::
 +
 _Resolved:_ Use alphanumeric characters from the set [01rgba].
 
-What is needed to support sparse textures?::
+Is anything needed to support sparse textures?::
   _Discussion:_ Sparse textures are provided by the
   `GL_ARB_sparse_textures` extension and are a standard feature of
   Vulkan.  Are any additional KTX features needed to support them?
 +
 _Unresolved:_
+
+Should KTX2 support metadata for effective use of Vulkan SCALED formats?::
+  _Discussion:_ Vulkan SCALED formats have int (or uint) values converted
+  to unnormalized floating point values, equivalent to specifying a
+  value of `GL_FALSE` for the `normalized` parameter to
+  `glVertexAttribFormat`. Generally when using such data, associated
+  scale and bias values are folded into the transformation matrix.
+  Should KTX2 specify standard metadata for these?
++
+_Resolved:_ No. These formats are primarily for vertex data and several
+Vulkan vendors have said they can't support them as texture formats.
 
 == References
 [bibliography]
