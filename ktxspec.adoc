@@ -371,13 +371,13 @@ field is 4-byte aligned. This padding is included in the
 fields.
 
 === dataCompressionScheme
-`dataCompressionScheme` indicates if an optional compression scheme
-has been applied globally to `images`. This is entirely separate
-from, and should not be confused with, block compressed texture
-formats where the texture in compressed form can be  sampled by the
-GPU. When a global compression scheme is used, the image data must
-be decompressed prior to GPU sampling. `dataCompressionScheme` must
-be one of the following values:
+`dataCompressionScheme` indicates if an optional lossless compression
+scheme has been applied globally to `images`. This is entirely
+separate from, and should not be confused with, block compressed
+texture formats where the texture in compressed form can be  sampled
+by the GPU. When a global compression scheme is used, the image
+data must be decompressed prior to GPU sampling. `dataCompressionScheme`
+must be one of the following values:
 
 [width=50%,cols="^30,<70"]
 |===
@@ -394,6 +394,12 @@ for vendor compression schemes thus avoiding conflicts.
 
 [NOTE]
 ====
+Lossless compression is generally ineffective on block-compressed
+GPU-texture-formatted data as emitted by most tools. It is best
+reserved for use with uncompressed texture formats or with
+block-compressed data that has been optimized for further lossless
+compression such as by using _rate distortion optimization_.
+
 Global compression is incompatible with streaming. The entire file
 content must be available before it can be decompressed.
 ====
