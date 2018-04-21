@@ -8,8 +8,8 @@ file format
 
 - [x] support swizzles
 - [x] support max (smallest) to base (largest) ordering of mipmap levels to help when streaming
-- [x] support use of Crunch on DX/S3TC images
-- [x] support use of zlib compression on images
+- [ ] support use Basis/Crunch on images
+- [x] support use of zlib and ANS compression on images
 
 general
 -------
