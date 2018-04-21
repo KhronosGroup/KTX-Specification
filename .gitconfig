@@ -1,0 +1,8 @@
+# Filters used by KTX-Spec repo
+[filter "dater"]
+    smudge = bash dater %f
+    clean = bash -c \"sed -e 's/\\$Date.*\\$/\\$Date\\$/'\"
+
+# Needed to avoid merge conflicts
+[merge]
+    renormalize = true
