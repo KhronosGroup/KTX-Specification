@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL and Vulkan textures.
-:docrev: draft2
+:docrev: draft3
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -32,6 +32,9 @@
 [discrete]
 ==== Editor: {author} ({author_org})
 
+[.legal]
+© 2018 The Khronos Group Inc. All Rights Reserved. See <<License>>.
+
 [abstract]
 == Abstract
 KTX2 is a format for storing textures for OpenGL, OpenGL ES and Vulkan applications.
@@ -58,7 +61,6 @@ UInt32 glType
 UInt32 glTypeSize
 UInt32 glFormat
 Uint32 glInternalFormat
-Uint32 glBaseInternalFormat
 Uint32 vkFormat
 UInt32 pixelWidth
 UInt32 pixelHeight
@@ -213,15 +215,6 @@ There is currently no such token. A value will be requested from the
 OpenGL registry. Whether to include this token in the GL namespace
 and `gl.h` will have to be discussed by the working groups.
 ====
-
-=== glBaseInternalFormat
-For both block compressed and uncompressed textures, `glBaseInternalFormat`
-specifies the base internal format of the texture, usually one of
-the values from table 8.3 of the OpenGL 4.6 specification <<OPENGL46>>
-(RGB, RGBA, ALPHA, etc.). For uncompressed textures, this value
-will be the same as `glFormat` and is used as the internalformat
-parameter when loading into a context that does not support sized
-formats, such as an unextended OpenGL ES 2.0 context.
 
 === vkFormat
 `vkFormat` specifies the Vulkan image format, usually one of the values
@@ -384,7 +377,8 @@ must be one of the following values:
 | 0           | Uncompressed
 | 1           | ZLib compression
 | 2           | tANS (?)
-| 3･･･2^32^-1 | Reserved
+| 3           | zstd
+| 4･･･2^32^-1 | Reserved
 |===
 
 WARNING: Need references.
@@ -612,7 +606,8 @@ Should KTX2 support contexts that do not support sized internal fomats?::
   for easy support of these older versions. Now seems a good time to
   drop this field.
 +
-_Unresolved:_
+_Resolved:_ Drop `glBaseInternalFormat`. When loading to older version
+contexts the value of `glFormat` can be used instead.
 
 Use alphanumeric characters or binary values for component swizzles?::
   _Discussion:_ Values in the swizzle metadata could be either a
@@ -642,6 +637,14 @@ Should KTX2 support metadata for effective use of Vulkan SCALED formats?::
 _Resolved:_ Not at this time. These formats are primarily for vertex
 data and several Vulkan vendors have said they can't support them
 as texture formats. Metadata can be easily added in future.
+
+Should Global Compression be per-mip-level compression?::
+  _Discussion:_ Should zlib, etc. be applied to each mip level rather than
+  globally? If per level, contents could still be streamed. There would
+  be a compression dictionary per level but the overall effect on
+  the data size is unclear.
++
+_Unresolved:_
 
 == References
 [bibliography]
@@ -678,7 +681,8 @@ any particular version of OpenGL {,ES} or Vulkan.
 - `vkFormat` added.
 - `maxLevelFirst` added.
 - Data format descriptor added.
-- ZLib and ANS compression added.
+- ZLib, ANS and zstd compression options added.
+- `glBaseInternalFormat` removed.
 
 [discreet]
 == Revision History
@@ -693,9 +697,71 @@ a new revision.
 |      draft0       | 2017-12-08  | First incarnation.
 |      draft1       | 2018-01-02  | Update issue discussions and change
                                     OpenGL references to 4.6.
-|     {docrev}      |  {revdate}  | Clarify relation to Data Format
+|      draft2       | 2018-02-10  | Clarify relation to Data Format
                                     Descriptor spec. Add global
                                     compression. Update issues.
+|     {docrev}      |  {revdate}  | Remove `glBaseInternalFormat`. Add
+                                    zstd global compression option. Add
+                                    copyright & license.
 |===
+
+[discrete,.legal]
+== License
+
+[.legal]
+====
+This specification is protected by copyright laws and contains material
+proprietary to the Khronos Group, Inc. It or any components may not be
+reproduced, republished, distributed, transmitted, displayed, broadcast,
+or otherwise exploited in any manner without the express prior written
+permission of Khronos Group. You may use this specification for implementing
+the functionality therein, without altering or removing any trademark,
+copyright or other notice from the specification, but the receipt or
+possession of this specification does not convey any rights to reproduce,
+disclose, or distribute its contents, or to manufacture, use, or sell
+anything that it may describe, in whole or in part.
+
+This version of the KTX Specification is published and copyrighted by
+Khronos, but is not a Khronos ratified specification. Accordingly, it
+does not fall within the scope of the Khronos IP policy, except to the
+extent, if any, that sections of it are normatively referenced in ratified
+Khronos specifications. Such references incorporate the referenced sections
+into the ratified specifications, and bring those sections into the scope
+of the policy for those specifications.
+
+Khronos Group grants express permission to any current Promoter, Contributor
+or Adopter member of Khronos to copy and redistribute UNMODIFIED versions of
+this specification in any fashion, provided that NO CHARGE is made for the
+specification and the latest available update of the specification for any
+version of the API is used whenever possible. Such distributed specification
+may be reformatted AS LONG AS the contents of the specification are not
+changed in any way. The specification may be incorporated into a product
+that is sold as long as such product includes significant independent
+work developed by the seller. A link to the current version of this
+specification on the Khronos Group website should be included whenever
+possible with specification distributions.
+
+Khronos Group makes no, and expressly disclaims any, representations or
+warranties, express or implied, regarding this specification, including,
+without limitation, any implied warranties of merchantability or fitness
+for a particular purpose or non-infringement of any intellectual property.
+Khronos Group makes no, and expressly disclaims any, warranties, express
+or implied, regarding the correctness, accuracy, completeness, timeliness,
+and reliability of the specification. Under no circumstances will the
+Khronos Group, or any of its Promoters, Contributors or Members or
+their respective partners, officers, directors, employees, agents, or
+representatives be liable for any damages, whether direct, indirect,
+special or consequential damages for lost revenues, lost profits, or
+otherwise, arising from or in connection with these materials.
+
+Khronos, SYCL, SPIR, WebGL, EGL, COLLADA, StreamInput, OpenVX, OpenKCam,
+glTF, OpenKODE, OpenVG, OpenWF, OpenSL ES, OpenMAX, OpenMAX AL, OpenMAX IL
+and OpenMAX DL are trademarks and WebCL is a certification mark of the
+Khronos Group Inc. OpenCL is a trademark of Apple Inc. and OpenGL and OpenML
+are registered trademarks and the OpenGL ES and OpenGL SC logos are
+trademarks of Silicon Graphics International used under license by Khronos.
+All other product names, trademarks, and/or company names are used solely
+for identification and belong to their respective owners. 
+====
 
 // vim: filetype=asciidoc ai expandtab tw=72 ts=4 sts=2 sw=2
