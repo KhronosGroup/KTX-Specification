@@ -701,15 +701,15 @@ a new revision.
                                     Descriptor spec. Add global
                                     compression. Update issues.
 |     {docrev}      |  {revdate}  | Remove `glBaseInternalFormat`. Add
-                                    zstd global compression option. Add
-                                    copyright & license.
+                                    zstd global compression option and
+                                    issue 11. Add copyright & license.
 |===
 
 [discrete,.legal]
 == License
 
 [.legal]
-====
+--
 This specification is protected by copyright laws and contains material
 proprietary to the Khronos Group, Inc. It or any components may not be
 reproduced, republished, distributed, transmitted, displayed, broadcast,
@@ -754,14 +754,18 @@ representatives be liable for any damages, whether direct, indirect,
 special or consequential damages for lost revenues, lost profits, or
 otherwise, arising from or in connection with these materials.
 
-Khronos, SYCL, SPIR, WebGL, EGL, COLLADA, StreamInput, OpenVX, OpenKCam,
-glTF, OpenKODE, OpenVG, OpenWF, OpenSL ES, OpenMAX, OpenMAX AL, OpenMAX IL
-and OpenMAX DL are trademarks and WebCL is a certification mark of the
-Khronos Group Inc. OpenCL is a trademark of Apple Inc. and OpenGL and OpenML
-are registered trademarks and the OpenGL ES and OpenGL SC logos are
-trademarks of Silicon Graphics International used under license by Khronos.
-All other product names, trademarks, and/or company names are used solely
-for identification and belong to their respective owners. 
-====
+The KTX icon is a trademark of and © 2018, the Khronos Group, Inc. and
+may not be used without the written permission of the Khronos Group.
+
+Khronos, SYCL, SPIR, WebGL, EGL, COLLADA, StreamInput, OpenVX,
+OpenKCam, glTF, OpenKODE, OpenVG, OpenWF, OpenSL ES, OpenMAX, OpenMAX
+AL, OpenMAX IL and OpenMAX DL are trademarks and WebCL is a
+certification mark of the Khronos Group Inc. OpenCL is a trademark
+of Apple Inc. and OpenGL and OpenML are registered trademarks and
+the OpenGL ES and OpenGL SC logos are trademarks of Silicon Graphics
+International used under license by Khronos.  All other product
+names, trademarks, and/or company names are used solely for
+identification and belong to their respective owners.
+--
 
 // vim: filetype=asciidoc ai expandtab tw=72 ts=4 sts=2 sw=2
