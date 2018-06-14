@@ -1,7 +1,8 @@
 # Copyright (c) 2014-2017 The Khronos Group Inc.
 # Copyright notice at https://www.khronos.org/registry/speccopyright.html
 
-out=out
+# Use docs for compatibility with GitHub pages.
+out=docs
 intermediate=build
 
 all: $(out)/index.html #$(out)/ktx.pdf
