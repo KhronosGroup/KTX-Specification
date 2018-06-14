@@ -1,0 +1,27 @@
+# CI build script for Travis.
+# See https://docs.travis-ci.com/user/multi-os/ for more info.
+
+os: osx
+osx_image: xcode9.3
+sudo: required
+
+language: ruby
+
+branches:
+  only:
+  - master
+
+install: sudo gem install asciidoctor
+
+before_script:
+  - echo -e "machine github.com\n  login $GITHUB_TOKEN" >> ~/.netrc
+  - git checkout master
+  - ./install-gitconfig.sh
+  - rm TODO.md
+  - git checkout TODO.md
+
+script:
+  - make
+  - git add -A docs
+  - git commit -m "Update published version."
+  - git push origin master
