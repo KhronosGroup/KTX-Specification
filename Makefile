@@ -1,6 +1,7 @@
 # Copyright (c) 2014-2017 The Khronos Group Inc.
 # Copyright notice at https://www.khronos.org/registry/speccopyright.html
 
+# Use docs for compatibility with GitHub pages.
 out=out
 intermediate=build
 
