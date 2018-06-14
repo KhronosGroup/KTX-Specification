@@ -2,7 +2,7 @@
 # Copyright notice at https://www.khronos.org/registry/speccopyright.html
 
 # Use docs for compatibility with GitHub pages.
-out=docs
+out=out
 intermediate=build
 
 all: $(out)/index.html #$(out)/ktx.pdf

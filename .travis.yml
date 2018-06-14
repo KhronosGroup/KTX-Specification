@@ -22,6 +22,11 @@ before_script:
 
 script:
   - make
-  - git add -A docs
-  - git commit -m "Update published version."
-  - git push origin master
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+  local-dir: out
+  on:
+    branch: master
