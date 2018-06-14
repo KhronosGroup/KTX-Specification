@@ -21,5 +21,6 @@ before_script:
 
 script:
   - make
-  - git commit -m "Updated by Travis CI." docs
+  - git add -A docs
+  - git commit -m "Update published version."
   - git push origin
