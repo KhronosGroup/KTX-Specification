@@ -1,20 +1,17 @@
 # CI build script for Travis.
 # See https://docs.travis-ci.com/user/multi-os/ for more info.
 
-os:
-  - osx
-
+os: osx
 osx_image: xcode9.3
+sudo: required
 
 language: ruby
-rvm:
-  - rbx-3
 
 branches:
   only:
   - master
 
-install: gem install asciidoctor
+install: sudo gem install asciidoctor
 
 before_script:
   - echo -e "machine github.com\n  login $GITHUB_TOKEN" >> ~/.netrc
