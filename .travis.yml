@@ -30,3 +30,4 @@ deploy:
   local-dir: out
   on:
     branch: master
+    tags: true
