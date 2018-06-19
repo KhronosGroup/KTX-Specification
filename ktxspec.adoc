@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL and Vulkan textures.
-:docrev: draft3
+:docrev: draft4
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -684,7 +684,7 @@ any particular version of OpenGL {,ES} or Vulkan.
 - ZLib, ANS and zstd compression options added.
 - `glBaseInternalFormat` removed.
 
-[discreet]
+[discrete]
 == Revision History
 ////
 You must insert a new row containing the current values of the
@@ -700,10 +700,16 @@ a new revision.
 |      draft2       | 2018-02-10  | Clarify relation to Data Format
                                     Descriptor spec. Add global
                                     compression. Update issues.
-|     {docrev}      |  {revdate}  | Remove `glBaseInternalFormat`. Add
+|      draft3       |  2018-06-14 | Remove `glBaseInternalFormat`. Add
                                     zstd global compression option and
                                     issue 11. Add copyright & license.
+|     {docrev}      |  {revdate}  | Add acknowledgements.
 |===
+
+[discrete]
+== Acknowledgements
+Thanks to Manmohan Bishnoi for designing the KTX file and application
+icons.
 
 [discrete,.legal]
 == License
