@@ -1,6 +1,6 @@
 ## Home of the KTX File Format Specification
 
-![Build Status](https://travis-ci.org/KhronosGroup/KTX-Specification.svg?branch=master)
+[![Build Status](https://travis-ci.org/KhronosGroup/KTX-Specification.svg?branch=master)](https://travis-ci.org/KhronosGroup/KTX-Specification)
 
 Click to see the [latest published version](http://github.khronos.org/KTX-Specification/)
 (it looks much better than the ersatz view provided by GitHub) or run
