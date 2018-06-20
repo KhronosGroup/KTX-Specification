@@ -1,14 +1,17 @@
 ## Home of the KTX File Format Specification
 
-Run
+![Build Status](https://travis-ci.org/KhronosGroup/KTX-Specification.svg?branch=master)
+
+Click to see the [latest published version](http://github.khronos.org/KTX-Specification/)
+(it looks much better than the ersatz view provided by GitHub) or run
 
 ```.bash
 make
 ```
 
-in a Unix-like environment to generate the publishable spec.
-This is the single file `out/index.html`. Everything needed
-is inlined.
+in a Unix-like environment with [AsciiDoctor](https://asciidoctor.org/docs/install-toolchain/)
+installed to generate the publishable spec. This is the single file `out/index.html`.
+Everything needed is inlined.
 
 The canonical spec. text is in the file `ktxspec.adoc`.
 
