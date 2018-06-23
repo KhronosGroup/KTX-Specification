@@ -17,7 +17,6 @@ install: sudo gem install asciidoctor
 
 before_script:
   - echo -e "machine github.com\n  login $GITHUB_TOKEN" >> ~/.netrc
-  - git checkout master
   - ./install-gitconfig.sh
   - rm TODO.md
   - git checkout TODO.md
