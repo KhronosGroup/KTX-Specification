@@ -69,6 +69,7 @@ UInt32 numberOfArrayElements
 UInt32 numberOfFaces
 UInt32 numberOfMipmapLevels
 UInt32 levelOrder
+UInt32 dataCompressionScheme
 
 UInt32 bytesOfDataFormatDescriptor <1>
 for each dfDescriptorBlock that fits in bytesOfDataFormatDescriptors
@@ -82,10 +83,10 @@ for each keyValuePair that fits in bytesOfKeyValueData
     Byte     keyAndValue[keyAndValueByteSize]
     Byte     valuePadding[3 - ((keyAndValueByteSize + 3) % 4)]
 end
+Byte keyValuePadding[0|4]
 
-UInt32 dataCompressionScheme
-UInt32 totalDataSize
-UInt32 uncompressedDataSize
+UInt64 totalDataSize
+UInt64 uncompressedDataSize
 
 Byte images[totalDataSize] <2>
 ----
@@ -97,7 +98,7 @@ Byte images[totalDataSize] <2>
 [source, c]
 ----
 for each mipmap_level in numberOfMipmapLevels <1>
-    UInt32 imageSize; 
+    UInt64 imageSize; 
     for each array_element in numberOfArrayElements <1>
        for each face in numberOfFaces
            for each z_slice in pixelDepth <1>
@@ -110,7 +111,7 @@ for each mipmap_level in numberOfMipmapLevels <1>
            Byte cubePadding[0-3]
        end
     end
-    Byte mipPadding[3 - ((imageSize + 3) % 4)]
+    Byte mipPadding[7 - ((imageSize + 7) % 8)]
 end
 ----
 <1> Replace with 1 if this field is 0.
@@ -265,9 +266,44 @@ used together with, e.g., the `GL_TEXTURE_MAX_LEVEL` and
 quickly without waiting for the entire texture data.
 ====
 
+=== dataCompressionScheme
+`dataCompressionScheme` indicates if an optional lossless compression
+scheme has been applied globally to `images`. This is entirely
+separate from, and should not be confused with, block compressed
+texture formats where the texture in compressed form can be  sampled
+by the GPU. When a global compression scheme is used, the image
+data must be decompressed prior to GPU sampling. `dataCompressionScheme`
+must be one of the following values:
+
+[width=50%,cols="^30,<70"]
+|===
+| 0           | Uncompressed
+| 1           | ZLib compression
+| 2           | tANS (?)
+| 3           | zstd
+| 4･･･2^32^-1 | Reserved
+|===
+
+WARNING: Need references.
+
+A registry will be established to issue values in the reserved range
+for vendor compression schemes thus avoiding conflicts.
+
+[NOTE]
+====
+Lossless compression is generally ineffective on block-compressed
+GPU-texture-formatted data as emitted by most tools. It is best
+reserved for use with uncompressed texture formats or with
+block-compressed data that has been optimized for further lossless
+compression such as by using _rate distortion optimization_.
+
+Global compression is incompatible with streaming. The entire file
+content must be available before it can be decompressed.
+====
+
 === Data Format Descriptor
-The next 3 items combined form a _Data Format Descriptor_, (dfDescriptor),
-that describing the layout of the texel blocks in `data`.
+The next 3 items combined form a _Data Format Descriptor_,
+(dfDescriptor) describing the layout of the texel blocks in `data`.
 The full specification for this can be found in the Khronos Data
 Format 1.2 Specification <<KDF12>>.
 
@@ -276,8 +312,9 @@ sufficient information for a KTX2 file to be parsed without having to
 refer to <<KDF12>>. If consists of one or more _Descriptor Blocks_
 (dfDescriptorBlock).
 
-The Data Format Descriptor describes the  data as it is when
-`dataCompressionScheme == 0` or after decompression.
+The Data Format Descriptor describes the texel blocks as they are when
+`dataCompressionScheme == 0` or after expansion when
+`dataCompressionScheme != 0`.
 
 [TIP]
 .Rationale
@@ -321,10 +358,11 @@ multiple of 4 so typically there will be 0 bytes of padding.
 An arbitrary number of key/value pairs may follow the header. This
 can be used to encode any arbitrary data. The `bytesOfKeyValueData`
 field indicates the total number of bytes of key/value data including
-all `keyAndValueByteSize` fields, all `keyAndValue` fields, and all
-`valuePadding` fields. The file offset of the `dataCompressionScheme`
-field is located at the file offset of the `bytesOfKeyValueData`
-field plus the value of the `bytesOfKeyValueData` field plus 4.
+all `keyAndValueByteSize` fields, all `keyAndValue` fields, all
+`valuePadding` fields and the `keyValuePadding` field. The file
+offset of the `totalDataSize` field is located at the file
+offset of the `bytesOfKeyValueData` field plus the value of the
+`bytesOfKeyValueData` field plus 4.
 
 === keyAndValueByteSize
 `keyAndValueByteSize` is the number of bytes of combined key and value
@@ -363,40 +401,10 @@ field is 4-byte aligned. This padding is included in the
 `bytesOfKeyValueData` field but not the individual `keyAndValueByteSize`
 fields.
 
-=== dataCompressionScheme
-`dataCompressionScheme` indicates if an optional lossless compression
-scheme has been applied globally to `images`. This is entirely
-separate from, and should not be confused with, block compressed
-texture formats where the texture in compressed form can be  sampled
-by the GPU. When a global compression scheme is used, the image
-data must be decompressed prior to GPU sampling. `dataCompressionScheme`
-must be one of the following values:
-
-[width=50%,cols="^30,<70"]
-|===
-| 0           | Uncompressed
-| 1           | ZLib compression
-| 2           | tANS (?)
-| 3           | zstd
-| 4･･･2^32^-1 | Reserved
-|===
-
-WARNING: Need references.
-
-A registry will be established to issue values in the reserved range
-for vendor compression schemes thus avoiding conflicts.
-
-[NOTE]
-====
-Lossless compression is generally ineffective on block-compressed
-GPU-texture-formatted data as emitted by most tools. It is best
-reserved for use with uncompressed texture formats or with
-block-compressed data that has been optimized for further lossless
-compression such as by using _rate distortion optimization_.
-
-Global compression is incompatible with streaming. The entire file
-content must be available before it can be decompressed.
-====
+=== keyValuePadding
+`keyValuePadding` contains either 0 or 4 bytes to ensure that the
+following `totalDataSize` field is at a file offset that is a multiple
+of 8. This padding is included in the `bytesOfKeyValueData` field.
 
 === totalDataSize
 The total size of the data in `images`.
@@ -433,8 +441,8 @@ offset that is a multiple of 4. In all other cases `cubePadding` is
 empty (0 bytes long).
 
 === mipPadding
-Between 0 and 3 bytes to make sure that all `imageSize` fields are
-at a file offset that is a multiple of 4.
+Between 0 and 7 bytes to make sure that all `imageSize` fields are
+at a file offset that is a multiple of 8.
 
 == General comments
 The unpack alignment is 4. I.e. uncompressed pixel data is packed
@@ -574,12 +582,13 @@ _Resolved:_ The Data Format Specification will be updated to recommend
 but not require padding. This spec. will require padding.
 
 Should KTX2 support level sizes > 4GB?::
-  _Discussion:_ Users have reported needing base levels > 4GB for 3D
+  _Discussion:_ Users have reported having base levels > 4GB for 3D
   textures.  For this the `imageSize` field needs to be 64-bits. Loaders
   on 32-bit systems will have to ensure correct handling of this and
   check that `imageSize` \<= 4GB, before loading.
 +
-_Unresolved:_
+_Resolved:_ Be future proof and make all image-size related fields 64
+bits.
 
 Should KTX2 provide a way to distinguish between rectangle and regular 2D textures?::
   _Discussion:_ The difference is that unnormalized texel coordinates
