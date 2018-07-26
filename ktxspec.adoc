@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL and Vulkan textures.
-:docrev: draft4
+:docrev: draft5
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -69,7 +69,7 @@ UInt32 numberOfArrayElements
 UInt32 numberOfFaces
 UInt32 numberOfMipmapLevels
 UInt32 levelOrder
-UInt32 dataCompressionScheme
+UInt32 supercompressionScheme
 
 UInt32 bytesOfDataFormatDescriptor <1>
 for each dfDescriptorBlock that fits in bytesOfDataFormatDescriptors
@@ -85,37 +85,50 @@ for each keyValuePair that fits in bytesOfKeyValueData
 end
 Byte keyValuePadding[0|4]
 
-UInt64 totalDataSize
-UInt64 uncompressedDataSize
+UInt64 bytesOfSupercompressionGlobalData
+Byte supercompressionGlobalData[bytesOfSupercompressionsGlobalData]
+Byte sgdPadding[7 - ((bytesOfSupercompressionGlobalData + 7) % 8)]]
 
-Byte images[totalDataSize] <2>
+UInt64 bytesOfImages
+UInt64 bytesOfUncompressedImages
+
+for each mipmap level in numberOfMipmapLevels <2>
+    UInt64 levelOffset
+end
+
+for each mipmap_level in numberOfMipmapLevels <2>
+    Uint64 bytesOfLevelImages
+    Uint64 bytesOfUncompressedLevelImages
+    Byte levelImages[bytesOfLevelImages] <3>
+    Byte mipPadding[0-7]
+end
 ----
 <1> These 5 lines are a Data Format Descriptor. See <<_data_format_descriptor>>.
-<2> When `dataCompressionScheme == 0` or after decompression `images`
+<2> Replace with 1 if this field is 0 or if `glInternalFormat` is one of
+    the GL_PALETTE* formats from GL_OES_compressed_paletted_texture
+    <<OESCPT>>.
+<3> When `supercompressionScheme == 0` or after expansion `levelImages`
     has the following structure.
 
-.Uncompressed `images` Structure
+.Uncompressed `levelImages` Structure
 [source, c]
 ----
-for each mipmap_level in numberOfMipmapLevels <1>
-    UInt64 imageSize; 
-    for each array_element in numberOfArrayElements <1>
-       for each face in numberOfFaces
-           for each z_slice in pixelDepth <1>
-               for each row or row_of_blocks in pixelHeight <1>
-                   for each pixel or block_of_pixels in pixelWidth
-                       Byte data[format-specific-number-of-bytes] <2>
-                   end
+for each array_element in numberOfArrayElements <1>
+   for each face in numberOfFaces <2>
+       for each z_slice in pixelDepth <1>
+           for each row or row_of_blocks in pixelHeight <1>
+               for each pixel or block_of_pixels in pixelWidth
+                   Byte data[format-specific-number-of-bytes] <3>
                end
            end
-           Byte cubePadding[0-3]
        end
-    end
-    Byte mipPadding[7 - ((imageSize + 7) % 8)]
+   end
 end
 ----
 <1> Replace with 1 if this field is 0.
-<2> Uncompressed texture data matches a GL_UNPACK_ALIGNMENT of 4.
+<2> Must be 1 if `glInternalFormat` is one of the GL_PALETTE* formats
+    from GL_OES_compressed_paletted_texture <<OESCPT>>.
+<3> Uncompressed texture data must have the default GL_UNPACK_ALIGNMENT of 4.
 
 == Field Descriptions
 
@@ -241,6 +254,11 @@ and cubemap arrays this should be 6. For non cubemaps this should
 be 1. Cube map faces are stored in the order: +X, -X, +Y, -Y, +Z,
 -Z.
 
+Due to GL_OES_compressed_paletted_texture <<OESCPT>> not defining
+the interaction between cubemaps and its GL_PALETTE* formats,
+if `glInternalFormat` is a paletted format `numberOfFaces` must be
+1
+
 === numberOfMipmapLevels
 `numberOfMipmapLevels` must equal 1 for non-mipmapped textures. For
 mipmapped textures, it equals the number of mipmaps. Mipmaps are
@@ -266,39 +284,64 @@ used together with, e.g., the `GL_TEXTURE_MAX_LEVEL` and
 quickly without waiting for the entire texture data.
 ====
 
-=== dataCompressionScheme
-`dataCompressionScheme` indicates if an optional lossless compression
-scheme has been applied globally to `images`. This is entirely
-separate from, and should not be confused with, block compressed
-texture formats where the texture in compressed form can be  sampled
-by the GPU. When a global compression scheme is used, the image
-data must be decompressed prior to GPU sampling. `dataCompressionScheme`
-must be one of the following values:
+[NOTE]
+====
+`levelOrder` has no meaning when `glInternalFormat` is one of the
+GL_PALETTE* formats from GL_OES_compressed_paletted_texture <<OESCPT>>
+as from the perspective of the KTX2 file there is only a single level.
+====
+
+=== supercompressionScheme
+`supercompressionScheme` indicates if an optional compression
+scheme has been applied to the data in `images`.  It must be one
+of the following values:
 
 [width=50%,cols="^30,<70"]
 |===
-| 0           | Uncompressed
-| 1           | ZLib compression
-| 2           | tANS (?)
-| 3           | zstd
-| 4･･･2^32^-1 | Reserved
+| 0           | None
+| 1           | Crunch CRN
+| 2           | ZLib format with Deflate compression & Adler32 checksum.
+| 3           | tANS (?)
+| 4           | zstd
+| 5･･･2^32^-1 | Reserved
 |===
 
-WARNING: Need references.
+[WARNING]
+====
+References WIP.
+
+For Zlib wrapper, see
+http://tools.ietf.org/html/rfc1950 RFC1950. 
+For deflate stream see http://tools.ietf.org/html/rfc1951 RFC1951.
+Probably it's the latter we need.
+
+For LZ4 it is https://github.com/lz4/lz4/blob/dev/doc/lz4_Frame_format.md
+If we support LZ4 should we use multiple frames or 1 per miplevel? I
+think 1 per miplevel.
+====
+
+The supercompression scheme is applied independently to each mip level
+to permit random access to the levels. Schemes that require data global
+to all levels can store it in `supercompressionGlobalData`.
+The `Crunch CRN` scheme, for example, will store its global codebook
+there.
+
+When a supercompression scheme is used, the image data must be
+expanded from the scheme prior to GPU sampling.
 
 A registry will be established to issue values in the reserved range
 for vendor compression schemes thus avoiding conflicts.
 
-[NOTE]
+[TIP]
 ====
-Lossless compression is generally ineffective on block-compressed
-GPU-texture-formatted data as emitted by most tools. It is best
+Lossless supercompression, e.g, LZ, is generally ineffective on the
+block-compressed data used by GPU texture formats. It is best
 reserved for use with uncompressed texture formats or with
-block-compressed data that has been optimized for further lossless
-compression such as by using _rate distortion optimization_.
+block-compressed data that has been optimized for supercompression,
+such as by Crunch's _rate distortion optimization_ mode.
 
-Global compression is incompatible with streaming. The entire file
-content must be available before it can be decompressed.
+Crunch CRN mode is specially designed to supercompress block-compressed
+textures.
 ====
 
 === Data Format Descriptor
@@ -313,8 +356,8 @@ refer to <<KDF12>>. If consists of one or more _Descriptor Blocks_
 (dfDescriptorBlock).
 
 The Data Format Descriptor describes the texel blocks as they are when
-`dataCompressionScheme == 0` or after expansion when
-`dataCompressionScheme != 0`.
+`supercompressionScheme == 0` or after expansion when
+`supercompressionScheme != 0`.
 
 [TIP]
 .Rationale
@@ -358,11 +401,11 @@ multiple of 4 so typically there will be 0 bytes of padding.
 An arbitrary number of key/value pairs may follow the header. This
 can be used to encode any arbitrary data. The `bytesOfKeyValueData`
 field indicates the total number of bytes of key/value data including
-all `keyAndValueByteSize` fields, all `keyAndValue` fields, all
-`valuePadding` fields and the `keyValuePadding` field. The file
-offset of the `totalDataSize` field is located at the file
-offset of the `bytesOfKeyValueData` field plus the value of the
-`bytesOfKeyValueData` field plus 4.
+all `keyAndValueByteSize` fields, all `keyAndValue` fields and all
+`valuePadding` fields but not the `keyValuePadding` field. The file
+offset of the `bytesOfImages` field is located at the file
+offset of the `bytesOfKeyValueData` field plus 4 plus the value of the
+`bytesOfKeyValueData` field rounded to the next 8-byte boundary.
 
 === keyAndValueByteSize
 `keyAndValueByteSize` is the number of bytes of combined key and value
@@ -403,51 +446,101 @@ fields.
 
 === keyValuePadding
 `keyValuePadding` contains either 0 or 4 bytes to ensure that the
-following `totalDataSize` field is at a file offset that is a multiple
-of 8. This padding is included in the `bytesOfKeyValueData` field.
+following `bytesOfSuperconpressionGlobalData` field is at a file
+offset that is a multiple of 8.
 
-=== totalDataSize
-The total size of the data in `images`.
+=== bytesOfSupercompressionGlobalData
+`bytesOfSupercompressionGlobalData` indicates the number of bytes
+of `supercompressionGlobalData`. It does not include `sgdPadding`.
+For most schemes the value is 0.
 
-=== uncompressedDataSize
-The size of the data in `images` when uncompressed. When
-`dataCompressionScheme` is 0, `totalDataSize` must have the same
-value as this. `uncompressedDataSize` includes the sum of all
-`mipPadding` fields.
+=== supercompressionGlobalData
+`supercompressionGlobalData` is an array of data used by certain 
+supercompression schemes that must be available before any mip level
+can be expanded.
 
-=== images
-A block containing all image data for all the images in the texture.
-When `dataCompressionScheme != 0` the content is defined by the
-compression scheme. The result of decompression must be a structure
-identical to that when `dataCompressionScheme == 0`.
+=== sgdPadding
+`sgdPadding` contains bwteeen 0 and 7 bytes to ensure ensure that
+`bytesOfImages` is at a file offset that is a multiple of 8.
 
-=== imageSize
-For most textures `imageSize` is the number of bytes of pixel data
-in the current LOD level. This includes all z slices, all faces,
-all rows (or rows of blocks) and all pixels (or blocks) in each row
-for the mipmap level. It does not include any bytes in `mipPadding`.
+=== bytesOfImages
+The total size of the image data. That is the sum of the
+`bytesOfLevelImages` within the Mipmap level array.
 
-The exception is non-array cubemap textures (any texture where
-`numberOfFaces` is 6 and `numberOfArrayElements` is 0). For these
-textures `imageSize` is the number of bytes in each face of the texture
-for the current LOD level, not including bytes in `cubePadding` or
-`mipPadding`.
+=== bytesOfUncompressedImages
+The size of the image data after expansion from supercompression.
+When `supercompressionScheme == 0`, `bytesOfImages` must have the same
+value as this.
 
-=== cubePadding
-For non-array cubemap textures (any texture where `numberOfFaces` is
-6 and `numberOfArrayElements` is 0) `cubePadding` contains between 0
-and 3 bytes to ensure that the data in each face begins at a file
-offset that is a multiple of 4. In all other cases `cubePadding` is
-empty (0 bytes long).
+=== Level Index
+This array provides the offset within the Mipmap Level Array for
+each mip level. Levels are ordered as indicated by the value of
+`levelOrder`. This index provides random access to supercompressed
+data. It is not necessary for non-supercompressed data, as the sizes
+and offsets can be calculated, but for consistency and reducing the
+possibilities for error it must always be included in a KTX file.
+
+==== levelOffset
+`levelOffset` gives the offset of a mipmap level from the start of the
+Mipmap Level Array.
+
+=== Mipmap Level Array
+
+==== bytesOfLevelImages
+The total size of the data for a supercompressed mipmap level.
+
+`bytesOfLevelImages` is the number of bytes of pixel data in the
+current LOD level. This includes all z slices, all faces, all rows
+(or rows of blocks) and all pixels (or blocks) in each row for the
+mipmap level.
+
+If the sum of `bytesOfLevelImages` within the array is not equal
+to `bytesOfImages`, loaders should consider the file invalid and
+not load it.
+
+==== bytesOfUncompressedLevelImages
+The size of the data in a level after expansion from supercompression.
+When `supercompressionScheme == 0`, `bytesOfLevelData` must have the same
+value as this. `bytesOfUncompressedLevelData` does not include any
+`mipPadding` for the level.
+
+`bytesOfUncompressedLevelImages` is the number of bytes of pixel
+data in the current LOD level after expansion from supercompression.
+This includes all z slices, all faces, all rows (or rows of blocks)
+and all pixels (or blocks) in each row for the mipmap level. It
+does not include any bytes in `mipPadding`.
+
+If the sum of `bytesOfUncompressedLevelImages` within the array is
+not equal to `bytesOfUncompressedImages`, loaders should consider
+the file invalid and not load it.
+
+[TIP]
+====
+In versions of OpenGL < 4.5 and in OpenGL ES, faces of non-array
+cubemap textures (any texture where `numberOfFaces` is 6 and
+`numberOfArrayElements` is 0) must be uploaded individually. Loaders
+wishing to minimize the size of their intermediate buffers may want
+to read the faces individually rather then as a block of size
+`bytesOfUncompressedLevelImages`.
+====
+
+==== levelImages
+`levelImages` is an array of Bytes holding all the image data for a
+level.
+
+When `supercompression != 0` these bytes are formatted as specified in
+the scheme documentation.
 
 === mipPadding
-Between 0 and 7 bytes to make sure that all `imageSize` fields are
-at a file offset that is a multiple of 8.
+`mipPadding` is between 0 and 7 bytes to make sure that all
+`bytesOfLevelImages` fields are at a file offset that is a multiple
+of 8.
 
 == General comments
-The unpack alignment is 4. I.e. uncompressed pixel data is packed
-according to the rules described in section 8.4.4.1 of the OpenGL
-4.6 specification <<OPENGL46>> for a GL_UNPACK_ALIGNMENT of 4.
+Uncompressed pixel data must match the default OpenGL unpack
+alignment: 4. I.e. the data must be packed according to the rules
+described in section 8.4.4.1 of the OpenGL 4.6 specification
+<<OPENGL46>> with UNPACK_ROW_LENGTH = 0 and UNPACK_ALIGNMENT = 4.
 
 Values listed in tables and sections referred to in the OpenGL 4.6
 <<OPENGL46>> and Vulkan 1.0 <<VULKAN10>> specifications may be
@@ -541,6 +634,21 @@ where <swizzle> is one character from the set [01rgba]. For example
 -   R=b,G=r,B=g,A=1
 
 If not set, you will get the identity, i.e. no, swizzle.
+
+=== Writer Id
+KTX file writers must identify themselves by including a value with
+the following key:
+
+-   KTXwriter
+
+The value can be any UTF-8 string that will uniquely identify the tool
+writing the file, for example:
+
+-   AcmeCo TexTool v1.0
+
+Only the most recent writer should be identified.  Editing tools
+should overwrite this value when rewriting a file originally written
+by a different tool.
 
 == An example KTX file:
 
@@ -650,10 +758,11 @@ as texture formats. Metadata can be easily added in future.
 Should Global Compression be per-mip-level compression?::
   _Discussion:_ Should zlib, etc. be applied to each mip level rather than
   globally? If per level, contents could still be streamed. There would
-  be a compression dictionary per level but the overall effect on
-  the data size is unclear.
+  be a level index to enable random access. The overall effect on the data
+  size is unclear.
 +
-_Unresolved:_
+_Resolved:_ Yes. The benefits of random access, such as streaming,
+outweigh what is expected to be a small increase in size.
 
 == References
 [bibliography]
@@ -670,6 +779,9 @@ The Khronos Group, November 2017.
 - [[[KFD12]]] https://www.khronos.org/registry/DataFormat/specs/1.2/dataformat.1.2.html[Khronos
 Data Format Specification 1.2].
 Andrew Garrard. The Khronos Group, September 2017.
+
+- [[[OESCPT]]] https://www.khronos.org/registry/OpenGL/extensions/OES/OES_compressed_paletted_texture.txt[GL_OES_compressed_paletted_texture].
+Aaftab Munshi. The Khronos Group, July 2003.
 
 [NOTE]
 ====
@@ -688,10 +800,11 @@ any particular version of OpenGL {,ES} or Vulkan.
 == Changes compared to KTX
 
 - `vkFormat` added.
-- `maxLevelFirst` added.
+- `levelOrder` added.
 - Data format descriptor added.
-- ZLib, ANS and zstd compression options added.
+- Supercompression added.
 - `glBaseInternalFormat` removed.
+- Swizzle and writer id metadata added.
 
 [discrete]
 == Revision History
@@ -712,7 +825,14 @@ a new revision.
 |      draft3       |  2018-06-14 | Remove `glBaseInternalFormat`. Add
                                     zstd global compression option and
                                     issue 11. Add copyright & license.
-|     {docrev}      |  {revdate}  | Add acknowledgements.
+|      draft4       |  2018-06-26 | Add acknowledgements.
+|     {docrev}      |  {revdate}  | Change all size & offset fields to
+                                    64-bit. Change global compression to
+                                    supercompression. Add
+                                    supercompressionGlobalData, level
+                                    index and writer id. Define interactions
+                                    with paletted textures. Remove
+                                    `cubePadding`.
 |===
 
 [discrete]
