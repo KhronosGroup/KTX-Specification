@@ -30,7 +30,7 @@
 <p class="copyright">&copy; 2013 The Khronos Group Inc. All Rights Reserved. See <a href="#license">license</a>.</p>
 <hr />
 <h2 class="no-toc">Abstract</h2>
-<p> KTX is a format for storing textures for OpenGL and OpenGL ES applications. 
+<p> KTX is a format for storing textures for OpenGL<sup>®</sup> and OpenGL<sup>®</sup> ES applications. 
   It is distinguished by the simplicity of the loader required to instantiate 
   a GL texture object from the file contents.</p>
 <h2 class="no-toc">Status of this document</h2>
@@ -64,24 +64,30 @@ for each keyValuePair that fits in bytesOfKeyValueData
     Byte     valuePadding[3 - ((keyAndValueByteSize + 3) % 4)]
 end
   
-for each mipmap_level in numberOfMipmapLevels<sup>*</sup>
+for each mipmap_level in numberOfMipmapLevels<sup>1</sup>
     UInt32 imageSize; 
-    for each array_element in numberOfArrayElements<sup>*</sup>
-       for each face in numberOfFaces
-           for each z_slice in pixelDepth<sup>*</sup>
-               for each row or row_of_blocks in pixelHeight<sup>*</sup>
+    for each array_element in numberOfArrayElements<sup>2</sup>
+       for each face in numberOfFaces<sup>3</sup>
+           for each z_slice in pixelDepth<sup>2</sup>
+               for each row or row_of_blocks in pixelHeight<sup>2</sup>
                    for each pixel or block_of_pixels in pixelWidth
-                       Byte data[format-specific-number-of-bytes]<sup>**</sup>
+                       Byte data[format-specific-number-of-bytes]<sup>4</sup>
                    end
                end
            end
            Byte cubePadding[0-3]
        end
     end
-    Byte mipPadding[3 - ((imageSize + 3) % 4)]
+    Byte mipPadding[0-3]
 end</pre>
-<p> * Replace with 1 if this field is 0. </p>
-<p>** Uncompressed texture data matches a GL_UNPACK_ALIGNMENT of 4.</p>
+<ol>
+<li>Replace with 1 if this field is 0 or if glInternalFormat is one of the
+   GL_PALETTE* formats from OES_compressed_paletted_texture <a href="refsOESCPT">[OESCPT]</a>.</li>
+<li>Replace with 1 if this field is 0.</li>
+<li>Must be 1 if glInternalFormat is one of the GL_PALETTE* formats
+   from GL_OES_compressed_paletted_texture <a href="refsOESCPT">[OESCPT]</a>.
+<li>Uncompressed texture data matches a GL_UNPACK_ALIGNMENT of 4.</li>
+</ol>
 <h2>Field Descriptions</h2>
 <h3>identifier</h3>
 <p>The file identifier is a unique set of bytes that will differentiate the file 
@@ -125,9 +131,10 @@ end</pre>
   is reading the file and no conversion is necessary. When reading endianness 
   as a 32 bit integer produces the value 0x01020304 then the endianness of the 
   file is opposite the endianness of the program that is reading the file, and 
-  in that case the program reading the file must endian convert all header bytes 
-  to the endianness of the program (i.e. a little endian program must convert 
-  from big endian, and a big endian program must convert to little endian).</p>
+  in that case the program reading the file must endian convert all header bytes
+  and, if glTypeSize &gt; 1, all texture data to the endianness of the program
+  (i.e. a little endian program must convert from big endian, and a big endian
+  program must convert to little endian).</p>
 <h3>glType</h3>
 <p>For compressed textures, glType must equal 0. For uncompressed textures, 
   glType specifies the <code>type</code> parameter passed to <code>glTex{,Sub}Image*D</code>, usually one of the 
@@ -168,6 +175,10 @@ end</pre>
 <p>numberOfFaces specifies the number of cubemap faces. For cubemaps and 
   cubemap arrays this should be 6. For non cubemaps this should be 1. 
   Cube map faces are stored in the order: +X, -X, +Y, -Y, +Z, -Z.</p>
+<p>Due to GL_OES_compressed_paletted_texture  <a href="refsOESCPT">[OESCPT]</a>
+  not defining the interaction between cubemaps and its GL_PALETTE* formats,
+  if `glInternalFormat` is one of its GL_PALETTE* format, numberOfFaces must
+  be 1 </p>
 <h3>numberOfMipmapLevels</h3>
 <p>numberOfMipmapLevels must equal 1 for non-mipmapped textures. For 
   mipmapped textures, it equals the number of mipmaps. Mipmaps are stored 
@@ -176,6 +187,13 @@ end</pre>
   pyramid. If numberOfMipmapLevels equals 0, it indicates that a full 
   mipmap pyramid should be generated from level 0 at load time (this is 
   usually not allowed for compressed formats).</p>
+  <div class="note">
+    <p>For the GL_PALETTE* formats, this equals the number of mipmaps and is
+      passed as the <i>levels</i>, parameter when uploading to OpenGL {,ES}.
+      However all levels are packed into a single block of data along with
+      the palette so numberOfMipmapLevels is considered to be 1 in the for
+      loop over the data. Individual mipmaps are not identifiable.</p>
+  </div>
 <h3>bytesOfKeyValueData</h3>
 <p>An arbitrary number of key/value pairs may follow the header. This can be
   used to encode any arbitrary data. The bytesOfKeyValueData field
@@ -215,21 +233,35 @@ end</pre>
   but not the individual keyAndValueByteSize fields.</p>
 <h3>imageSize</h3>
 <p>For most textures imageSize is the number of bytes of pixel data in the current 
-  LOD level. This includes all z slices, all faces, all rows (or rows of blocks) 
-  and all pixels (or blocks) in each row for the mipmap level. It does not include 
-  any bytes in mipPadding.</p>
+  LOD level. This includes all array layers, all z slices, all faces, all rows
+  (or rows of blocks) and all pixels (or blocks) in each row for the mipmap level.
+  It does not include any bytes in mipPadding.</p>
 <p> The exception is non-array cubemap textures (any texture where numberOfFaces 
   is 6 and numberOfArrayElements is 0). For these textures imageSize is the number 
   of bytes in each face of the texture for the current LOD level, not including 
   bytes in cubePadding or mipPadding.</p>
 <h3>cubePadding</h3>
-<p> For non-array cubemap textures (any texture where numberOfFaces is 6 and numberOfArrayElements 
-  is 0) cubePadding contains between 0 and 3 bytes to ensure that the data in 
-  each face begins at a file offset that is a multiple of 4. In all other cases 
-  cubePadding is empty (0 bytes long).</p>
+<p> For non-array cubemap textures (any texture where numberOfFaces is 6 and
+  numberOfArrayElements is 0) cubePadding contains between 0 and 3
+  bytes to ensure that the data in each face begins at a file offset
+  that is a multiple of 4. In all other cases cubePadding is empty
+  (0 bytes long).</p>
+<div class="note">
+  <p>This is empty in the non-array cubemap case as well.
+    The requirement of GL_UNPACK_ALIGNMENT = 4 means the size of
+    uncompressed textures will always be a multiple of 4 bytes. All
+    known compressed formats, that are usable for cubemaps, have
+    block sizes that are a multiple of 4 bytes.</p>
+  <p>The field is still shown in case a compressed format emerges with a
+    block size that is not a multiple of 4 bytes.</p>
+</div>
 <h3>mipPadding</h3>
 <p>Between 0 and 3 bytes to make sure that all imageSize fields are at a
   file offset that is a multiple of 4.</p>
+<div class="note">
+  <p> This is empty for all known texture formats for the reasons given in
+    cubePadding and is retained for the same reason.</p>
+</div>
 <h2>General comments</h2>
 <p>The unpack alignment is 4. I.e. uncompressed pixel data is packed according 
   to the rules described in <a href=    "http://www.opengl.org/registry/doc/glspec44.core.pdf#nameddest=section-8.4.4.1">section 8.4.4.1</a> of the OpenGL 4.4 specification <a href="#refsGL44">[OPENGL44]</a> for a GL_UNPACK_ALIGNMENT of 4.</p>
@@ -288,7 +320,7 @@ end</pre>
 <pre class="example">// HEADER
 0xAB, 0x4B, 0x54, 0x58, // first four bytes of Byte[12] identifier
 0x20, 0x31, 0x31, 0xBB, // next four bytes of Byte[12] identifier
-0x0D, 0x0A, 0x1A, 0x0A. // final four bytes of Byte[12] identifier
+0x0D, 0x0A, 0x1A, 0x0A, // final four bytes of Byte[12] identifier
 0x04, 0x03, 0x02, 0x01, // Byte[4] endianess (Big endian in this case)
 0x00, 0x00, 0x00, 0x00, // UInt32 glType = 0
 0x00, 0x00, 0x00, 0x01, // UInt32 glTypeSize = 1
@@ -305,7 +337,7 @@ end</pre>
 // METADATA
 0x00, 0x00, 0x00, 0x0A, // UInt32 keyAndValueByteSize = 10
 0x61, 0x70, 0x69, 0x00, // UTF8 key:   'api\0'
-0x6A, 0x6F, 0x6B, 0x65, // UTF8 v: 'gles2\0'
+0x67, 0x6C, 0x65, 0x73, // UTF8 v: 'gles2\0'
 0x32, 0x00, 0x00, 0x00, // Byte[2] valuePadding (2 bytes)
 // TEXTURE DATA
 0x00, 0x00, 0x02, 0x00, // UInt32 imageSize = 512 bytes
@@ -354,7 +386,8 @@ end</pre>
 </blockquote>
 <p> Published specification:</p>
 <blockquote>
-  <p>The KTX file format specification can be found at <a href="http://www.khronos.org/opengles/sdk/tools/KTX/file_format_spec/">http://www.khronos.org/opengles/sdk/tools/KTX/file_format_spec/</a>.</p>
+  <p>The KTX file format specification can be found at
+    <a href="http://www.khronos.org/opengles/sdk/tools/KTX/file_format_spec/">http://www.khronos.org/opengles/sdk/tools/KTX/file_format_spec/</a>.</p>
 </blockquote>
 <p> Applications that use this media type :</p>
 <blockquote>
@@ -382,12 +415,17 @@ end</pre>
 <h3>Normative references</h3>
 <dl>
   <dt id="refsGL44">[OPENGL44]</dt>
-  <dd><cite><a href="http://www.opengl.org/registry/doc/glspec44.core.pdf"> OpenGL® 4.4 Core Profile</a></cite>, 
+  <dd><cite><a href="http://www.opengl.org/registry/doc/glspec44.core.pdf"> OpenGL<sup>®</sup> 4.4 Core Profile</a></cite>,
     Mark Segal, Kurt Akeley, Jon Leech, July 2013.</dd>
+  <div class="note">
+    <p> This reference is not intended to imply that values in file header fields are limited
+      to those in the referenced tables. New values may be introduced at any time by
+      OpenGL {,ES} extensions or new versions.</p>
+  </div>
+  <dt id="refsOESCPT">[OESCPT]</dt>
+  <dd><cite><a href="https://www.khronos.org/registry/OpenGL/extensions/OES/OES_compressed_paletted_texture.txt">
+   OES_compressed_paletted_texture</a></cite>, Aaftab Munshi, July 2003.<dd>
 </dl>
-<div class="note">
-  <p> This reference is not intended to imply that values in file header fields are limited to those in the referenced tables. New values may be introduced at any time by OpenGL {,ES} extensions or new versions.</p>
-</div>
 <h3>Other references</h3>
 <h2>Acknowledgements</h2>
 <p>This specification was produced by the Khronos OpenGL<sup>&reg;</sup> ES Working 
@@ -395,9 +433,15 @@ end</pre>
 <p>Special thanks to: Acorn Pooley (NVIDIA), Bruce Merry (ARM).</p>
 <h2>Revision History</h2>
 <dl>
-  <dt>03  Sept 2013</dt>
-  <dd>Clarified that glBaseInternalFormat is only used when a context does not support sized
-    formats, updated references to point to the OpenGL 4.4 specification with hyperlinks and included TexStorage*D and TexSubImage*D with the functions whose parameters are provided by a KTX file header.</dd>
+  <dt>03 Sept 2013</dt>
+  <dd>Clarified that glBaseInternalFormat is only used when a context does not support
+    sized formats, updated references to point to the OpenGL 4.4 specification with
+    hyperlinks and included TexStorage*D and TexSubImage*D with the functions whose
+    parameters are provided by a KTX file header.</dd>
+  <dt>26 July 2018</dt>
+  <dd>Clarified when data needs to be endian converted. Documented handling of paletted
+    texture formats. Documented that cubePadding and mipPadding are likely to be empty.
+    Removed hidden "joke".</dd>
 </dl>
 <hr />
 <h3 class="no-toc"><a name="license" id="license"/>License</h3>
