@@ -756,14 +756,15 @@ _Resolved:_ Not at this time. These formats are primarily for vertex
 data and several Vulkan vendors have said they can't support them
 as texture formats. Metadata can be easily added in future.
 
-Should Global Compression be per-mip-level compression?::
-  _Discussion:_ Should zlib, etc. be applied to each mip level rather than
-  globally? If per level, contents could still be streamed. There would
-  be a level index to enable random access. The overall effect on the data
-  size is unclear.
+Should the supercompression scheme be applied per-mip-level?::
+  _Discussion:_ Should each mip level be supercompressed independently
+  or should the scheme, zlib, zstd, etc., be applied to all levels
+  as a unit? The latter may result in slightly smaller size though
+  that is unclear. However it would also mean levels could not be
+  streamed or randomly accessed.
 +
-_Resolved:_ Yes. The benefits of random access, such as streaming,
-outweigh what is expected to be a small increase in size.
+_Resolved:_ Yes. The benefits of streaming and random access outweigh
+what is expected to be a small increase in size.
 
 Should we remove row padding from uncompressed image data?::
   _Discussion:_ Row padding was added to KTX so that data would have the
@@ -771,7 +772,7 @@ Should we remove row padding from uncompressed image data?::
   of rows by the GPU. Modern architectures are apparently not sensitive
   to this as evidenced by Vulkan deliberately omitting any equivalent of
   GL_UNPACK_ALIGNMENT. Thus an annoying chunk of code is required to
-  load row-padded images.
+  upload row-padded images to Vulkan.
 +
 _Resolved:_ Remove this and cube padding. Formats that would need
 padding have texel sizes that are less than 4 bytes so no benefit
