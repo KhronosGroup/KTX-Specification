@@ -537,10 +537,11 @@ the scheme documentation.
 of 8.
 
 == General comments
-Uncompressed pixel data must match the default OpenGL unpack
-alignment: 4. I.e. the data must be packed according to the rules
-described in section 8.4.4.1 of the OpenGL 4.6 specification
-<<OPENGL46>> with UNPACK_ROW_LENGTH = 0 and UNPACK_ALIGNMENT = 4.
+Rows of uncompressed pixel data are tightly packed. Each row in
+memory immediately follows the end of the preceding row. I.e the
+data must be packed according to the rules described in section
+8.4.4.1 of the OpenGL 4.6 specification <<OPENGL46>> with
+GL_UNPACK_ROW_LENGTH = 0 and GL_UNPACK_ALIGNMENT = 1.
 
 Values listed in tables and sections referred to in the OpenGL 4.6
 <<OPENGL46>> and Vulkan 1.0 <<VULKAN10>> specifications may be
@@ -764,6 +765,19 @@ Should Global Compression be per-mip-level compression?::
 _Resolved:_ Yes. The benefits of random access, such as streaming,
 outweigh what is expected to be a small increase in size.
 
+Should we remove row padding from uncompressed image data?::
+  _Discussion:_ Row padding was added to KTX so that data would have the
+  default GL_UNPACK_ALIGNMENT of 4, which was chosen to help speed up DMA
+  of rows by the GPU. Modern architectures are apparently not sensitive
+  to this as evidenced by Vulkan deliberately omitting any equivalent of
+  GL_UNPACK_ALIGNMENT. Thus an annoying chunk of code is required to
+  load row-padded images.
++
+_Resolved:_ Remove this and cube padding. Formats that would need
+padding have texel sizes that are less than 4 bytes so no benefit
+is obtained by starting cube faces or rows of such images at 4-byte
+multiples.
+
 == References
 [bibliography]
 === Normative References
@@ -805,6 +819,7 @@ any particular version of OpenGL {,ES} or Vulkan.
 - Supercompression added.
 - `glBaseInternalFormat` removed.
 - Swizzle and writer id metadata added.
+- Row and cube padding removed.
 
 [discrete]
 == Revision History
