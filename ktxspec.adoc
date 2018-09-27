@@ -128,7 +128,8 @@ end
 <1> Replace with 1 if this field is 0.
 <2> Must be 1 if `glInternalFormat` is one of the GL_PALETTE* formats
     from GL_OES_compressed_paletted_texture <<OESCPT>>.
-<3> Uncompressed texture data must have the default GL_UNPACK_ALIGNMENT of 4.
+<3> Rows of uncompressed texture images must be tightly packed,
+    equivalent to a GL_UNPACK_ALIGNMENT of 1.
 
 == Field Descriptions
 
