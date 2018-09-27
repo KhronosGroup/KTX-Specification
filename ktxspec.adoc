@@ -874,7 +874,7 @@ disclose, or distribute its contents, or to manufacture, use, or sell
 anything that it may describe, in whole or in part.
 
 This version of the KTX Specification is published and copyrighted by
-Khronos, but is not a Khronos ratified specification. Accordingly, it
+Khronos^®^, but is not a Khronos ratified specification. Accordingly, it
 does not fall within the scope of the Khronos IP policy, except to the
 extent, if any, that sections of it are normatively referenced in ratified
 Khronos specifications. Such references incorporate the referenced sections
@@ -909,15 +909,16 @@ otherwise, arising from or in connection with these materials.
 The KTX icon is a trademark of and © 2018, the Khronos Group, Inc. and
 may not be used without the written permission of the Khronos Group.
 
-Khronos, SYCL, SPIR, WebGL, EGL, COLLADA, StreamInput, OpenVX,
-OpenKCam, glTF, OpenKODE, OpenVG, OpenWF, OpenSL ES, OpenMAX, OpenMAX
-AL, OpenMAX IL and OpenMAX DL are trademarks and WebCL is a
-certification mark of the Khronos Group Inc. OpenCL is a trademark
-of Apple Inc. and OpenGL and OpenML are registered trademarks and
-the OpenGL ES and OpenGL SC logos are trademarks of Silicon Graphics
-International used under license by Khronos.  All other product
-names, trademarks, and/or company names are used solely for
-identification and belong to their respective owners.
+Khronos is registered trademark, SYCL, SPIR, WebGL, EGL, COLLADA,
+StreamInput, OpenVX, OpenKCam, glTF, OpenKODE, OpenVG, OpenWF,
+OpenSL ES, OpenMAX, OpenMAX AL, OpenMAX IL and OpenMAX DL are
+trademarks and WebCL is a certification mark of the Khronos Group
+Inc. OpenCL is a trademark of Apple Inc. and OpenGL and OpenML are
+registered trademarks and the OpenGL ES and OpenGL SC logos are
+trademarks of Silicon Graphics International used under license by
+Khronos.  All other product names, trademarks, and/or company names
+are used solely for identification and belong to their respective
+owners.
 --
 
 // vim: filetype=asciidoc ai expandtab tw=72 ts=4 sts=2 sw=2
