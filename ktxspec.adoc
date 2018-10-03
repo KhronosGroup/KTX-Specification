@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL and Vulkan textures.
-:docrev: draft5
+:docrev: draft6
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -323,10 +323,10 @@ indicates no supercompression.
 | 5･･･2^32^-1 | Reserved^2^ |             |
 |===
 
-^1^ Not to be confused with ZLib which is both a compression format and
+1. Not to be confused with ZLib which is both a compression format and
 a library that can be used to compress to ZLib or Deflate formats.
 
-^2^ A registry will be established to issue values in the reserved range
+2. A registry will be established to issue values in the reserved range
 for vendor compression schemes thus avoiding conflicts.
 
 The supercompression scheme is applied independently to each mip
@@ -919,7 +919,10 @@ a new revision.
                                     index and writer id. Define interactions
                                     with paletted textures. Remove
                                     `cubePadding`.
-|     {docrev}      |  {revdate}  |
+|     {docrev}      |  {revdate}  | Remove `rowPadding`. Use registered
+                                    trademarks. Improve supercompression
+                                    section & add references. Add
+                                    internal xrefs. Update issues.
 |===
 
 [discrete]
