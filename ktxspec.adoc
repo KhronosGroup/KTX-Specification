@@ -107,10 +107,13 @@ end
 <2> Replace with 1 if this field is 0 or if `glInternalFormat` is one of
     the GL_PALETTE* formats from GL_OES_compressed_paletted_texture
     <<OESCPT>>.
-<3> When `supercompressionScheme == 0` or after expansion `levelImages`
-    has the following structure.
+<3> See <<levelImages>> below.
 
-.Uncompressed `levelImages` Structure
+After reflation from supercompression or when `supercompressionScheme ==
+0`, `levelImages` looks like this:
+
+[[levelImages,levelImages]]
+.levelImages Structure
 [source, c]
 ----
 for each array_element in numberOfArrayElements <1>
@@ -174,15 +177,15 @@ integer. If the file is little endian then this is represented as
 the bytes 0x01 0x02 0x03 0x04. If the file is big endian then this
 is represented as the bytes 0x04 0x03 0x02 0x01. When reading
 `endianness` as a 32 bit integer produces the value 0x04030201 then
-the endianness of the file matches the the endianness of the
-program that is reading the file and no conversion is necessary.
-When reading `endianness` as a 32 bit integer produces the value
-0x01020304 then the endianness of the file is opposite the
-endianness of the program that is reading the file. In that
-case the program reading the file must endian convert all header
-UInt32s and, when `glTypeSize != 1`, all `data` to the endianness
-of the program (i.e. a little endian program must convert from big
-endian, and a big endian program must convert from little endian).
+the endianness of the file matches the the endianness of the program
+that is reading the file and no conversion is necessary.  When
+reading `endianness` as a 32 bit integer produces the value 0x01020304
+then the endianness of the file is opposite the endianness of the
+program that is reading the file. In that case the program reading
+the file must endian convert all header UInt32s and UInt64s and,
+when `<<glTypeSize>> != 1`, all `data` to the endianness of the program
+(i.e. a little endian program must convert from big endian, and a
+big endian program must convert from little endian).
 
 === glType
 For block compressed textures, `glType` must equal 0. For uncompressed
@@ -257,96 +260,139 @@ be 1. Cube map faces are stored in the order: +X, -X, +Y, -Y, +Z,
 
 Due to GL_OES_compressed_paletted_texture <<OESCPT>> not defining
 the interaction between cubemaps and its GL_PALETTE* formats,
-if `glInternalFormat` is a paletted format `numberOfFaces` must be
+if `<<glInternalFormat>>` is a paletted format `numberOfFaces` must be
 1
 
 === numberOfMipmapLevels
 `numberOfMipmapLevels` must equal 1 for non-mipmapped textures. For
 mipmapped textures, it equals the number of mipmaps. Mipmaps are
-ordered according to the value of the `levelOrder` field.  A KTX
+ordered according to the value of the `<<levelOrder>>` field.  A KTX
 file does not need to contain a complete mipmap pyramid. If
 `numberOfMipmapLevels` equals 0, it indicates that a full mipmap
 pyramid should be generated from level 0 at load time (this is
 usually not allowed for compressed formats).
 
+[NOTE]
+====
+When `<<glInternalFormat>>` is one of the GL_PALETTE* formats from
+GL_OES_compressed_paletted_texture <<OESCPT>> this equals the number
+of mipmaps and is passed as the levels, parameter when uploading
+to OpenGL {,ES}.  However all levels are packed into a single block
+of data along with the palette so numberOfMipmapLevels is considered
+to be 1 in the for loop over the data. Individual mipmaps are not
+identifiable.
+====
+
 === levelOrder
 `levelOrder` indicates the ordering of the mipmap levels.  If 0,
 it indicates the levels are ordered from base level (the largest)
 to max level (the smallest).  If 1, it indicates the levels ordered
-from the max level to base level. If `numberOfMipmapLevels == 0`,
+from the max level to base level. If `<<numberOfMipmapLevels>> == 0`,
 `levelOrder` must equal 0.
 
-[TIP]
+`levelOrder` is ignored when `<<glInternalFormat>>` is one of the
+GL_PALETTE* formats from GL_OES_compressed_paletted_texture <<OESCPT>>
+as from the perspective of the KTX2 file there is only a single
+level.
+
+[NOTE]
 .Rationale
 ====
 When streaming a KTX file, sending smaller mip levels first can be
 used together with, e.g., the `GL_TEXTURE_MAX_LEVEL` and
-`GL_TEXTURE_BASE_LEVEL` texture parameters, to display something
-quickly without waiting for the entire texture data.
-====
-
-[NOTE]
-====
-`levelOrder` has no meaning when `glInternalFormat` is one of the
-GL_PALETTE* formats from GL_OES_compressed_paletted_texture <<OESCPT>>
-as from the perspective of the KTX2 file there is only a single level.
+`GL_TEXTURE_BASE_LEVEL` texture parameters, to display a low
+resolution image quickly without waiting for the entire texture
+data.
 ====
 
 === supercompressionScheme
-`supercompressionScheme` indicates if an optional compression
-scheme has been applied to the data in `images`.  It must be one
-of the following values:
+`supercompressionScheme` indicates if an optional supercompression
+scheme has been applied to the data in `<<levelImages>>`.  It must
+be one of the values from <<supercompressionSchemes>>. A value of `0`
+indicates no supercompression.
 
-[width=50%,cols="^30,<70"]
+[width=100%,align=center,cols="^15,<25,<30,<30",options=header]
+[[supercompressionSchemes]]
+.Supercompression Schemes
 |===
-| 0           | None
-| 1           | Crunch CRN
-| 2           | ZLib format with Deflate compression & Adler32 checksum.
-| 3           | tANS (?)
-| 4           | zstd
-| 5･･･2^32^-1 | Reserved
+| Scheme Id   | Scheme Name | Level Data Format | Global Data Format
+| 0           | None        |   n/a       | n/a
+| 1           | Crunch CRN  |   T.B.C     | T.B.C
+| 2           | Deflate^1^  | <<DEFLATE>> | n/a
+| 4           | Zstandard   |  <<ZSTD>>   | n/a
+| 5･･･2^32^-1 | Reserved^2^ |             |
 |===
 
-[WARNING]
-====
-References WIP.
+^1^ Not to be confused with ZLib which is both a compression format and
+a library that can be used to compress to ZLib or Deflate formats.
 
-For Zlib wrapper, see
-http://tools.ietf.org/html/rfc1950 RFC1950. 
-For deflate stream see http://tools.ietf.org/html/rfc1951 RFC1951.
-Probably it's the latter we need.
+^2^ A registry will be established to issue values in the reserved range
+for vendor compression schemes thus avoiding conflicts.
 
-For LZ4 it is https://github.com/lz4/lz4/blob/dev/doc/lz4_Frame_format.md
-If we support LZ4 should we use multiple frames or 1 per miplevel? I
-think 1 per miplevel.
-====
+The supercompression scheme is applied independently to each mip
+level to permit streaming and random access to the levels. The
+format of the data in `<<levelImages>>` for a scheme is specified
+by the reference given in the _Level Data Format_ column of
+<<supercompressionSchemes>>.
 
-The supercompression scheme is applied independently to each mip level
-to permit random access to the levels. Schemes that require data global
-to all levels can store it in `supercompressionGlobalData`.
-The `Crunch CRN` scheme, for example, will store its global codebook
-there.
+Schemes that require data global to all levels can store it in
+`<<supercompressionGlobalData>>`. Currently only Crunch CRN uses
+global data. Thje format of the global data for a scheme is specified
+by the reference to the given in the _Global Data Format_ column
+of <<supercompressionSchemes>>.
 
 When a supercompression scheme is used, the image data must be
-expanded from the scheme prior to GPU sampling.
-
-A registry will be established to issue values in the reserved range
-for vendor compression schemes thus avoiding conflicts.
+inflated from the scheme prior to GPU sampling.
 
 [TIP]
 ====
-Lossless supercompression, e.g, LZ, is generally ineffective on the
-block-compressed data used by GPU texture formats. It is best
-reserved for use with uncompressed texture formats or with
-block-compressed data that has been optimized for supercompression,
-such as by Crunch's _rate distortion optimization_ mode.
+LZW-style lossless supercompression, e.g, schemes 2, 3 and 4, is
+generally ineffective on the block-compressed data used by GPU
+texture formats. It is best reserved for use with uncompressed
+texture formats or with block-compressed data that has been specially
+optimized for LZW-style supercompression, such as by Crunch's _Rate
+Distortion Optimization_ mode <<RDO>>.
 
-Crunch CRN mode is specially designed to supercompress block-compressed
-textures.
+Crunch CRN is specially designed for supercompression of some
+block-compressed texture formats.
+====
+
+==== Scheme Notes (Normative)
+===== Crunch CRN
+A file that specifies Crunch CRN with formats other than ETC, ETC2 and
+BC[1-5] must be considered invalid.
+
+[WARNING]
+====
+*IMPORTANT QUESTIONS*
+
+1. Do we want to put such a limitation in KTX2 or are the current
+   limitations more to do with lack of CRN encoders rather than with the
+   CRN format? If remove limitation don't forget to remove "some" from
+   the sentence about CRN above.
+
+2. Any other restrictions we should note about using CRN in KTX2?
+====
+
+===== Zstandard
+Only _Zstandard_ frames are required. Inflators may skip _Skippable_
+frames.
+
+[WARNING]
+====
+*IMPORTANT QUESTIONS*
+
+1. Do we need to require any other specific flag values in Zstandard
+   frame headers?
+
+2. Should we require a level be a single Zstandard or LZ4 frame or don't care?
+
+3. Any other restrictions we should note about using Zstandard in KTX2?
+
 ====
 
 === Data Format Descriptor
-The next 3 items combined form a _Data Format Descriptor_,
+The next 3 items combined form a _Data Format Descriptor_
 (dfDescriptor) describing the layout of the texel blocks in `data`.
 The full specification for this can be found in the Khronos Data
 Format 1.2 Specification <<KDF12>>.
@@ -357,10 +403,10 @@ refer to <<KDF12>>. If consists of one or more _Descriptor Blocks_
 (dfDescriptorBlock).
 
 The Data Format Descriptor describes the texel blocks as they are when
-`supercompressionScheme == 0` or after expansion when
+`supercompressionScheme == 0` or after reflation when
 `supercompressionScheme != 0`.
 
-[TIP]
+[NOTE]
 .Rationale
 ====
 `dfFormatDescriptor` is useful in the following cases:
@@ -379,7 +425,7 @@ The Data Format Descriptor describes the texel blocks as they are when
 ==== bytesOfDataFormatDescriptor
 Called `total_size` in <<KFD12>>, `bytesOfDataFormatDescriptor`
 indicates the total number of bytes in the dfDescriptor including
-all dfDescriptorBlocks and all `blockPadding` fields.
+all dfDescriptorBlocks and all `<<blockPadding>>` fields.
 
 ==== descriptorBlock
 A `Descriptor Block` as defined in <<KDF12>>, the high-order 16
@@ -391,7 +437,7 @@ bits of its first UInt32 give the descriptor type and the high-order
 following the last byte in `blockPadding` is at a file offset that is a
 multiple of 4. This ensures that every `descriptorBlock` field and the
 following `bytesOfKeyValueData` field are 4-byte aligned. This padding
-is included in `bytesOfFormatDescriptor` but not in the individual
+is included in `<<bytesOfDataFormatDescriptor>>` but not in the individual
 `descriptor_block_sizes`.
 
 The _Khronos Basic Data Format Descriptor Block_ which will be the type
@@ -403,8 +449,8 @@ An arbitrary number of key/value pairs may follow the header. This
 can be used to encode any arbitrary data. The `bytesOfKeyValueData`
 field indicates the total number of bytes of key/value data including
 all `keyAndValueByteSize` fields, all `keyAndValue` fields and all
-`valuePadding` fields but not the `keyValuePadding` field. The file
-offset of the `bytesOfImages` field is located at the file
+`<<valuePadding>>` fields but not the `<<keyValuePadding>>` field. The file
+offset of the `<<bytesOfImages>>` field is located at the file
 offset of the `bytesOfKeyValueData` field plus 4 plus the value of the
 `bytesOfKeyValueData` field rounded to the next 8-byte boundary.
 
@@ -416,7 +462,7 @@ of data in the value. If the value is a UTF-8 string it should be
 NUL terminated and the `keyAndValueByteSize` should include tlhe NUL
 character (but code that reads KTX files must not assume that value
 fields are NUL terminated). `keyAndValueByteSize` does not include
-the bytes in `valuePadding`.
+the bytes in `<<valuePadding>>`.
 
 === keyAndValue
 `keyAndValue` contains 2 separate sections. First it contains a key
@@ -434,25 +480,25 @@ it is a sequence of bytes rather than of words. It is up to the
 vendor defining the key to specify how those bytes are to be
 interpreted (including the endianness of any encoded numbers). If
 the Value data is a string of bytes then the NUL termination should
-be included in the `keyAndValueByteSize` byte count (but programs
+be included in the `<<keyAndValueByteSize>>` byte count (but programs
 that read KTX files must not rely on this).
 
 === valuePadding
 `valuePadding` contains between 0 and 3 bytes to ensure that the byte
 following the last byte in `valuePadding` is at a file offset that
-is a multiple of 4. This ensures that every `keyAndValueByteSize`
+is a multiple of 4. This ensures that every `<<keyAndValueByteSize>>`
 field is 4-byte aligned. This padding is included in the
-`bytesOfKeyValueData` field but not the individual `keyAndValueByteSize`
-fields.
+`<<bytesOfKeyValueData>>` field but not the individual
+`<<keyAndValueByteSize>>` fields.
 
 === keyValuePadding
 `keyValuePadding` contains either 0 or 4 bytes to ensure that the
-following `bytesOfSuperconpressionGlobalData` field is at a file
+following `<<bytesOfSupercompressionGlobalData>>` field is at a file
 offset that is a multiple of 8.
 
 === bytesOfSupercompressionGlobalData
 `bytesOfSupercompressionGlobalData` indicates the number of bytes
-of `supercompressionGlobalData`. It does not include `sgdPadding`.
+of `<<supercompressionGlobalData>>`. It does not include `sgdPadding`.
 For most schemes the value is 0.
 
 === supercompressionGlobalData
@@ -462,28 +508,28 @@ can be expanded.
 
 === sgdPadding
 `sgdPadding` contains bwteeen 0 and 7 bytes to ensure ensure that
-`bytesOfImages` is at a file offset that is a multiple of 8.
+`<<bytesOfImages>>` is at a file offset that is a multiple of 8.
 
 === bytesOfImages
 The total size of the image data. That is the sum of the
-`bytesOfLevelImages` within the Mipmap level array.
+`<<bytesOfLevelImages>>` within the Mipmap level array.
 
 === bytesOfUncompressedImages
 The size of the image data after expansion from supercompression.
-When `supercompressionScheme == 0`, `bytesOfImages` must have the same
+When `supercompressionScheme == 0`, `<<bytesOfImages>>` must have the same
 value as this.
 
 === Level Index
-This array provides the offset within the Mipmap Level Array for
+This array provides the offset within the <<_mipmap_level_array>> for
 each mip level. Levels are ordered as indicated by the value of
-`levelOrder`. This index provides random access to supercompressed
+`<<levelOrder>>`. This index provides random access to supercompressed
 data. It is not necessary for non-supercompressed data, as the sizes
 and offsets can be calculated, but for consistency and reducing the
 possibilities for error it must always be included in a KTX file.
 
 ==== levelOffset
 `levelOffset` gives the offset of a mipmap level from the start of the
-Mipmap Level Array.
+<<_mipmap_level_array>>.
 
 === Mipmap Level Array
 
@@ -496,23 +542,23 @@ current LOD level. This includes all z slices, all faces, all rows
 mipmap level.
 
 If the sum of `bytesOfLevelImages` within the array is not equal
-to `bytesOfImages`, loaders should consider the file invalid and
+to `<<bytesOfImages>>`, loaders should consider the file invalid and
 not load it.
 
 ==== bytesOfUncompressedLevelImages
-The size of the data in a level after expansion from supercompression.
-When `supercompressionScheme == 0`, `bytesOfLevelData` must have the same
+The size of the data in a level after reflation from supercompression.
+When `supercompressionScheme == 0`, `<<bytesOfLevelData>>` must have the same
 value as this. `bytesOfUncompressedLevelData` does not include any
-`mipPadding` for the level.
+`<<mipPadding>>` for the level.
 
 `bytesOfUncompressedLevelImages` is the number of bytes of pixel
-data in the current LOD level after expansion from supercompression.
+data in the current LOD level after reflation from supercompression.
 This includes all z slices, all faces, all rows (or rows of blocks)
 and all pixels (or blocks) in each row for the mipmap level. It
-does not include any bytes in `mipPadding`.
+does not include any bytes in `<<mipPadding>>`.
 
 If the sum of `bytesOfUncompressedLevelImages` within the array is
-not equal to `bytesOfUncompressedImages`, loaders should consider
+not equal to `<<bytesOfUncompressedImages>>`, loaders should consider
 the file invalid and not load it.
 
 [TIP]
@@ -529,12 +575,12 @@ to read the faces individually rather then as a block of size
 `levelImages` is an array of Bytes holding all the image data for a
 level.
 
-When `supercompression != 0` these bytes are formatted as specified in
+When `<<supercompressionScheme>> != 0` these bytes are formatted as specified in
 the scheme documentation.
 
 === mipPadding
 `mipPadding` is between 0 and 7 bytes to make sure that all
-`bytesOfLevelImages` fields are at a file offset that is a multiple
+`<<bytesOfLevelImages>>` fields are at a file offset that is a multiple
 of 8.
 
 == General comments
@@ -780,6 +826,9 @@ padding have texel sizes that are less than 4 bytes so no benefit
 is obtained by starting cube faces or rows of such images at 4-byte
 multiples.
 
+Should we require content checksums anywhere, e.g. on supercompressed data?::
+  _Unresolved:_
+
 == References
 [bibliography]
 === Normative References
@@ -799,6 +848,23 @@ Andrew Garrard. The Khronos Group, September 2017.
 - [[[OESCPT]]] https://www.khronos.org/registry/OpenGL/extensions/OES/OES_compressed_paletted_texture.txt[GL_OES_compressed_paletted_texture].
 Aaftab Munshi. The Khronos Group, July 2003.
 
+////
+"L." after the doc. title is to make the correct author name L. Peter
+Deutsch. If I put it at the start of the line following the title,
+Asciidoctor thinks I am trying to make a list. Same for the Y. below.
+////
+- [[[DEFLATE]]] https://tools.ietf.org/html/rfc1951[DEFLATE Compressed
+Data Format Specification version 1.3 (RFC1951)]. L.
+Peter Deutsch. IETF Network Working Group, May 1996.
+
+- [[[ZSTD]]] https://tools.ietf.org/html/rfc8478[Zstandard Compression
+and the application/zstd Media Type. (RFC8478)]. Y.
+Collet, M. Kucherawy, Ed. Internet Engineering Task Force (IETF), October 2018.
+
+////
+- [[[LZ4]]] https://github.com/lz4/lz4/blob/dev/doc/lz4_Frame_format.md[LZ4].
+////
+
 [NOTE]
 ====
 References to the OpenGL and Vulkan specifications do not imply
@@ -810,7 +876,10 @@ any particular version of OpenGL {,ES} or Vulkan.
 ====
 
 [bibliography]
-=== Other References
+=== Non-Normative References
+
+- [[[RDO]]] https://github.com/[Somewhere].
+Rich Geldreich, Jr.
 
 [appendix]
 == Changes compared to KTX
@@ -843,13 +912,14 @@ a new revision.
                                     zstd global compression option and
                                     issue 11. Add copyright & license.
 |      draft4       |  2018-06-26 | Add acknowledgements.
-|     {docrev}      |  {revdate}  | Change all size & offset fields to
+|      draft5       |  2018-07-26 | Change all size & offset fields to
                                     64-bit. Change global compression to
                                     supercompression. Add
                                     supercompressionGlobalData, level
                                     index and writer id. Define interactions
                                     with paletted textures. Remove
                                     `cubePadding`.
+|     {docrev}      |  {revdate}  |
 |===
 
 [discrete]
