@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL and Vulkan textures.
-:docrev: draft6
+:docrev: draft7
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -33,7 +33,9 @@
 ==== Editor: {author} ({author_org})
 
 [.legal]
+--
 © 2018 The Khronos Group Inc. All Rights Reserved. See <<License>>.
+--
 
 [abstract]
 == Abstract
@@ -43,12 +45,12 @@ objects from the file contents.
 
 It extends the KTX format with support for easier loading of Vulkan
 textures, easier use by non-OpenGL and non-Vulkan applications, storage of
-multisample images, streaming and global compression.
+multisample images, streaming and supercompression.
 
 [discrete]
 === Status of this document
 
-WIP. Ready for initial review; definitely not ready for implementation.
+WIP. Ready for trial implementations.
 
 == File Structure
 
@@ -105,11 +107,11 @@ end
 ----
 <1> These 5 lines are a Data Format Descriptor. See <<_data_format_descriptor>>.
 <2> Replace with 1 if this field is 0 or if `glInternalFormat` is one of
-    the GL_PALETTE* formats from GL_OES_compressed_paletted_texture
+    the `GL_PALETTE*` formats from GL_OES_compressed_paletted_texture
     <<OESCPT>>.
 <3> See <<levelImages>> below.
 
-After reflation from supercompression or when `supercompressionScheme ==
+After inflation from supercompression or when `supercompressionScheme ==
 0`, `levelImages` looks like this:
 
 [[levelImages,levelImages]]
@@ -129,10 +131,10 @@ for each array_element in numberOfArrayElements <1>
 end
 ----
 <1> Replace with 1 if this field is 0.
-<2> Must be 1 if `glInternalFormat` is one of the GL_PALETTE* formats
+<2> Must be 1 if `glInternalFormat` is one of the `GL_PALETTE*` formats
     from GL_OES_compressed_paletted_texture <<OESCPT>>.
 <3> Rows of uncompressed texture images must be tightly packed,
-    equivalent to a GL_UNPACK_ALIGNMENT of 1.
+    equivalent to a `GL_UNPACK_ALIGNMENT` of 1.
 
 == Field Descriptions
 
@@ -231,13 +233,16 @@ only in Vulkan.
 ====
 There is currently no such token. A value will be requested from the
 OpenGL registry. Whether to include this token in the GL namespace
-and `gl.h` will have to be discussed by the working groups.
+and `gl.h` will have to be discussed by the working groups. Use
+`GL_INVALID_VALUE` (0x0501) for now.
 ====
 
 === vkFormat
-`vkFormat` specifies the Vulkan image format, usually one of the values
-from the `VkFormat` enum in section 30.3.1 of the Vulkan 1.0
-specification <<VULKAN10>>. VK_FORMAT_UNDEFINED can be used if the format
+`vkFormat` specifies the Vulkan image format, usually one of the
+values from the `VkFormat` enum in
+https://www.khronos.org/registry/vulkan/specs/1.0/html/vkspec.html#features-formats-definition[section
+30.3.1 _Format Definition_^] of the Vulkan 1.1 specification <<VULKAN11>>.
+`vkFormat` takes the value `VK_FORMAT_UNDEFINED` (0) if the format
 of the data is a not a recognized Vulkan format.
 
 === pixelWidth, pixelHeight, pixelDepth
@@ -259,9 +264,9 @@ be 1. Cube map faces are stored in the order: +X, -X, +Y, -Y, +Z,
 -Z.
 
 Due to GL_OES_compressed_paletted_texture <<OESCPT>> not defining
-the interaction between cubemaps and its GL_PALETTE* formats,
-if `<<glInternalFormat>>` is a paletted format `numberOfFaces` must be
-1
+the interaction between cubemaps and its `GL_PALETTE*` formats, if
+`<<glInternalFormat>>` is a paletted format `numberOfFaces` must
+be 1
 
 === numberOfMipmapLevels
 `numberOfMipmapLevels` must equal 1 for non-mipmapped textures. For
@@ -274,13 +279,13 @@ usually not allowed for compressed formats).
 
 [NOTE]
 ====
-When `<<glInternalFormat>>` is one of the GL_PALETTE* formats from
-GL_OES_compressed_paletted_texture <<OESCPT>> this equals the number
-of mipmaps and is passed as the levels, parameter when uploading
-to OpenGL {,ES}.  However all levels are packed into a single block
-of data along with the palette so numberOfMipmapLevels is considered
-to be 1 in the for loop over the data. Individual mipmaps are not
-identifiable.
+When `<<glInternalFormat>>` is one of the `GL_PALETTE*` formats
+from GL_OES_compressed_paletted_texture <<OESCPT>> this equals the
+number of mipmaps and is passed as the levels, parameter when
+uploading to OpenGL {,ES}.  However all levels are packed into a
+single block of data along with the palette so numberOfMipmapLevels
+is considered to be 1 in the for loop over the data. Individual
+mipmaps are not identifiable.
 ====
 
 === levelOrder
@@ -291,9 +296,9 @@ from the max level to base level. If `<<numberOfMipmapLevels>> == 0`,
 `levelOrder` must equal 0.
 
 `levelOrder` is ignored when `<<glInternalFormat>>` is one of the
-GL_PALETTE* formats from GL_OES_compressed_paletted_texture <<OESCPT>>
-as from the perspective of the KTX2 file there is only a single
-level.
+`GL_PALETTE*` formats from GL_OES_compressed_paletted_texture
+<<OESCPT>> as from the perspective of the KTX2 file there is only
+a single level.
 
 [NOTE]
 .Rationale
@@ -566,11 +571,11 @@ of 8.
 Rows of uncompressed pixel data are tightly packed. Each row in
 memory immediately follows the end of the preceding row. I.e the
 data must be packed according to the rules described in section
-8.4.4.1 of the OpenGL 4.6 specification <<OPENGL46>> with
-GL_UNPACK_ROW_LENGTH = 0 and GL_UNPACK_ALIGNMENT = 1.
+8.4.4.1 _Unpacking_ of the OpenGL 4.6 specification <<OPENGL46>>
+with GL_UNPACK_ROW_LENGTH = 0 and GL_UNPACK_ALIGNMENT = 1.
 
 Values listed in tables and sections referred to in the OpenGL 4.6
-<<OPENGL46>> and Vulkan 1.0 <<VULKAN10>> specifications may be
+<<OPENGL46>> and Vulkan 1.1 <<VULKAN11>> specifications may be
 supplemented by extensions. The references are given as examples
 and do not imply that all of those texture types can be loaded in
 any particular version of OpenGL {,ES} or Vulkan.
@@ -633,6 +638,7 @@ as other values may not be widely supported by other tools.
 
 === Swizzle
 
+////
 [NOTE]
 .Differences between OpenGL and Vulkan Swizzle
 ====
@@ -646,6 +652,7 @@ as other values may not be widely supported by other tools.
 * Vulkan has a struct VkComponentMapping while OpenGL uses an array of
   component swizzle values.
 ====
+////
 
 The recommended key for indicating desired component mapping for a
 texture is;
@@ -838,9 +845,9 @@ Aaftab Munshi. The Khronos Group, July 2003.
   OpenGL^®^ Graphics System, A Specification (Version 4.6 (Core Profile))].
 Mark Segal, Kurt Akeley; Editor: Jon Leech. The Khronos Group, July 2017.
 
-- [[[VULKAN10]]] https://www.khronos.org/registry/vulkan/specs/1.0/html/vkspec.html[Vulkan^®^
-1.0.66 Specification].
-The Khronos Group, November 2017.
+- [[[VULKAN11]]] https://www.khronos.org/registry/vulkan/specs/1.0/html/vkspec.html[Vulkan^®^
+1.1.87 Specification].
+The Khronos Group, October 2018.
 
 ////
 "L." & "Y." after doc titles avoid Asciidoctor list issue.
@@ -908,10 +915,16 @@ a new revision.
                                     index and writer id. Define interactions
                                     with paletted textures. Remove
                                     `cubePadding`.
-|     {docrev}      |  {revdate}  | Remove `rowPadding`. Use registered
+|      draft6       |  2018-10-03 | Remove `rowPadding`. Use registered
                                     trademarks. Improve supercompression
                                     section & add references. Add
                                     internal xrefs. Update issues.
+|     {docrev}      |  {revdate}  | Answer questions re.
+                                    supercompression posed in draft 6 &
+                                    finish section. Fix scheme numbers
+                                    after ANS removal. Alphabetize
+                                    references. Improve wording and
+                                    formatting. Change status.
 |===
 
 [discrete]
