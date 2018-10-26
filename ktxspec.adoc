@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL and Vulkan textures.
-:docrev: draft7
+:docrev: draft8
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -50,7 +50,7 @@ multisample images, streaming and supercompression.
 [discrete]
 === Status of this document
 
-WIP. Ready for trial implementations.
+WIP. Under review; not ready for implementation.
 
 == File Structure
 
@@ -919,12 +919,16 @@ a new revision.
                                     trademarks. Improve supercompression
                                     section & add references. Add
                                     internal xrefs. Update issues.
-|     {docrev}      |  {revdate}  | Answer questions re.
+|      draft7       |  2018-10-14 | Answer questions re.
                                     supercompression posed in draft 6 &
                                     finish section. Fix scheme numbers
                                     after ANS removal. Alphabetize
                                     references. Improve wording and
                                     formatting. Change status.
+|     {docrev}      |  {revdate}  | Change status back to not ready for
+                                    implementation in view of
+                                    https://github.com/KhronosGroup/KTX-Specification/issues/8[issue
+                                    #8].
 |===
 
 [discrete]
