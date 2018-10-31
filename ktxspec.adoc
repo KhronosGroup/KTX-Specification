@@ -417,10 +417,10 @@ bits of its first UInt32 give the descriptor type and the high-order
 16 bits of the second UInt32 give the `descriptor_block_size`.
 
 ==== blockPadding
-`blockPadding` contains between 0 and 3 bytes to ensure that the byte
-following the last byte in `blockPadding` is at a file offset that is a
-multiple of 4. This ensures that every `descriptorBlock` field and the
-following `bytesOfKeyValueData` field are 4-byte aligned. This padding
+`blockPadding` contains between 0 and 3 bytes of value `0x00` to ensure
+that the byte following the last byte in `blockPadding` is at a file offset
+that is a multiple of 4. This ensures that every `descriptorBlock` field and
+the following `bytesOfKeyValueData` field are 4-byte aligned. This padding
 is included in `<<bytesOfDataFormatDescriptor>>` but not in the individual
 `descriptor_block_sizes`.
 
@@ -468,16 +468,16 @@ be included in the `<<keyAndValueByteSize>>` byte count (but programs
 that read KTX files must not rely on this).
 
 === valuePadding
-`valuePadding` contains between 0 and 3 bytes to ensure that the byte
-following the last byte in `valuePadding` is at a file offset that
+`valuePadding` contains between 0 and 3 bytes of value `0x00` to ensure that
+the byte following the last byte in `valuePadding` is at a file offset that
 is a multiple of 4. This ensures that every `<<keyAndValueByteSize>>`
 field is 4-byte aligned. This padding is included in the
 `<<bytesOfKeyValueData>>` field but not the individual
 `<<keyAndValueByteSize>>` fields.
 
 === keyValuePadding
-`keyValuePadding` contains either 0 or 4 bytes to ensure that the
-following `<<bytesOfSupercompressionGlobalData>>` field is at a file
+`keyValuePadding` contains either 0 or 4 bytes of value `0x00` to ensure that
+the following `<<bytesOfSupercompressionGlobalData>>` field is at a file
 offset that is a multiple of 8.
 
 === bytesOfSupercompressionGlobalData
@@ -491,8 +491,8 @@ supercompression schemes that must be available before any mip level
 can be expanded.
 
 === sgdPadding
-`sgdPadding` contains bwteeen 0 and 7 bytes to ensure ensure that
-`<<bytesOfImages>>` is at a file offset that is a multiple of 8.
+`sgdPadding` contains between 0 and 7 bytes of value `0x00` to ensure ensure
+that `<<bytesOfImages>>` is at a file offset that is a multiple of 8.
 
 === bytesOfImages
 The total size of the image data. That is the sum of the
@@ -559,13 +559,12 @@ to read the faces individually rather then as a block of size
 `levelImages` is an array of Bytes holding all the image data for a
 level.
 
-When `<<supercompressionScheme>> != 0` these bytes are formatted as specified in
-the scheme documentation.
+When `<<supercompressionScheme>> != 0` these bytes are formatted as specified
+in the scheme documentation.
 
 === mipPadding
-`mipPadding` is between 0 and 7 bytes to make sure that all
-`<<bytesOfLevelImages>>` fields are at a file offset that is a multiple
-of 8.
+`mipPadding` is between 0 and 7 bytes of value `0x00` to make sure that all
+`<<bytesOfLevelImages>>` fields are at a file offset that is a multiple of 8.
 
 == General comments
 Rows of uncompressed pixel data are tightly packed. Each row in
