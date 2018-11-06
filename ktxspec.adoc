@@ -22,6 +22,7 @@
 :data-uri:
 :icons: font
 :source-highlighter: prettify
+:stylesheet: khronos.css
 
 ////
 This part is the Preamble whose 1st 'graph is given [.lead] role by
