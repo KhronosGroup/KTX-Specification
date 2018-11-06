@@ -23,19 +23,21 @@
 :icons: font
 :source-highlighter: prettify
 
-[discrete]
-==== Format Version: 2.0
+////
+This part is the Preamble whose 1st 'graph is given [.lead] role by
+default meaning it is rendered in a larger font.  Add [.lead] to the
+other Preamble 'graphs so they match.
+////
+*Format Version:* 2.0
 
-[discrete]
-==== Document Revision: {docrev}
+[.lead]
+*Document Revision:* {docrev}
 
-[discrete]
-==== Editor: {author} ({author_org})
+[.lead]
+*Editor:* {author} ({author_org})
 
 [.legal]
---
 © 2018 The Khronos Group Inc. All Rights Reserved. See <<License>>.
---
 
 [abstract]
 == Abstract
