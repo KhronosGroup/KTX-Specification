@@ -875,8 +875,8 @@ Aaftab Munshi. The Khronos Group, July 2003.
   OpenGL^®^ Graphics System, A Specification (Version 4.6 (Core Profile))].
 Mark Segal, Kurt Akeley; Editor: Jon Leech. The Khronos Group, July 2017.
 
-- [[[VULKAN11]]] https://www.khronos.org/registry/vulkan/specs/1.0/html/vkspec.html[Vulkan^®^
-1.1.87 Specification].
+- [[[VULKAN11]]] https://www.khronos.org/registry/vulkan/specs/1.1/html/vkspec.html[Vulkan^®^
+1.1 Specification].
 The Khronos Group, October 2018.
 
 ////
