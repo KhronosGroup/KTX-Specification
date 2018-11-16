@@ -11,6 +11,7 @@
 :docinfo1:
 :doctype: article
 :encoding: utf-8
+:stem:
 // Disabling toc and numbered attributes doesn't work with a2x.
 // Use the xsltproc options instead.
 :toc!:
@@ -123,10 +124,10 @@ After inflation from supercompression or when `supercompressionScheme ==
 ----
 for each array_element in numberOfArrayElements <1>
    for each face in numberOfFaces <2>
-       for each z_slice in pixelDepth <1>
-           for each row or row_of_blocks in pixelHeight <1>
-               for each pixel or block_of_pixels in pixelWidth
-                   Byte data[format-specific-number-of-bytes] <3>
+       for each z_slice_of_blocks in num_blocks_z <3>
+           for each row_of_blocks in num_blocks_y <3>
+               for each block in num_blocks_x <3>
+                   Byte data[format-specific-number-of-bytes] <4>
                end
            end
        end
@@ -136,7 +137,30 @@ end
 <1> Replace with 1 if this field is 0.
 <2> Must be 1 if `glInternalFormat` is one of the `GL_PALETTE*` formats
     from GL_OES_compressed_paletted_texture <<OESCPT>>.
-<3> Rows of uncompressed texture images must be tightly packed,
+<3> {empty}
++
+[stem]
++++++
+"num_blocks_z" = max(1, ceil("pixelDepth" / "block_depth"))
+
+"num_blocks_y" = max(1, ceil("pixelHeight" / "block_height"))
+
+"num_blocks_x" = ceil("pixelWidth" / "block_width")
++++++
++
+`block_depth`, `block_height`, and `block_width` are `1` for uncompressed
+formats and the block size in that dimension for block compressed formats
+as given in that format's section of the Khronos Data Format specification <<KDF12>>.
++
+A `block` is a single pixel for uncompressed formats and
++
+[stem]
++++++
+"block_width" xx "block_height" xx "block_depth"
++++++
++
+pixels for block compressed formats.
+<4> Rows of uncompressed texture images must be tightly packed,
     equivalent to a `GL_UNPACK_ALIGNMENT` of 1.
 
 == Field Descriptions
@@ -543,6 +567,10 @@ data in the current LOD level after reflation from supercompression.
 This includes all z slices, all faces, all rows (or rows of blocks)
 and all pixels (or blocks) in each row for the mipmap level. It
 does not include any bytes in `<<mipPadding>>`.
+
+The value of `bytesOfUncompressedLevelImages` must satisfy the following condition.
+[listing]
+bytesOfUncompressedLevelImages % (numberOfFaces * max(1, numberOfArrayElements)) == 0
 
 If the sum of `bytesOfUncompressedLevelImages` within the array is
 not equal to `<<bytesOfUncompressedImages>>`, loaders should consider
