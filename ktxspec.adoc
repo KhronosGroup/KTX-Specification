@@ -339,9 +339,9 @@ mipmaps are not identifiable.
 === levelOrder
 `levelOrder` indicates the ordering of the mipmap levels.  If 0,
 it indicates the levels are ordered from base level (the largest)
-to max level (the smallest).  If 1, it indicates the levels ordered
-from the max level to base level. If `<<numberOfMipmapLevels>> == 0`,
-`levelOrder` must equal 0.
+to max level (the smallest).  If 1, it indicates the levels are
+ordered from the max level to base level. If `<<numberOfMipmapLevels>>
+== 0`, `levelOrder` must equal 0.
 
 `levelOrder` is ignored when `<<glInternalFormat>>` is one of the
 `GL_PALETTE*` formats from GL_OES_compressed_paletted_texture
