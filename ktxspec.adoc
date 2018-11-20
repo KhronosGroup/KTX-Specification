@@ -283,23 +283,33 @@ https://www.khronos.org/registry/vulkan/specs/1.0/html/vkspec.html#features-form
 `vkFormat` takes the value `VK_FORMAT_UNDEFINED` (0) if the format
 of the data is a not a recognized Vulkan format.
 
-=== pixelWidth, pixelHeight, pixelDepth
+=== [[dimensions]]pixelWidth, pixelHeight, pixelDepth
 The size of the texture image for level 0, in pixels. No rounding
 to block sizes should be applied for block compressed textures.
 
 For 1D textures `pixelHeight` and `pixelDepth` must be 0. For 2D and
 cube textures `pixelDepth` must be 0.
 
+`pixelWidth` cannot be 0.
+
 === numberOfArrayElements
 `numberOfArrayElements` specifies the number of array elements. If
 the texture is not an array texture, `numberOfArrayElements` must
 equal 0.
 
+Although current graphics APIs do not support 3D array textures, KTX 
+files can be used to store them.
+
+Refer to the <<_texture_type>> section for more details about valid values. 
+
 === numberOfFaces
 `numberOfFaces` specifies the number of cubemap faces. For cubemaps
-and cubemap arrays this should be 6. For non cubemaps this should
-be 1. Cube map faces are stored in the order: +X, -X, +Y, -Y, +Z,
--Z.
+and cubemap arrays this must be 6. For non cubemaps this must be 1.
+Cube map faces are stored in the order: +X, -X, +Y, -Y, +Z, -Z.
+
+Applications willing to store incomplete cubemaps should flatten faces
+into 2D array and use <<KTXcubemapIncomplete>> metadata to signal which
+faces are present.
 
 Due to GL_OES_compressed_paletted_texture <<OESCPT>> not defining
 the interaction between cubemaps and its `GL_PALETTE*` formats, if
@@ -623,6 +633,23 @@ supplemented by extensions. The references are given as examples
 and do not imply that all of those texture types can be loaded in
 any particular version of OpenGL {,ES} or Vulkan.
 
+=== Texture Type
+The type of texture can be determined from the following table. Any 
+other combination of parameters makes KTX file invalid.
+
+[options="header"]
+|====
+|Type         |<<dimensions,pixelWidth>>|<<dimensions,pixelHeight>>|<<dimensions,pixelDepth>>|<<numberOfArrayElements>>|<<numberOfFaces>>
+|1D           |> 0       |0          |0         |0                    |1
+|2D           |> 0       |> 0        |0         |0                    |1
+|3D           |> 0       |> 0        |> 0       |0                    |1
+|Cubemap      |> 0       |> 0        |0         |0                    |6
+|1D Array     |> 0       |0          |0         |> 0                  |1
+|2D Array     |> 0       |> 0        |0         |> 0                  |1
+|3D Array     |> 0       |> 0        |> 0       |> 0                  |1
+|Cubemap Array|> 0       |> 0        |0         |> 0                  |6
+|====
+
 == Predefined Key-Value Pairs
 
 === Image Orientation
@@ -726,6 +753,39 @@ writing the file, for example:
 Only the most recent writer should be identified.  Editing tools
 should overwrite this value when rewriting a file originally written
 by a different tool.
+
+=== Incomplete Cubemap
+KTX file can be used to store an incomplete cubemap or an array of 
+incomplete cubemaps. In such case, <<numberOfFaces>> must be `1` and 
+<<numberOfArrayElements>> must be equal to the number of faces present
+(in case of a single cubemap) or to the number of faces present times 
+the number of cubemaps (in case of a cubemap array).
+
+Metadata key must be:
+
+-   `KTXcubemapIncomplete`
+
+The value is a one-byte bitfield defined as:
+
+[listing]
+-----
+00xxxxx1 - +X is present 
+00xxxx1x - -X is present
+00xxx1xx - +Y is present
+00xx1xxx - -Y is present
+00x1xxxx - +Z is present
+001xxxxx - -Z is present
+-----
+
+Any value, not matching the mask above is invalid.
+
+At least one face must be present (i.e., value cannot be `0`).
+
+Within <<levelImages>> structure, faces must be written in the 
+same order as with complete cubemaps: (+X, -X, +Y, -Y, +Z, -Z).
+
+When a texture is a cubemap array, missing/present faces must be
+the same for each element.
 
 == An example KTX file:
 
