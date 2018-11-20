@@ -308,7 +308,7 @@ and cubemap arrays this must be 6. For non cubemaps this must be 1.
 Cube map faces are stored in the order: +X, -X, +Y, -Y, +Z, -Z.
 
 Applications willing to store incomplete cubemaps should flatten faces
-into 2D array and use <<KTXcubemapIncomplete>> metadata to signal which
+into a 2D array and use <<KTXcubemapIncomplete>> metadata to signal which
 faces are present.
 
 Due to GL_OES_compressed_paletted_texture <<OESCPT>> not defining
@@ -635,7 +635,7 @@ any particular version of OpenGL {,ES} or Vulkan.
 
 === Texture Type
 The type of texture can be determined from the following table. Any 
-other combination of parameters makes KTX file invalid.
+other combination of parameters makes the KTX file invalid.
 
 [options="header"]
 |====
@@ -755,8 +755,8 @@ should overwrite this value when rewriting a file originally written
 by a different tool.
 
 === Incomplete Cubemap
-KTX file can be used to store an incomplete cubemap or an array of 
-incomplete cubemaps. In such case, <<numberOfFaces>> must be `1` and 
+A KTX file can be used to store an incomplete cubemap or an array of 
+incomplete cubemaps. In such a case, <<numberOfFaces>> must be `1` and 
 <<numberOfArrayElements>> must be equal to the number of faces present
 (in case of a single cubemap) or to the number of faces present times 
 the number of cubemaps (in case of a cubemap array).
