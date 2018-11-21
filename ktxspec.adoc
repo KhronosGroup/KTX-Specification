@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL and Vulkan textures.
-:docrev: draft8
+:docrev: draft9
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -28,6 +28,7 @@
 :icons: font
 :source-highlighter: prettify
 :stylesheet: khronos.css
+:xrefstyle: full
 
 ////
 // This part is the Preamble whose 1st 'graph is given [.lead] role
@@ -67,10 +68,6 @@ WIP. Under review; not ready for implementation.
 ----
 Byte[12] identifier
 UInt32 endianness
-UInt32 glType
-UInt32 glTypeSize
-UInt32 glFormat
-Uint32 glInternalFormat
 Uint32 vkFormat
 UInt32 pixelWidth
 UInt32 pixelHeight
@@ -114,6 +111,7 @@ for each mipmap_level in numberOfMipmapLevels <2>
 end
 ----
 <1> These 5 lines are a Data Format Descriptor. See <<_data_format_descriptor>>.
+    The data format descriptor is required.
 <2> Replace with 1 if this field is 0 or if `glInternalFormat` is one of
     the `GL_PALETTE*` formats from GL_OES_compressed_paletted_texture
     <<OESCPT>>.
@@ -227,13 +225,6 @@ when `<<glTypeSize>> != 1`, all `data` to the endianness of the program
 (i.e. a little endian program must convert from big endian, and a
 big endian program must convert from little endian).
 
-=== glType
-For block compressed textures, `glType` must equal 0. For uncompressed
-textures, `glType` specifies the type parameter passed to
-glTex{,Sub}Image*D, usually one of the values from table 8.2 of the
-OpenGL 4.6 specification <<OPENGL46>> (UNSIGNED_BYTE, UNSIGNED_SHORT_5_6_5,
-etc.)
-
 === glTypeSize
 `glTypeSize` specifies the data type size that should be used when
 endianness conversion is required for the texture data stored in
@@ -242,46 +233,67 @@ corresponding to glType. For texture data which does not depend on
 platform endianness, including block compressed texture data,
 `glTypeSize` must equal 1.
 
-=== glFormat
-For block compressed textures, `glFormat` must equal 0. For
-uncompressed textures, `glFormat` specifies the format parameter
-passed to glTex{,Sub}Image*D, usually one of the values from table
-8.3 of the OpenGL 4.6 specification <<OPENGL46>> (RGB, RGBA, BGRA,
-etc.)
-
-=== glInternalFormat
-For block compressed textures, `glInternalFormat` must equal the
-compressed internal format, usually one of the values from table
-8.14 of the OpenGL 4.6 specification <<OPENGL46>>. For uncompressed
-textures, `glInternalFormat` specifies the internalformat parameter
-passed to glTexStorage*D or glTexImage*D, usually one of the sized
-internal formats from tables 8.12 & 8.13 of the OpenGL 4.6 specification
-<<OPENGL46>>. The sized format should be chosen to match the bit
-depth of the data provided. `glInternalFormat` is used when loading
-both compressed and uncompressed textures, except when loading into
-a context that does not support sized formats, such as an unextended
-OpenGL ES 2.0 context where the internalformat parameter is required
-to have the same value as the format parameter.
-
-`glInternalFormat` can take the value GL_FORMAT_UNDEFINED if the format
-of the data is not a recognized OpenGL format such as one that appears
-only in Vulkan.
-
-[IMPORTANT]
-====
-There is currently no such token. A value will be requested from the
-OpenGL registry. Whether to include this token in the GL namespace
-and `gl.h` will have to be discussed by the working groups. Use
-`GL_INVALID_VALUE` (0x0501) for now.
-====
-
 === vkFormat
-`vkFormat` specifies the Vulkan image format, usually one of the
-values from the `VkFormat` enum in
+`vkFormat` specifies the Vulkan image format. Any value from the `VkFormat`
+enum in
 https://www.khronos.org/registry/vulkan/specs/1.0/html/vkspec.html#features-formats-definition[section
-30.3.1 _Format Definition_^] of the Vulkan 1.1 specification <<VULKAN11>>.
-`vkFormat` takes the value `VK_FORMAT_UNDEFINED` (0) if the format
-of the data is a not a recognized Vulkan format.
+30.3.1 _Format Definition_^] of the Vulkan 1.1 specification
+<<VULKAN11>> except those listed in <<prohibitedFormats>>. `vkFormat`
+takes the value `VK_FORMAT_UNDEFINED` (0) if the format of the data
+is a not a recognized Vulkan format.
+
+[width=50%,align=center,cols="<,^",options=header]
+[[prohibitedFormats]]
+.Prohibited Formats
+|===
+| Format Name                          | Value
+| VK_FORMAT_A8B8G8R8_UNORM_PACK32      | 51
+| VK_FORMAT_A8B8G8R8_SNORM_PACK32      | 52
+| VK_FORMAT_A8B8G8R8_UINT_PACK32       | 55
+| VK_FORMAT_A8B8G8R8_SINT_PACK32       | 56
+| VK_FORMAT_A8B8G8R8_SRGB_PACK32       | 57
+| VK_FORMAT_R8_USCALED                 | 11
+| VK_FORMAT_R8_SSCALED                 | 12
+| VK_FORMAT_R8G8_USCALED               | 18
+| VK_FORMAT_R8G8_SSCALED               | 19
+| VK_FORMAT_R8G8B8_USCALED             | 25
+| VK_FORMAT_R8G8B8_SSCALED             | 26
+| VK_FORMAT_B8G8R8_USCALED             | 32
+| VK_FORMAT_B8G8R8_SSCALED             | 33
+| VK_FORMAT_R8G8B8A8_USCALED           | 39
+| VK_FORMAT_R8G8B8A8_SSCALED           | 40
+| VK_FORMAT_B8G8R8A8_USCALED           | 46
+| VK_FORMAT_B8G8R8A8_SSCALED           | 47
+| VK_FORMAT_A8B8G8R8_USCALED_PACK32    | 53
+| VK_FORMAT_A8B8G8R8_SSCALED_PACK32    | 54
+| VK_FORMAT_A2R10G10B10_USCALED_PACK32 | 60
+| VK_FORMAT_A2R10G10B10_SSCALED_PACK32 | 61
+| VK_FORMAT_A2B10G10R10_USCALED_PACK32 | 66
+| VK_FORMAT_A2B10G10R10_SSCALED_PACK32 | 67
+| VK_FORMAT_R16_USCALED                | 72
+| VK_FORMAT_R16_SSCALED                | 73
+| VK_FORMAT_R16G16_USCALED             | 79
+| VK_FORMAT_R16G16_SSCALED             | 80
+| VK_FORMAT_R16G16B16_USCALED          | 86
+| VK_FORMAT_R16G16B16_SSCALED          | 87
+| VK_FORMAT_R16G16B16A16_USCALED       | 93
+| VK_FORMAT_R16G16B16A16_SSCALED       | 94
+|===
+
+[NOTE]
+.Rationale
+====
+The A8B8G8R8*PACK32 formats are prohibited because the end result
+is the same regardless of whether the data is treated as packed into
+32-bits or as the equivalent R8G8B8A8 format, i.e. as an array of
+4 bytes, and because the Data Format Descriptor cannot distinguish
+between these cases.
+
+The \*SCALED* formats are prohibited because they are not widely
+supported for texturing and because the Data Format Descriptor
+cannot distinguish tbese from the int values having the same bit
+pattern.
+====
 
 === [[dimensions]]pixelWidth, pixelHeight, pixelDepth
 The size of the texture image for level 0, in pixels. No rounding
@@ -353,9 +365,9 @@ a single level.
 ====
 When streaming a KTX file, sending smaller mip levels first can be
 used together with, e.g., the `GL_TEXTURE_MAX_LEVEL` and
-`GL_TEXTURE_BASE_LEVEL` texture parameters, to display a low
-resolution image quickly without waiting for the entire texture
-data.
+`GL_TEXTURE_BASE_LEVEL` texture parameters or appropriate region setting
+in a `VkCmdCopyBufferToImage`, to display a low resolution image quickly
+without waiting for the entire texture data.
 ====
 
 === supercompressionScheme
@@ -429,10 +441,15 @@ The next 3 items combined form a _Data Format Descriptor_
 The full specification for this can be found in the Khronos Data
 Format 1.2 Specification <<KDF12>>.
 
+If the dfDescriptor describes an sRGB transfer function then `vkFormat`
+must be one of the _SRGB_ formats.
+
 The dfDescriptor is partially expanded here in order to provide
 sufficient information for a KTX2 file to be parsed without having to
 refer to <<KDF12>>. If consists of one or more _Descriptor Blocks_
 (dfDescriptorBlock).
+
+If the 
 
 The Data Format Descriptor describes the texel blocks as they are when
 `supercompressionScheme == 0` or after reflation when
@@ -481,10 +498,14 @@ An arbitrary number of key/value pairs may follow the header. This
 can be used to encode any arbitrary data. The `bytesOfKeyValueData`
 field indicates the total number of bytes of key/value data including
 all `keyAndValueByteSize` fields, all `keyAndValue` fields and all
-`<<valuePadding>>` fields but not the `<<keyValuePadding>>` field. The file
-offset of the `<<bytesOfImages>>` field is located at the file
-offset of the `bytesOfKeyValueData` field plus 4 plus the value of the
-`bytesOfKeyValueData` field rounded to the next 8-byte boundary.
+`<<valuePadding>>` fields but not the `<<keyValuePadding>>` field.
+The file offset of the `<<bytesOfImages>>` field is located at the
+file offset of the `bytesOfKeyValueData` field plus 4 plus the value
+of the `bytesOfKeyValueData` field rounded to the next 8-byte
+boundary.
+
+KTX2 editors must preserve any key/value data they do not understand
+or which is not modified by the user.
 
 === keyAndValueByteSize
 `keyAndValueByteSize` is the number of bytes of combined key and value
@@ -663,26 +684,24 @@ creation tools, so there is abundant room for confusion.
 The desired texture axis orientation is often predetermined by,
 e.g. a content creation tool's or existing application's use of the
 image. Therefore it is strongly recommended that tools for generating
-KTX files clearly describe their behaviour, and provide an option
-to specify the texture axis origin and orientation relative to the
-logical orientation of the source image. At minimum they should
-provide a choice between top-left and bottom-left as origin for 2D
-source images, with the positive S axis pointing right. Where
-possible, the preferred default is to use the logical upper-left
-corner of the image as the texture origin. Note that this is contrary
-to the standard interpretation of GL texture coordinates. However,
-most other APIs and the majority of texture compression tools use this 
-convention.
+and manipulating KTX files clearly describe their behaviour, and
+provide an option to specify the texture axis origin and orientation
+relative to the logical orientation of the source image. At minimum
+they should provide a choice between top-left and bottom-left as
+origin for 2D source images, with the positive S axis pointing
+right. Where possible, the preferred default is to use the logical
+upper-left corner of the image as the texture origin. Note that
+this is contrary to the standard interpretation of GL texture
+coordinates. However, most other APIs and the majority of texture
+compression tools use this convention.
 
-As an aid to writing image manipulation tools and viewers, the
-logical orientation of the data in a KTX file may be indicated in
-the file's key/value metadata. Note that this metadata affects only
-the logical interpretation of the data, has no effect on the mapping
-from pixels in the file byte stream to texture coordinates. The
-metadata key must be:
+When writing the logical orientation to the KTX file's metadata,
+image manipulation tools and viewers must use the following key.
+Note that this metadata affects only the logical interpretation of
+the data and has no effect on the mapping from pixels in the file
+byte stream to texture coordinates.
 
 -   `KTXorientation`
-
 
 The value is a NUL-terminated string formatted depending on the texture type.
 
