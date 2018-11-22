@@ -671,36 +671,48 @@ source images, with the positive S axis pointing right. Where
 possible, the preferred default is to use the logical upper-left
 corner of the image as the texture origin. Note that this is contrary
 to the standard interpretation of GL texture coordinates. However,
-the majority of texture compression tools use this convention.
+most other APIs and the majority of texture compression tools use this 
+convention.
 
 As an aid to writing image manipulation tools and viewers, the
 logical orientation of the data in a KTX file may be indicated in
 the file's key/value metadata. Note that this metadata affects only
 the logical interpretation of the data, has no effect on the mapping
 from pixels in the file byte stream to texture coordinates. The
-recommended key to use is:
+metadata key must be:
 
--   KTXorientation
+-   `KTXorientation`
 
-It is recommended that viewing and editing tools support at least
-the following values:
 
--   S=r,T=d
--   S=r,T=u
--   S=r,T=d,R=i
--   S=r,T=u,R=o
+The value is a NUL-terminated string formatted depending on the texture type.
+
+[options="header"]
+|====
+|Type|Format (PCRE)
+|1D  |`/^[rl]$/`
+|2D  |`/^[rl][du]$/`
+|3D  |`/^[rl][du][oi]$/`
+|====
 
 where
 
--   S indicates the direction of increasing S values
--   T indicates the direction of increasing T values
--   R indicates the direction of increasing R values
--   r indicates increasing to the right
--   l indicates increasing to the left
--   d indicates increasing downwards
--   u indicates increasing upwards
--   o indicates increasing out from the screen (moving towards viewer)
--   i indicates increasing in towards the screen (moving away from viewer)
+- `r` indicates S values increasing to the right
+- `l` indicates S values increasing to the left
+- `d` indicates T values increasing downwards
+- `u` indicates T values increasing upwards
+- `o` indicates R values increasing out from the screen (moving towards viewer)
+- `i` indicates R values increasing in towards the screen (moving away from viewer)
+ 
+When a texture is an array, all its elements have the same orientation.
+
+Values not matching the table above are invalid.
+
+It is recommended that viewing and editing tools support at least the following values:
+
+- `rd`
+- `ru`
+- `rdi`
+- `ruo`
 
 Although other orientations can be represented, it is recommended
 that tools that create KTX files use only the values listed above
@@ -724,31 +736,39 @@ as other values may not be widely supported by other tools.
 ====
 ////
 
-The recommended key for indicating desired component mapping for a
-texture is;
+The key for indicating desired component mapping for a texture is:
 
--   KTXswizzle
+-   `KTXswizzle`
 
-The format of the value is
+The value is a four-byte NUL-terminated string formatted as (PCRE):
 
--   R=<swizzle>,G=<swizzle>,B=<swizzle>,A=<swizzle>
+-   `/^[rgba01]{4}$/`
 
-where <swizzle> is one character from the set [01rgba]. For example
+where each symbol represents source component (or fixed value) that 
+is used for red, green, blue, and alpha values, thus `rgba` being 
+a default swizzling state.
 
--   R=b,G=r,B=g,A=1
+For example, `rg01` means:
 
-If not set, you will get the identity, i.e. no, swizzle.
+- red and green channels are sampled from red and green texture 
+components respectively;
+- blue channel is set to zero, ignoring texture data;
+- alpha channel is set to one (fully saturated), ignoring texture data.
+
+When a channel is not present in the texture, a value of `0` must be 
+used for colors (red, green, and blue) and a value of `1` (fully 
+saturated) must be used for alpha.
 
 === Writer Id
 KTX file writers must identify themselves by including a value with
 the following key:
 
--   KTXwriter
+-   `KTXwriter`
 
 The value can be any UTF-8 string that will uniquely identify the tool
 writing the file, for example:
 
--   AcmeCo TexTool v1.0
+-   `AcmeCo TexTool v1.0`
 
 Only the most recent writer should be identified.  Editing tools
 should overwrite this value when rewriting a file originally written
@@ -782,7 +802,7 @@ Any value, not matching the mask above is invalid.
 At least one face must be present (i.e., value cannot be `0`).
 
 Within <<levelImages>> structure, faces must be written in the 
-same order as with complete cubemaps: (+X, -X, +Y, -Y, +Z, -Z).
+same order as with complete cubemaps: +X, -X, +Y, -Y, +Z, -Z.
 
 When a texture is a cubemap array, missing/present faces must be
 the same for each element.
