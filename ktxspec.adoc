@@ -688,7 +688,7 @@ The value is a NUL-terminated string formatted depending on the texture type.
 
 [options="header"]
 |====
-|Type|Format (PCRE)
+|Type|Format (<<REGEXP>>)
 |1D  |`/^[rl]$/`
 |2D  |`/^[rl][du]$/`
 |3D  |`/^[rl][du][oi]$/`
@@ -740,7 +740,7 @@ The key for indicating desired component mapping for a texture is:
 
 -   `KTXswizzle`
 
-The value is a four-byte NUL-terminated string formatted as (PCRE):
+The value is a four-byte NUL-terminated string formatted as (<<REGEXP>>):
 
 -   `/^[rgba01]{4}$/`
 
@@ -967,6 +967,9 @@ Aaftab Munshi. The Khronos Group, July 2003.
 - [[[OPENGL46]]] https://www.khronos.org/registry/OpenGL/specs/gl/glspec46.core.pdf[The
   OpenGL^®^ Graphics System, A Specification (Version 4.6 (Core Profile))].
 Mark Segal, Kurt Akeley; Editor: Jon Leech. The Khronos Group, July 2017.
+
+- [[[REGEXP]]] https://www.ecma-international.org/ecma-262/5.1/index.html#sec-15.10[Standard ECMA-262 5.1{nbsp}Edition, Section 15.10: RegExp (Regular Expression) Objects].
+ Ecma International, June 2011.
 
 - [[[VULKAN11]]] https://www.khronos.org/registry/vulkan/specs/1.1/html/vkspec.html[Vulkan^®^
 1.1 Specification].
