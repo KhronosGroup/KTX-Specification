@@ -498,16 +498,16 @@ the bytes in `<<valuePadding>>`.
 
 === keyAndValue
 `keyAndValue` contains 2 separate sections. First it contains a key
-encoded in UTF-8 without BOM. The key must be terminated by a NUL
-character (a single 0x00 byte). Keys that begin with the 3 ascii 
-characters 'KTX' or 'ktx' are reserved and must not be used except 
-as described by this spec (this version of the KTX spec defines two 
-keys). Immediately following the NUL character that terminates the key
-is the Value data.
+encoded in UTF-8 without a byte order mark (BOM). The key must be 
+terminated by a NUL character (a single 0x00 byte). Keys that begin 
+with the 3 ASCII characters 'KTX' or 'ktx' are reserved and must not
+be used except as described by this spec (this version of the KTX spec
+defines two keys). Immediately following the NUL character that terminates
+the key is the Value data.
 
 The Value data may consist of any arbitrary data bytes. Any byte
 value is allowed. It is encouraged that the value be a NUL terminated
-UTF-8 string without BOM, but this is not required. If the Value data
+UTF-8 string without a BOM, but this is not required. If the Value data
 is binary, it is a sequence of bytes rather than of words. It is up to
 the vendor defining the key to specify how those bytes are to be
 interpreted (including the endianness of any encoded numbers). If
