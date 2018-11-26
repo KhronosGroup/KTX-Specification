@@ -750,10 +750,10 @@ a default swizzling state.
 
 For example, `rg01` means:
 
-- red and green channels are sampled from red and green texture 
+- the red and green channels are sampled from the red and green texture 
 components respectively;
-- blue channel is set to zero, ignoring texture data;
-- alpha channel is set to one (fully saturated), ignoring texture data.
+- the blue channel is set to zero, ignoring texture data;
+- the alpha channel is set to one (fully saturated), ignoring texture data.
 
 When a channel is not present in the texture, a value of `0` must be 
 used for colors (red, green, and blue) and a value of `1` (fully 
