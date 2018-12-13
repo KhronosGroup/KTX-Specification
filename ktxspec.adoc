@@ -217,7 +217,7 @@ integer. If the file is little endian then this is represented as
 the bytes 0x01 0x02 0x03 0x04. If the file is big endian then this
 is represented as the bytes 0x04 0x03 0x02 0x01. When reading
 `endianness` as a 32 bit integer produces the value 0x04030201 then
-the endianness of the file matches the the endianness of the program
+the endianness of the file matches the endianness of the program
 that is reading the file and no conversion is necessary.  When
 reading `endianness` as a 32 bit integer produces the value 0x01020304
 then the endianness of the file is opposite the endianness of the
@@ -539,7 +539,7 @@ supercompression schemes that must be available before any mip level
 can be expanded.
 
 === sgdPadding
-`sgdPadding` contains between 0 and 7 bytes of value `0x00` to ensure ensure
+`sgdPadding` contains between 0 and 7 bytes of value `0x00` to ensure
 that `<<bytesOfImages>>` is at a file offset that is a multiple of 8.
 
 === bytesOfImages
