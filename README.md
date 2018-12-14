@@ -2,6 +2,11 @@
 
 [![Build Status](https://travis-ci.org/KhronosGroup/KTX-Specification.svg?branch=master)](https://travis-ci.org/KhronosGroup/KTX-Specification)
 
+KTX is a file format that can be used for storing GPU-ready texture data (with cubemaps, mip levels, etc).
+Like DDS but with more features and more formal specification. glTF Compressed Texture Transmission Format (CTTF)
+uses a subset of KTX Version 2 that restricts some fields in the KTX2 header to make such files suitable for real-time
+transcoding.
+
 Click to see the [latest published version](http://github.khronos.org/KTX-Specification/)
 (it looks much better than the ersatz view provided by GitHub) or run
 
@@ -15,10 +20,10 @@ Everything needed is inlined.
 
 The canonical spec. text is in the file `ktxspec.adoc`.
 
-#### <a id="kwexpansion"></a>$Date$ keyword expansion
+### <a id="kwexpansion"></a>$Date$ keyword expansion
 
 A few auxiliary  files have `$Date$` keywords. If you care about having
-the proper dates shown on files in the repo, you **must** follow the
+the proper dates shown on files in your workspace, you **must** follow the
 instructions below.
 
 $Date$ keywords are expanded via a smudge & clean filter. To install
