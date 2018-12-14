@@ -284,15 +284,15 @@ is a not a recognized Vulkan format.
 .Rationale
 ====
 The A8B8G8R8*PACK32 formats are prohibited because the end result
-is the same regardless of whether the data is treated as packed into
-32-bits or as the equivalent R8G8B8A8 format, i.e. as an array of
-4 bytes, and because the Data Format Descriptor cannot distinguish
-between these cases.
+is the same regardless of whether the data is treated as packed
+into 32-bits or as the equivalent R8G8B8A8 format, i.e. as an array
+of 4 bytes, and a Data Format Descriptor cannot distinguish between
+these cases.
 
-The \*SCALED* formats are prohibited because they are not widely
-supported for texturing and because the Data Format Descriptor
-cannot distinguish tbese from the int values having the same bit
-pattern.
+The \*SCALED* formats are prohibited because they are intended for
+vertex data, very few, if any, implementations support using them
+for texturing and a Data Format Descriptor cannot distinguish
+these from `int` values having the same bit pattern.
 ====
 
 === [[dimensions]]pixelWidth, pixelHeight, pixelDepth
