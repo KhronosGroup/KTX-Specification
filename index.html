@@ -20,7 +20,7 @@
 <!--end-logo-->
 
 <h1>KTX File Format Specification</h1>
-<h2 class="no-toc">6<sup>th</sup> August 2018</h2>
+<h2 class="no-toc">22<sup>nd</sup> December 2018</h2>
 <dl>
   <dt>Editors:</dt>
   <dd> Mark Callow (<a href="http://www.artspark.co.jp">ArtSpark</a>/<a href="http://www.hicorp.co.jp">HI Corp</a>), 
@@ -211,26 +211,33 @@ end</pre>
   that value fields are NUL terminated). keyAndValueByteSize does not include 
   the bytes in valuePadding.</p>
 <h3>keyAndValue</h3>
-<p>keyAndValue contains 2 separate sections. First it contains a key encoded in 
-  UTF-8. The key must be terminated by a NUL character (a single 0x00 byte). Keys 
-  that begin with the 3 ascii characters 'KTX' or 'ktx' are reserved and must 
-  not be used except as described by this spec (this version of the KTX spec defines 
-  a <a href="#key">single key</a>). Immediately following the NUL character that 
-  terminates the key is the Value data.</p>
-<p>The Value data may consist of any arbitrary data bytes. Any byte value is allowed. 
-  It is encouraged that the value be a NUL terminated UTF-8 string, but this is 
-  not required. If the Value data is binary, it is a sequence of bytes rather 
-  than of words. It is up to the vendor defining the key to specify how those 
-  bytes are to be interpreted (including the endianness of any encoded numbers). 
-  If the Value data is a string of bytes then the NUL termination should be included 
-  in the keyAndValueByteSize byte count (but programs that read KTX files must 
-  not rely on this).</p>
+<p>keyAndValue contains 2 separate sections. First it contains a
+  key encoded in UTF-8 without a byte order mark (BOM). The key
+  must be terminated by a NUL character (a single 0x00 byte). Keys
+  that begin with the 3 ascii characters 'KTX' or 'ktx' are reserved
+  and must not be used except as described by this spec (this version
+  of the KTX spec defines a <a href="#key">single key</a>). Immediately
+  following the NUL character that terminates the key is the Value
+  data.</p>
+<p>The Value data may consist of any arbitrary data bytes. Any byte
+  value is allowed. It is encouraged that the value be a NUL
+  terminated UTF-8 string but this is not required. UTF-8 strings
+  must not contain BOMs. If the Value data is binary, it is a
+  sequence of bytes rather than of words. It is up to the vendor
+  defining the key to specify how those bytes are to be interpreted
+  (including the endianness of any encoded numbers). If the Value
+  data is a string of bytes then the NUL termination should be
+  included in the keyAndValueByteSize byte count (but programs that
+  read KTX files must not rely on this).</p>
+
 <h3>valuePadding</h3>
-<p>valuePadding contains between 0 and 3 bytes to ensure that the byte following 
-  the last byte in valuePadding is at a file offset that is a multiple of 4. This 
-  ensures that every keyAndValueByteSize field, and the first imageSize field, 
-  is 4 byte aligned. This padding is included in the bytesOfKeyValueData field 
-  but not the individual keyAndValueByteSize fields.</p>
+<p>valuePadding contains between 0 and 3 bytes of value <code>0x00</code>
+  to ensure that the byte following the last byte in valuePadding
+  is at a file offset that is a multiple of 4. This ensures that
+  every keyAndValueByteSize field, and the first imageSize field,
+  is 4 byte aligned. This padding is included in the bytesOfKeyValueData
+  field but not the individual keyAndValueByteSize fields.</p>
+
 <h3>imageSize</h3>
 <p>For most textures imageSize is the number of bytes of pixel data in the current 
   LOD level. This includes all array layers, all z slices, all faces, all rows
@@ -241,11 +248,12 @@ end</pre>
   of bytes in each face of the texture for the current LOD level, not including 
   bytes in cubePadding or mipPadding.</p>
 <h3>cubePadding</h3>
-<p> For non-array cubemap textures (any texture where numberOfFaces is 6 and
-  numberOfArrayElements is 0) cubePadding contains between 0 and 3
-  bytes to ensure that the data in each face begins at a file offset
-  that is a multiple of 4. In all other cases cubePadding is empty
-  (0 bytes long).</p>
+<p> For non-array cubemap textures (any texture where numberOfFaces
+  is 6 and numberOfArrayElements is 0) cubePadding contains between
+  0 and 3 bytes of value <code>0x00</code> to ensure that the data
+  in each face begins at a file offset that is a multiple of 4. In
+  all other cases cubePadding is empty (0 bytes long).</p>
+
 <div class="note">
   <p>This is empty in the non-array cubemap case as well.
     The requirement of GL_UNPACK_ALIGNMENT = 4 means the size of
@@ -256,8 +264,10 @@ end</pre>
     block size that is not a multiple of 4 bytes.</p>
 </div>
 <h3>mipPadding</h3>
-<p>Between 0 and 3 bytes to make sure that all imageSize fields are at a
-  file offset that is a multiple of 4.</p>
+<p>Between 0 and 3 bytes of value <code>0x00</code> to make sure
+  that all imageSize fields are at a file offset that is a multiple
+  of 4.</p>
+
 <div class="note">
   <p> This is empty for all known texture formats for the reasons given in
     cubePadding and is retained for the same reason.</p>
@@ -442,6 +452,9 @@ end</pre>
   <dd>Clarified when data needs to be endian converted. Documented handling of paletted
     texture formats. Documented that cubePadding and mipPadding are likely to be empty.
     Removed hidden "joke".</dd>
+  <dt>22 Dec 2018</dt>
+  <dd>Clarified that UTF-8 strings must not contain BOMs and that
+    padding bytes must have the value 0.</dd>
 </dl>
 <hr />
 <h3 class="no-toc"><a name="license" id="license"/>License</h3>
@@ -492,3 +505,4 @@ end</pre>
   owners. </p>
 </body>
 </html>
+<!--  vi: set ai expandtab tw=72 ts=4 sts=2 sw=2: -->
