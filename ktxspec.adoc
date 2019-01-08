@@ -30,6 +30,9 @@
 :stylesheet: khronos.css
 :xrefstyle: full
 
+:url-khr-reg: https://www.khronos.org/registry
+:url-khr-vulkan: {url-khr-reg}/vulkan
+
 ////
 // This part is the Preamble whose 1st 'graph is given [.lead] role
 // by default meaning it is rendered in a larger font.  Add [.lead]
@@ -68,6 +71,7 @@ WIP. Under review; not ready for implementation.
 ----
 Byte[12] identifier
 UInt32 endianness
+UInt32 glTypeSize
 Uint32 vkFormat
 UInt32 pixelWidth
 UInt32 pixelHeight
@@ -112,9 +116,7 @@ end
 ----
 <1> These 5 lines are a Data Format Descriptor. See <<_data_format_descriptor>>.
     The data format descriptor is required.
-<2> Replace with 1 if this field is 0 or if `glInternalFormat` is one of
-    the `GL_PALETTE*` formats from GL_OES_compressed_paletted_texture
-    <<OESCPT>>.
+<2> Replace with 1 if this field is 0
 <3> See <<levelImages>> below.
 
 After inflation from supercompression or when `supercompressionScheme ==
@@ -125,11 +127,11 @@ After inflation from supercompression or when `supercompressionScheme ==
 [source, c]
 ----
 for each array_element in numberOfArrayElements <1>
-   for each face in numberOfFaces <2>
-       for each z_slice_of_blocks in num_blocks_z <3>
-           for each row_of_blocks in num_blocks_y <3>
-               for each block in num_blocks_x <3>
-                   Byte data[format-specific-number-of-bytes] <4>
+   for each face in numberOfFaces
+       for each z_slice_of_blocks in num_blocks_z <2>
+           for each row_of_blocks in num_blocks_y <2>
+               for each block in num_blocks_x <2>
+                   Byte data[format-specific-number-of-bytes] <3>
                end
            end
        end
@@ -137,10 +139,8 @@ for each array_element in numberOfArrayElements <1>
 end
 ----
 <1> Replace with 1 if this field is 0.
-<2> Must be 1 if `glInternalFormat` is one of the `GL_PALETTE*` formats
-    from GL_OES_compressed_paletted_texture <<OESCPT>>.
-<3> See <<levelImages_defs,the definitions>> below.
-<4> Rows of uncompressed texture images must be tightly packed,
+<2> See <<levelImages_defs,the definitions>> below.
+<3> Rows of uncompressed texture images must be tightly packed,
     equivalent to a `GL_UNPACK_ALIGNMENT` of 1.
 
 [[levelImage_defs]]In the `levelImages` loops above,
@@ -234,13 +234,53 @@ platform endianness, including block compressed texture data,
 `glTypeSize` must equal 1.
 
 === vkFormat
-`vkFormat` specifies the Vulkan image format. Any value from the `VkFormat`
-enum in
-https://www.khronos.org/registry/vulkan/specs/1.0/html/vkspec.html#features-formats-definition[section
-30.3.1 _Format Definition_^] of the Vulkan 1.1 specification
-<<VULKAN11>> except those listed in <<prohibitedFormats>>. `vkFormat`
-takes the value `VK_FORMAT_UNDEFINED` (0) if the format of the data
-is a not a recognized Vulkan format.
+`vkFormat` specifies the image format using Vulkan `VkFormat` enum
+values. It can be any value defined in core Vulkan 1.1 <<VULKAN11>>,
+future core versions or by a registered Vulkan extension. Values
+defined by core Vulkan 1.1 are given in
+{url-khr-vulkan}/specs/1.1/html/vkspec.html#features-formats-definition[section
+30.3.1 _Format Definition_] of <<VULKAN11>>.  The list of registered
+extensions is provided in the {url-khr-vulkan}vulkan/#repo-docs[Khronos
+Vulkan Registry]. A complete list of values defined by both core
+Vulkan 1.1 and extensions can be found in
+{url-khr-vulkan}/specs/1.1-extensions/html/vkspec.html#features-formats-definition[section
+35.4.1 _Format Definition_] of <<VULKAN11EXT>>.
+
+NOTE: The section number given for <<VULKAN11EXT>> is as of this
+writing (Vulkan 1.1.96). It is subject to change as future extensions
+are added to the document but the link should remain valid as it is to
+an internal anchor.
+
+Values listed in <<prohibitedFormats>> must not be used nor any
+`\*_SCALED_*` formats added in future.  The table in <<formatMapping>>
+gives the mapping for all `VkFormat` enum values, known at the time
+of writing, to OpenGL internal format, format and type values.
+Applications must use this mapping.
+
+WARNING: What do we say about mapping for subsequently addded Vulkan
+formats?
+
+`vkFormat` can be `VK_FORMAT_UNDEFINED` (0) if the format of the data
+is a not a recognized Vulkan format. The data layout is always given by
+the Data Format Descriptor.
+
+[TIP]
+====
+Before loading any image, Vulkan loaders should confirm via
+`vkGetPhysicalDeviceFormatProperties` that the Vulkan physical
+device (`VkDevice`) supports the the intended use of the format.
+
+Vulkan applications using a core Vulkan format whose name has the
+`_BLOCK` suffix must ensure they enable the corresponding
+`textureCompression*` physical device feature at `VkDevice` creation
+time. Those using formats defined by extensions must ensure they
+enable the defining extension at `VkDevice` creation time.
+
+Vulkan applications handling textures whose formats are not known at
+`VkDevice` creation time are recommended to enable all available texture
+compression features and format defining extensions when creating a
+device.
+====
 
 [width=50%,align=center,cols="<,^",options=header]
 [[prohibitedFormats]]
@@ -295,6 +335,28 @@ for texturing and a Data Format Descriptor cannot distinguish
 these from `int` values having the same bit pattern.
 ====
 
+[CAUTION]
+.Legacy Formats
+====
+The legacy OpenGL & OpenGL ES formats specified by the following
+extensions, do not have equivalent Vulkan formats and are not
+supported.
+
+- OES_compressed_paletted_texture
+- AMD_compressed_3DC_texture
+- AMD_compressed_ATC_texture
+- 3DFX_texture_compression_FXT1
+- EXT_texture_compression_latc
+
+Only a few of these formats can be described without an extended
+Data Format Descriptor so `VK_FORMAT_UNDEFINED` must not be used
+as a workaround.
+
+This is felt to be an acceptable trade-off for simplifying this
+specification as the formats are not in wide use and applications
+needing them can use KTX version 1.
+====
+
 === [[dimensions]]pixelWidth, pixelHeight, pixelDepth
 The size of the texture image for level 0, in pixels. No rounding
 to block sizes should be applied for block compressed textures.
@@ -319,14 +381,9 @@ Refer to the <<_texture_type>> section for more details about valid values.
 and cubemap arrays this must be 6. For non cubemaps this must be 1.
 Cube map faces are stored in the order: +X, -X, +Y, -Y, +Z, -Z.
 
-Applications willing to store incomplete cubemaps should flatten faces
-into a 2D array and use <<KTXcubemapIncomplete>> metadata to signal which
-faces are present.
-
-Due to GL_OES_compressed_paletted_texture <<OESCPT>> not defining
-the interaction between cubemaps and its `GL_PALETTE*` formats, if
-`<<glInternalFormat>>` is a paletted format `numberOfFaces` must
-be 1
+Applications wanting to store incomplete cubemaps should flatten faces
+into a 2D array and use the metadata described in <<KTXcubemapIncomplete>>
+to signal which faces are present.
 
 === numberOfMipmapLevels
 `numberOfMipmapLevels` must equal 1 for non-mipmapped textures. For
@@ -337,28 +394,12 @@ file does not need to contain a complete mipmap pyramid. If
 pyramid should be generated from level 0 at load time (this is
 usually not allowed for compressed formats).
 
-[NOTE]
-====
-When `<<glInternalFormat>>` is one of the `GL_PALETTE*` formats
-from GL_OES_compressed_paletted_texture <<OESCPT>> this equals the
-number of mipmaps and is passed as the levels, parameter when
-uploading to OpenGL {,ES}.  However all levels are packed into a
-single block of data along with the palette so numberOfMipmapLevels
-is considered to be 1 in the for loop over the data. Individual
-mipmaps are not identifiable.
-====
-
 === levelOrder
 `levelOrder` indicates the ordering of the mipmap levels.  If 0,
 it indicates the levels are ordered from base level (the largest)
 to max level (the smallest).  If 1, it indicates the levels are
 ordered from the max level to base level. If `<<numberOfMipmapLevels>>
 == 0`, `levelOrder` must equal 0.
-
-`levelOrder` is ignored when `<<glInternalFormat>>` is one of the
-`GL_PALETTE*` formats from GL_OES_compressed_paletted_texture
-<<OESCPT>> as from the perspective of the KTX2 file there is only
-a single level.
 
 [NOTE]
 .Rationale
@@ -648,12 +689,6 @@ data must be packed according to the rules described in section
 8.4.4.1 _Unpacking_ of the OpenGL 4.6 specification <<OPENGL46>>
 with GL_UNPACK_ROW_LENGTH = 0 and GL_UNPACK_ALIGNMENT = 1.
 
-Values listed in tables and sections referred to in the OpenGL 4.6
-<<OPENGL46>> and Vulkan 1.1 <<VULKAN11>> specifications may be
-supplemented by extensions. The references are given as examples
-and do not imply that all of those texture types can be loaded in
-any particular version of OpenGL {,ES} or Vulkan.
-
 === Texture Type
 The type of texture can be determined from the following table. Any 
 other combination of parameters makes the KTX file invalid.
@@ -673,7 +708,39 @@ other combination of parameters makes the KTX file invalid.
 
 == Predefined Key-Value Pairs
 
-=== Image Orientation
+=== KTXcubemapIncomplete
+A KTX file can be used to store an incomplete cubemap or an array of 
+incomplete cubemaps. In such a case, `numberOfFaces` must be `1` and 
+`numberOfArrayElements` must be equal to the number of faces present
+(in case of a single cubemap) or to the number of faces present times 
+the number of cubemaps (in case of a cubemap array). The faces that are
+present must be indicated using the metadata key
+
+-   `KTXcubemapIncomplete`
+
+The value is a one-byte bitfield defined as:
+
+[listing]
+-----
+00xxxxx1 - +X is present 
+00xxxx1x - -X is present
+00xxx1xx - +Y is present
+00xx1xxx - -Y is present
+00x1xxxx - +Z is present
+001xxxxx - -Z is present
+-----
+
+Any value, not matching the mask above is invalid.
+
+At least one face must be present (i.e., value cannot be `0`).
+
+Within the <<levelImages>> structure, faces must be written in the 
+same order as with complete cubemaps: +X, -X, +Y, -Y, +Z, -Z.
+
+When a texture is a cubemap array, missing/present faces must be
+the same for each element.
+
+=== KTXorientation
 Texture data in a KTX file are arranged so that the first pixel in
 the data stream for each face and/or array element is closest to
 the origin of the texture coordinate system. In OpenGL that origin
@@ -696,12 +763,13 @@ coordinates. However, most other APIs and the majority of texture
 compression tools use this convention.
 
 When writing the logical orientation to the KTX file's metadata,
-image manipulation tools and viewers must use the following key.
+image manipulation tools and viewers must use the key
+
+-   `KTXorientation`
+
 Note that this metadata affects only the logical interpretation of
 the data and has no effect on the mapping from pixels in the file
 byte stream to texture coordinates.
-
--   `KTXorientation`
 
 The value is a NUL-terminated string formatted depending on the texture type.
 
@@ -737,7 +805,40 @@ Although other orientations can be represented, it is recommended
 that tools that create KTX files use only the values listed above
 as other values may not be widely supported by other tools.
 
-=== Swizzle
+=== KTXrequiredVkExtension
+
+When the value of `vkFormat` is defined by the Vulkan extension
+rather than the core specification, the required extension must be
+specified in metadata with the key
+
+- `KTXrequiredVkExtension`
+
+The value is the name string used needed to enable the necessary
+extension typically a string using the ASCII subset of UTF-8, e.g.,
+
+- `VK_IMG_format_pvrtc`
+
+Loaders are not required to enable the extension if they determine that
+the Vulkan implementation supports use of the format without it. This
+can happen, for example, if the implementation is of a later version of
+Vulkan where the format has become core.
+
+=== KTXrequiredVkPhysicalDeviceFeature
+
+Support for some standard formats is optional in Vulkan. Support
+must be queried via `VkGetPhysicalDeviceFeatures2` and, if supported,
+the feature enabled at `VkDevice` creation time. If a feature must
+be enabled to use the format given by `vkFormat`, it must specified
+in metadata with the key
+
+- `KTXrequiredVkPhysicalDeviceFeature`
+
+The value is the name of the feature expressed as a string in the ASCII
+subset of UTF-8, e.g.,
+
+- `textureCompressionETC2`
+
+=== KTXswizzle
 
 ////
 [NOTE]
@@ -755,7 +856,7 @@ as other values may not be widely supported by other tools.
 ====
 ////
 
-The key for indicating desired component mapping for a texture is:
+Desired component mapping for a texture can be indicated with the key
 
 -   `KTXswizzle`
 
@@ -770,7 +871,7 @@ a default swizzling state.
 For example, `rg01` means:
 
 - the red and green channels are sampled from the red and green texture 
-components respectively;
+  components respectively;
 - the blue channel is set to zero, ignoring texture data;
 - the alpha channel is set to one (fully saturated), ignoring texture data.
 
@@ -778,9 +879,33 @@ When a channel is not present in the texture, a value of `0` must be
 used for colors (red, green, and blue) and a value of `1` (fully 
 saturated) must be used for alpha.
 
-=== Writer Id
+==== Common Mappings
+
+Use the following formats and swizzles to map alpha-only, luminance and
+luminance-alpha formats.
+
+Alpha8:: 
+VkFormat: VK_FORMAT_R8_UNORM
+ +
+KTXswizzle: 000r
+
+Luminance8::
+VkFormat: VK_FORMAT_R8_UNORM
+ +
+KTXswizzle: rrr1
+
+Luminance8Alpha8::
+VkFormat: VK_FORMAT_R8G8_UNORM
+ +
+KTXswizzle: rrrg
+
+Loaders may opt to detect these cases and use API-provided enums
+when available, e.g. for the first case  `GL_ALPHA8` (when using
+compatibility profile), `MTLPixelFormatA8Unorm` or `DXGI_FORMAT_A8_UNORM`.
+
+=== KTXwriter
 KTX file writers must identify themselves by including a value with
-the following key:
+the key
 
 -   `KTXwriter`
 
@@ -792,39 +917,6 @@ writing the file, for example:
 Only the most recent writer should be identified.  Editing tools
 should overwrite this value when rewriting a file originally written
 by a different tool.
-
-=== Incomplete Cubemap
-A KTX file can be used to store an incomplete cubemap or an array of 
-incomplete cubemaps. In such a case, <<numberOfFaces>> must be `1` and 
-<<numberOfArrayElements>> must be equal to the number of faces present
-(in case of a single cubemap) or to the number of faces present times 
-the number of cubemaps (in case of a cubemap array).
-
-Metadata key must be:
-
--   `KTXcubemapIncomplete`
-
-The value is a one-byte bitfield defined as:
-
-[listing]
------
-00xxxxx1 - +X is present 
-00xxxx1x - -X is present
-00xxx1xx - +Y is present
-00xx1xxx - -Y is present
-00x1xxxx - +Z is present
-001xxxxx - -Z is present
------
-
-Any value, not matching the mask above is invalid.
-
-At least one face must be present (i.e., value cannot be `0`).
-
-Within <<levelImages>> structure, faces must be written in the 
-same order as with complete cubemaps: +X, -X, +Y, -Y, +Z, -Z.
-
-When a texture is a cubemap array, missing/present faces must be
-the same for each element.
 
 == An example KTX file:
 
@@ -893,14 +985,17 @@ Should KTX2 provide a way to distinguish between 1D textures and buffer textures
 +
 _Unresolved:_
 
-Should KTX2 support contexts that do not support sized internal fomats?::
-  _Discussion:_ OpenGL ES 1.x and 2.0 do not support sized internal
-  formats. The `glBaseInternalFormat` field was included in the header
-  for easy support of these older versions. Now seems a good time to
-  drop this field.
+Should KTX2 drop the `gl*` fields?
+  _Discussion:_ Narrowing down and enforcing the valid combinations
+  of `glFormat`, `glInternalFormat` is fraught with issues. The spec.
+  could be simplified by dropping them and having only `vkFormat`.
+  The spec can include a table showing a standard mapping from
+  the `vkFormat` value to a `glInternalFormat`, `glFormat` and `glType`
+  combination.
 +
-_Resolved:_ Drop `glBaseInternalFormat`. When loading to older version
-contexts the value of `glFormat` can be used instead.
+_Resolved:_ Drop the `gl*` fields. OpenGL and OpenGL ES loaders can
+include code to do the mapping based on the table in the spec. Such code
+is estimated to be about 6 kbytes.
 
 Use alphanumeric characters or binary values for component swizzles?::
   _Discussion:_ Values in the swizzle metadata could be either a
@@ -976,22 +1071,27 @@ it.
   Data Format Specification version 1.3 (RFC1951)]. L.
 Peter Deutsch. IETF Network Working Group, May 1996.
 
-- [[[KFD12]]] https://www.khronos.org/registry/DataFormat/specs/1.2/dataformat.1.2.html[Khronos
+- [[[KFD12]]] {url-khr-reg}/DataFormat/specs/1.2/dataformat.1.2.html[Khronos
   Data Format Specification 1.2].
 Andrew Garrard. The Khronos Group, September 2017.
 
-- [[[OESCPT]]] https://www.khronos.org/registry/OpenGL/extensions/OES/OES_compressed_paletted_texture.txt[GL_OES_compressed_paletted_texture].
+- [[[OESCPT]]] {url-khr-reg}OpenGL/extensions/OES/OES_compressed_paletted_texture.txt[GL_OES_compressed_paletted_texture].
 Aaftab Munshi. The Khronos Group, July 2003.
 
-- [[[OPENGL46]]] https://www.khronos.org/registry/OpenGL/specs/gl/glspec46.core.pdf[The
+- [[[OPENGL46]]] {url-khr-reg}OpenGL/specs/gl/glspec46.core.pdf[The
   OpenGL^®^ Graphics System, A Specification (Version 4.6 (Core Profile))].
 Mark Segal, Kurt Akeley; Editor: Jon Leech. The Khronos Group, July 2017.
 
-- [[[REGEXP]]] https://www.ecma-international.org/ecma-262/5.1/index.html#sec-15.10[Standard ECMA-262 5.1{nbsp}Edition, Section 15.10: RegExp (Regular Expression) Objects].
- Ecma International, June 2011.
+- [[[REGEXP]]] https://www.ecma-international.org/ecma-262/5.1/index.html#sec-15.10[Standard
+ ECMA-262 5.1{nbsp}Edition, Section 15.10: RegExp (Regular Expression) Objects].
+Ecma International, June 2011.
 
-- [[[VULKAN11]]] https://www.khronos.org/registry/vulkan/specs/1.1/html/vkspec.html[Vulkan^®^
-1.1 Specification].
+- [[[VULKAN11]]] {url-khr-vulkan}/specs/1.1/html/vkspec.html[Vulkan^®^
+1.1 - A Specification].
+The Khronos Group, December 2018.
+
+- [[[VULKAN11EXT]]] {url-khr-vulkan}/specs/1.1-extensions/html/vkspec.html[Vulkan^®^
+1.1 - A Specification (with all registered Vulkan extensions)].
 The Khronos Group, October 2018.
 
 // "L." & "Y." after doc titles avoid the Asciidoctor list issue.
@@ -1019,6 +1119,15 @@ any particular version of OpenGL {,ES} or Vulkan.
 
 - [[[RDO]]] https://github.com/[Somewhere].
 Rich Geldreich, Jr.
+
+[appendix#formatMapping]
+== Mapping of `vkFormat` values
+
+.Mapping of `vkFormat` values to OpenGL, Direct3D and Metal
+|====
+| |
+| |
+|====
 
 [appendix]
 == Changes compared to KTX
@@ -1079,6 +1188,11 @@ Rich Geldreich, Jr.
 == Acknowledgements
 Thanks to Manmohan Bishnoi for designing the KTX file and application
 icons.
+
+Thanks to Alexey Knyazev for help tightening and simplifying the
+specification.
+
+Thanks to David Wilkinson for chairing the effort.
 
 [discrete,.legal]
 == License
