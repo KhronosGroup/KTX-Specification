@@ -264,6 +264,15 @@ formats?
 is a not a recognized Vulkan format. The data layout is always given by
 the Data Format Descriptor.
 
+There are not yet Vulkan extensions for the ASTC HDR and 3D formats
+described in _OES_texture_compression_ASTC_ <<OES_ASTC>>. ASTC
+formats are indicated in the DFD by setting `color_model` to
+`KHR_DF_MODEL_ASTC (= 162)`. HDR data is indicated by setting the
+`channel_id` `KHR_DF_SAMPLE_DATATYPE_FLOAT` bit to 1. An ASTC 3D
+texture is indicated by `texel_block_dimension_2` > 0. Tools handling
+ASTC and OpenGL loaders must be be able to recognize these formats
+from the DFD.
+
 [TIP]
 ====
 Before loading any image, Vulkan loaders should confirm via
@@ -687,7 +696,7 @@ Rows of uncompressed pixel data are tightly packed. Each row in
 memory immediately follows the end of the preceding row. I.e the
 data must be packed according to the rules described in section
 8.4.4.1 _Unpacking_ of the OpenGL 4.6 specification <<OPENGL46>>
-with GL_UNPACK_ROW_LENGTH = 0 and GL_UNPACK_ALIGNMENT = 1.
+with `GL_UNPACK_ROW_LENGTH` = 0 and `GL_UNPACK_ALIGNMENT` = 1.
 
 === Texture Type
 The type of texture can be determined from the following table. Any 
@@ -1062,6 +1071,10 @@ it.
 [bibliography]
 === Normative References
 
+- [[[OES_ASTC]]]
+  {url-khr-reg}/OpenGL/extensions/OES/OES_texture_compression_astc.txt[GL_OES_texture_compression_astc].
+Sean Ellis, et al. The Khronos Group, July 2016.
+
 ////
 // "L." after the doc. title is to make the correct author name
 // L. Peter Deutsch. If I put it at the start of the line following
@@ -1092,7 +1105,7 @@ The Khronos Group, December 2018.
 
 - [[[VULKAN11EXT]]] {url-khr-vulkan}/specs/1.1-extensions/html/vkspec.html[Vulkan^®^
 1.1 - A Specification (with all registered Vulkan extensions)].
-The Khronos Group, October 2018.
+The Khronos Group, December 2018.
 
 // "L." & "Y." after doc titles avoid the Asciidoctor list issue.
 - [[[ZLIB]]] https://tools.ietf.org/html/rfc1950[ZLib Compressed Data
@@ -1106,12 +1119,14 @@ Collet, M. Kucherawy, Ed. Internet Engineering Task Force (IETF), October 2018.
 
 [NOTE]
 ====
-References to the OpenGL and Vulkan specifications do not imply
-that KTX header field values are limited solely to those in the
-referenced sections or tables. These values may be supplemented by
-OpenGL {,ES} extensions, Vulkan extensions or new versions.  They
-also do not imply that all of the texture types can be loaded in
-any particular version of OpenGL {,ES} or Vulkan.
+The Vulkan 1.1 references are to living documents that are updated
+weekly with corrections, clarifications and, in the case of
+<<VULKAN11EXT>>, newly released extensions. References to the
+specifications do not imply that KTX header field values are limited
+solely to those in the referenced sections or tables. These values
+may be supplemented by extensions or new versions.  They also do
+not imply that all of the texture types can be loaded in any
+particular version of OpenGL {,ES} or Vulkan.
 ====
 
 [bibliography]
