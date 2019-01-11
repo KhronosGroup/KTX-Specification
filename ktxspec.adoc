@@ -268,10 +268,11 @@ There are not yet Vulkan extensions for the ASTC HDR and 3D formats
 described in _OES_texture_compression_ASTC_ <<OES_ASTC>>. ASTC
 formats are indicated in the DFD by setting `color_model` to
 `KHR_DF_MODEL_ASTC (= 162)`. HDR data is indicated by setting the
-`channel_id` `KHR_DF_SAMPLE_DATATYPE_FLOAT` bit to 1. An ASTC 3D
-texture is indicated by `texel_block_dimension_2` > 0. Tools handling
-ASTC and OpenGL loaders must be be able to recognize these formats
-from the DFD.
+`channel_id` `KHR_DF_SAMPLE_DATATYPE_FLOAT` bit to 1. The block
+size is given by the values of `texture_block_dimension_0` and
+`texture_block_dimension_1` and an ASTC 3D texture is indicated by
+`texel_block_dimension_2` > 0. Tools handling ASTC and OpenGL loaders
+must be be able to recognize these formats from the DFD.
 
 [TIP]
 ====
