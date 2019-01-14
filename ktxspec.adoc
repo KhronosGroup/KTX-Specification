@@ -844,7 +844,7 @@ UInt32 glFormat
 UInt32 glType
 ----
 
-==== KTXdxgiFormat
+==== KTX__dxgiFormat
 
 For Direct3D the mapping is specified with the key
 
@@ -852,9 +852,9 @@ For Direct3D the mapping is specified with the key
 
 The value is a UInt32 (4 bytes) giving the format enum value.
 
-==== KTXmtlPixelFormat
+==== KTXmetalPixelFormat
 
-For Direct3D the mapping is specified with the key
+For Metal, the mapping is specified with the key
 
 - `KTXmetalPixelFormat`
 
