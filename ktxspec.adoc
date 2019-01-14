@@ -251,18 +251,21 @@ writing (Vulkan 1.1.96). It is subject to change as future extensions
 are added to the document but the link should remain valid as it is to
 an internal anchor.
 
-Values listed in <<prohibitedFormats>> must not be used nor any
-`\*_SCALED_*` formats added in future.  The table in <<formatMapping>>
-gives the mapping for all `VkFormat` enum values, known at the time
-of writing, to OpenGL internal format, format and type values.
-Applications must use this mapping.
-
-WARNING: What do we say about mapping for subsequently addded Vulkan
-formats?
-
 `vkFormat` can be `VK_FORMAT_UNDEFINED` (0) if the format of the data
 is a not a recognized Vulkan format. The data layout is always given by
 the Data Format Descriptor.
+
+Values listed in <<prohibitedFormats>> must not be used nor any
+`\*_SCALED_*` formats added in future.  The table in <<formatMapping>>
+gives the mapping for all `VkFormat` enum values in Vulkan 1.1 core
+and the extensions known at the time of writing, to the equivalent
+OpenGL format (internal format, format and type values), DXGI_FORMAT
+and MTLPixelFormat. Applications must use these mappings. If
+<<formatMapping>> does not have an entry for the value of `vkFormat`,
+and a mapping for one or more of the other APIs exists the KTX2
+writer must provide that mapping using one or more of the metadata
+items described in <<formatMappingMetadata>>. This includes the
+case of `VK_FORMAT_UNDEFINED`.
 
 There are not yet Vulkan extensions for the ASTC HDR and 3D formats
 described in _OES_texture_compression_ASTC_ <<OES_ASTC>>. ASTC
@@ -815,38 +818,47 @@ Although other orientations can be represented, it is recommended
 that tools that create KTX files use only the values listed above
 as other values may not be widely supported by other tools.
 
-=== KTXrequiredVkExtension
+[#formatMappingMetadata]
+=== Format Mapping
 
-When the value of `vkFormat` is defined by the Vulkan extension
-rather than the core specification, the required extension must be
-specified in metadata with the key
+When <<formatMapping>> does not have an entry for the value of
+`vkFormat`, which will happen for newly addded Vulkan formats, the
+KTX writer must provide any known mapping via the following key-value
+pairs.
 
-- `KTXrequiredVkExtension`
+Note that the length of these keys, including the terminating `NUL`,
+is a multiple of 4 bytes so the values will be 4-byte aligned.
 
-The value is the name string used needed to enable the necessary
-extension typically a string using the ASCII subset of UTF-8, e.g.,
+==== KTXglFormat
 
-- `VK_IMG_format_pvrtc`
+For OpenGL {,ES} the mapping is specified with the key
 
-Loaders are not required to enable the extension if they determine that
-the Vulkan implementation supports use of the format without it. This
-can happen, for example, if the implementation is of a later version of
-Vulkan where the format has become core.
+- `KTXglFormat`
 
-=== KTXrequiredVkPhysicalDeviceFeature
+The value is 12 bytes representing 3 Uint32 values:
 
-Support for some standard formats is optional in Vulkan. Support
-must be queried via `VkGetPhysicalDeviceFeatures2` and, if supported,
-the feature enabled at `VkDevice` creation time. If a feature must
-be enabled to use the format given by `vkFormat`, it must specified
-in metadata with the key
+[source,c]
+----
+UInt32 glInternalformat
+UInt32 glFormat
+UInt32 glType
+----
 
-- `KTXrequiredVkPhysicalDeviceFeature`
+==== KTXdxgiFormat
 
-The value is the name of the feature expressed as a string in the ASCII
-subset of UTF-8, e.g.,
+For Direct3D the mapping is specified with the key
 
-- `textureCompressionETC2`
+- `KTX__dxgiFormat`
+
+The value is a UInt32 (4 bytes) giving the format enum value.
+
+==== KTXmtlPixelFormat
+
+For Direct3D the mapping is specified with the key
+
+- `KTXmetalPixelFormat`
+
+The value is a UInt32 (4 bytes) giving the format enum value.
 
 === KTXswizzle
 
@@ -895,19 +907,19 @@ Use the following formats and swizzles to map alpha-only, luminance and
 luminance-alpha formats.
 
 Alpha8:: 
-VkFormat: VK_FORMAT_R8_UNORM
+`vkFormat`: `VK_FORMAT_R8_UNORM` (9)
  +
-KTXswizzle: 000r
+`KTXswizzle`: 000r
 
 Luminance8::
-VkFormat: VK_FORMAT_R8_UNORM
+`vkFormat`: `VK_FORMAT_R8_UNORM` (9)
  +
-KTXswizzle: rrr1
+`KTXswizzle`: rrr1
 
 Luminance8Alpha8::
-VkFormat: VK_FORMAT_R8G8_UNORM
+`vkFormat`: `VK_FORMAT_R8G8_UNORM` (16)
  +
-KTXswizzle: rrrg
+`KTXswizzle`: rrrg
 
 Loaders may opt to detect these cases and use API-provided enums
 when available, e.g. for the first case  `GL_ALPHA8` (when using
@@ -925,7 +937,7 @@ writing the file, for example:
 -   `AcmeCo TexTool v1.0`
 
 Only the most recent writer should be identified.  Editing tools
-should overwrite this value when rewriting a file originally written
+must overwrite this value when rewriting a file originally written
 by a different tool.
 
 == An example KTX file:
