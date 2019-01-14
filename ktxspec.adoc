@@ -1007,17 +1007,17 @@ Should KTX2 provide a way to distinguish between 1D textures and buffer textures
 +
 _Unresolved:_
 
-Should KTX2 drop the `gl*` fields?
+Should KTX2 drop the `gl*` fields?::
   _Discussion:_ Narrowing down and enforcing the valid combinations
-  of `glFormat`, `glInternalFormat` is fraught with issues. The spec.
-  could be simplified by dropping them and having only `vkFormat`.
-  The spec can include a table showing a standard mapping from
-  the `vkFormat` value to a `glInternalFormat`, `glFormat` and `glType`
-  combination.
+  of `glFormat`, `glInternalFormat` and `glType` is fraught with
+  issues. The spec. could be simplified by dropping them and having
+  only `vkFormat`.  The spec can include a table showing a standard
+  mapping from the `vkFormat` value to a `glInternalFormat`,
+  `glFormat` and `glType` combination.
 +
-_Resolved:_ Drop the `gl*` fields. OpenGL and OpenGL ES loaders can
-include code to do the mapping based on the table in the spec. Such code
-is estimated to be about 6 kbytes.
+_Resolved:_ Drop the `gl*` fields. OpenGL and OpenGL ES loaders
+can include code to do the mapping based on table which will be
+added to the spec. Such code is estimated to be about 6 kbytes.
 
 Use alphanumeric characters or binary values for component swizzles?::
   _Discussion:_ Values in the swizzle metadata could be either a
@@ -1044,9 +1044,10 @@ Should KTX2 support metadata for effective use of Vulkan SCALED formats?::
   scale and bias values are folded into the transformation matrix.
   Should KTX2 specify standard metadata for these?
 +
-_Resolved:_ Not at this time. These formats are primarily for vertex
-data and several Vulkan vendors have said they can't support them
-as texture formats. Metadata can be easily added in future.
+_Resolved:_ No. These formats will not be supported. They are
+primarily for vertex data and several Vulkan vendors have said they
+can't support them as texture formats. Also a DFD cannot distinguish
+these from `int` values having the same bit pattern.
 
 Should the supercompression scheme be applied per-mip-level?::
   _Discussion:_ Should each mip level be supercompressed independently
