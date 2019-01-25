@@ -1,7 +1,7 @@
-= KTX File Format Specification
+= KTX^™️^ File Format Specification
 :author: Mark Callow
 :author_org: Edgewise Consulting
-:description: Specification for container format for OpenGL and Vulkan textures.
+:description: Specification for container format for OpenGL^®^ and Vulkan^®^ textures.
 :docrev: draft9
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
@@ -51,11 +51,12 @@
 
 [abstract]
 == Abstract
-KTX2 is a format for storing textures for OpenGL, OpenGL ES and Vulkan applications.
-It is distinguished by the simplicity of the loader required to instantiate texture
-objects from the file contents.
+The KTX file format, version 2 is a format for storing textures
+for OpenGL^®^, OpenGL ES^™️^ and Vulkan^®^ applications.  It is
+distinguished by the simplicity of the loader required to instantiate
+texture objects from the file contents.
 
-It extends the KTX format with support for easier loading of Vulkan
+It extends the version 1 format with support for easier loading of Vulkan
 textures, easier use by non-OpenGL and non-Vulkan applications, storage of
 multisample images, streaming and supercompression.
 
@@ -63,6 +64,47 @@ multisample images, streaming and supercompression.
 === Status of this document
 
 WIP. Under review; not ready for implementation.
+
+== Introduction
+
+This document describes the KTX file format version 2.0, hereafter
+referred to as _KTX2_^™️^. KTX2 files are used for storing textures for
+use with 3D API's such as OpenGL, OpenGL ES and Vulkan.
+
+The canonical version of the specification is available in the
+Khronos Registry ({url-khr-reg}). The source files used to generate
+the specification are stored in the KTX-Specification Repository
+(https://github.com/KhronosGroup/KTX-Specification).  The source
+repository has a public issue tracker and allows the submission of
+pull requests that improve the specification.
+
+=== Document Conventions
+
+The KTX2 specification is intended for use by both creators and
+consumers of KTX2 files forming a contract between these parties.
+Specification text may address either party; typically the intended
+audience can be inferred from context
+
+==== Normative Terminology
+
+Within this specification, the key words must, required, should,
+recommended, may, and optional are to be interpreted as described
+in _Key words for use in RFCs to Indicate Requirement Levels_
+<<RFC2119>>.  In text addressing creators, their use expresses
+requirements that apply to the files produced.  In text addressing
+consumers, their use expresses requirements that must be followed
+when, e.g, uploading the textures via a 3D API.
+
+==== Admonitions
+
+NOTE: Notes are non-normative and give further background information
+such as rationales.
+
+TIP: Tips are non-normative and give helpful suggestions for
+implementers.
+
+CAUTION: Cautions are normative, giving restrictions that must be
+followed.
 
 == File Structure
 
@@ -492,8 +534,8 @@ block-compressed texture formats.
 === Data Format Descriptor
 The next 3 items combined form a _Data Format Descriptor_
 (dfDescriptor) describing the layout of the texel blocks in `data`.
-The full specification for this can be found in the Khronos Data
-Format 1.2 Specification <<KDF12>>.
+The full specification for this can be found in the _Khronos Data
+Format Specification_ version 1.2 <<KDF12>>.
 
 If the dfDescriptor describes an sRGB transfer function then `vkFormat`
 must be one of the _SRGB_ formats.
@@ -1098,7 +1140,7 @@ Sean Ellis, et al. The Khronos Group, July 2016.
   Data Format Specification version 1.3 (RFC1951)]. L.
 Peter Deutsch. IETF Network Working Group, May 1996.
 
-- [[[KFD12]]] {url-khr-reg}/DataFormat/specs/1.2/dataformat.1.2.html[Khronos
+- [[[KDF12]]] {url-khr-reg}/DataFormat/specs/1.2/dataformat.1.2.html[Khronos
   Data Format Specification 1.2].
 Andrew Garrard. The Khronos Group, September 2017.
 
@@ -1112,6 +1154,11 @@ Mark Segal, Kurt Akeley; Editor: Jon Leech. The Khronos Group, July 2017.
 - [[[REGEXP]]] https://www.ecma-international.org/ecma-262/5.1/index.html#sec-15.10[Standard
  ECMA-262 5.1{nbsp}Edition, Section 15.10: RegExp (Regular Expression) Objects].
 Ecma International, June 2011.
+
+// "S" after doc title avoids the Asciidoctor list issue.
+- [[[RFC2119]]] https://www.ietf.org/rfc/rfc2119.txt[Key words for use in RFCs to
+Indicate Requirement Levels]. S.
+Bradner. IETF Network Working Group, March 1997.
 
 - [[[VULKAN11]]] {url-khr-vulkan}/specs/1.1/html/vkspec.html[Vulkan^®^
 1.1 - A Specification].
@@ -1129,7 +1176,6 @@ Peter Deutsch, Jean-Loup Gailly. IETF Network Working Group, May 1996.
 - [[[ZSTD]]] https://tools.ietf.org/html/rfc8478[Zstandard Compression
 and the application/zstd Media Type. (RFC8478)]. Y.
 Collet, M. Kucherawy, Ed. Internet Engineering Task Force (IETF), October 2018.
-
 
 [NOTE]
 ====
