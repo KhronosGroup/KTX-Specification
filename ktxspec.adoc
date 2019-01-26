@@ -121,7 +121,6 @@ UInt32 pixelDepth
 UInt32 numberOfArrayElements
 UInt32 numberOfFaces
 UInt32 numberOfMipmapLevels
-UInt32 levelOrder
 UInt32 supercompressionScheme
 
 UInt32 bytesOfDataFormatDescriptor <1>
@@ -442,19 +441,11 @@ to signal which faces are present.
 
 === numberOfMipmapLevels
 `numberOfMipmapLevels` must equal 1 for non-mipmapped textures. For
-mipmapped textures, it equals the number of mipmaps. Mipmaps are
-ordered according to the value of the `<<levelOrder>>` field.  A KTX
-file does not need to contain a complete mipmap pyramid. If
-`numberOfMipmapLevels` equals 0, it indicates that a full mipmap
-pyramid should be generated from level 0 at load time (this is
-usually not allowed for compressed formats).
-
-=== levelOrder
-`levelOrder` indicates the ordering of the mipmap levels.  If 0,
-it indicates the levels are ordered from base level (the largest)
-to max level (the smallest).  If 1, it indicates the levels are
-ordered from the max level to base level. If `<<numberOfMipmapLevels>>
-== 0`, `levelOrder` must equal 0.
+mipmapped textures, it equals the number of mipmaps. Mipmap level
+data is ordered from the max level (the smallest image, _level~max~_)
+to the base level (the largest image, _level~base~_). Its value
+must not be greater than the _log~2~_ of the maximum of `pixelWidth`,
+`pixelHeight` and `pixelDepth`.
 
 [NOTE]
 .Rationale
@@ -465,6 +456,22 @@ used together with, e.g., the `GL_TEXTURE_MAX_LEVEL` and
 in a `VkCmdCopyBufferToImage`, to display a low resolution image quickly
 without waiting for the entire texture data.
 ====
+
+A KTX file does not need to contain a complete mipmap pyramid. If
+`numberOfMipmapLevels` is not equal to the maximum allowed, it indicates
+the file contains levels from _level~base~_ up to _level~p~_ where
+stem:[p = numberOfMipmapLevels - 1]. The data remains ordered from
+smallest to largest, _level~p~_ to _level~base~_.
+
+stem:[numberOfMipmapLevels = 1] means that a file contains only the
+first level and the texture isn't meant to have other levels. E.g.
+this could be a LUT rather than a natural image.
+
+stem:[numberOfMipmapLevels = 0] means that a file contains only the
+first level and engines should generate other levels if needed.
+stem:[numberOfMipmapLevels = 0] is not allowed for block-compressed
+formats as client-side mipmap generation is not widely supported,
+if at all.
 
 === supercompressionScheme
 `supercompressionScheme` indicates if an optional supercompression
@@ -669,12 +676,13 @@ When `supercompressionScheme == 0`, `<<bytesOfImages>>` must have the same
 value as this.
 
 === Level Index
-This array provides the offset within the <<_mipmap_level_array>> for
-each mip level. Levels are ordered as indicated by the value of
-`<<levelOrder>>`. This index provides random access to supercompressed
-data. It is not necessary for non-supercompressed data, as the sizes
-and offsets can be calculated, but for consistency and reducing the
-possibilities for error it must always be included in a KTX file.
+This array provides the offset within the <<_mipmap_level_array>>
+for each mip level. The array is ordered starting with the base
+level (the largest mip level) at index 0.  This index provides
+random access to supercompressed data. It is not necessary for
+non-supercompressed data, as the sizes and offsets can be calculated,
+but for consistency and reducing the possibilities for error it
+must always be included in a KTX file.
 
 ==== levelOffset
 `levelOffset` gives the offset of a mipmap level from the start of the
@@ -1208,10 +1216,9 @@ Rich Geldreich, Jr.
 == Changes compared to KTX
 
 - `vkFormat` added.
-- `levelOrder` added.
 - Data format descriptor added.
 - Supercompression added.
-- `glBaseInternalFormat` removed.
+- OpenGL format information fields removed.
 - Swizzle and writer id metadata added.
 - Row and cube padding removed.
 
