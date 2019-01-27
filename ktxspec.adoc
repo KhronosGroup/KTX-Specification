@@ -447,15 +447,18 @@ to signal which faces are present.
 === numberOfMipmapLevels
 `numberOfMipmapLevels` specifies the number of levels in Mipmap
 Level Array and, by extension, the number of indices in the Level
-Index array. Mipmap level data is ordered from the smallest image
-size, _level~p~_ to the largest image size, _level~base~_.
-`numberOfMipmapLevels` must not be greater than _level~max~_, the
-_log~2~_ of the maximum of `pixelWidth`, `pixelHeight` and `pixelDepth`.
+Index array. A KTX file does not need to contain a complete mipmap
+pyramid.  Mipmap level data is ordered from the level with the
+smallest size images, stem:[level_p] to that with the largest size
+images, stem:[level_{base}] where stem:[p = numberOfMipmapLevels - 1] and
+stem:[base = 0]. stem:[level_p] must not be greater than the maximum
+possible, stem:[level_{max}], where
 
-A KTX file does not need to contain a complete mipmap pyramid. If
-`numberOfMipmapLevels` is not equal to _level~base~_, it indicates
-the file contains levels from some _level~p~_ to _level~base~_
-where stem:[p = numberOfMipmapLevels - 1].
+[stem]
+// max = log2(max(pixelWidth, pixelHeight, pixelDepth))
++++++
+max = \log _2\left(\max\left(pixelWidth, pixelHeight, pixelDepth\right)\right)
++++++
 
 stem:[numberOfMipmapLevels = 1] means that a file contains only the
 first level and the texture isn't meant to have other levels. E.g.,
