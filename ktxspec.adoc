@@ -672,12 +672,12 @@ value as this.
 
 === Level Index
 This array provides the offset within the <<_mipmap_level_array>>
-for each mip level. The offsets are ordered starting with _level~base~_
-(the largest images) at index 0.  This index provides random access
-to supercompressed data. It is not necessary for non-supercompressed
-data, as the sizes and offsets can be calculated, but for consistency
-and reducing the possibilities for error it must always be included
-in a KTX file.
+for each mip level. The offsets are ordered starting with that of
+_level~base~_ (the level with the largest size images) at index 0.
+This index provides random access to supercompressed data. It is
+not necessary for non-supercompressed data, as the sizes and offsets
+can be calculated, but for consistency and reducing the possibilities
+for error it must always be included in a KTX file.
 
 ==== levelOffset
 `levelOffset` gives the offset of a mipmap level from the start of the
@@ -685,8 +685,9 @@ in a KTX file.
 
 === Mipmap Level Array
 
-Mipmap levels in the array are ordered from the the smallest image
-size, _level~p~_ to the largest image size, _level~base~_.
+Mipmap levels in the array are ordered from the level with the
+smallest size images, _level~p~_ to that with the largest size
+images, _level~base~_.
 
 [NOTE]
 .Rationale
