@@ -14,7 +14,8 @@ end
 MIME_TYPES = {
     '.png' => 'image/png',
     '.svg' => 'image/svg+xml',
-    '.ico' => 'image/x-icon'}.freeze
+    '.ico' => 'image/x-icon'
+}.freeze
 
 REGEX = /(?<=url\()[^.]+.(svg|png)(?=\))|(?<=href=")[^.]+.(ico|png|svg)(?=")/
 
