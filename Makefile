@@ -15,7 +15,12 @@ $(out)/index.html: ktxspec.adoc $(out) $(inlined_images) docinfo.html
 
 $(out)/ktx.pdf:
 
+$(out):
+	mkdir -p $@
+
 clean:
+
+clobber: clean
 	rm -rf $(out)
 
 # vim: ai noexpandtab tw=72 ts=4 sw=4
