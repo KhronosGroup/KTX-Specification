@@ -559,8 +559,8 @@ The offset from the start of the file of the
 ==== bytesOfDataFormatDescriptor
 The total number of bytes in the <<_data_format_descriptor,_Data
 Format Descriptor_>> including the `<<_dfdTotalSize,dfdTotalSize>>`
-field. Therefore `bytesOfDataFormatDescriptor` must equal
-`<<_dfdTotalSize,dfdTotalSize>>` + 4.
+field. `bytesOfDataFormatDescriptor` must equal
+`<<_dfdTotalSize,dfdTotalSize>>`.
 
 ==== keyValueDataOffset
 An arbitrary number of <<_key/value_data,key/value pairs>> may
@@ -690,16 +690,16 @@ A _dfDescriptor_ is useful in the following cases:
 
 ==== dfdTotalSize
 Called `total_size` in <<KFD12>>, `dfdTotalSize` indicates the total
-number of bytes in the _dfDescriptor_ including all `dfdBlock` and
-all `dfdBlockPadding` fields.
+number of bytes in the _dfDescriptor_ including `dfdTotalSize`, all
+`dfdBlock` and all `dfdBlockPadding` fields.
 `<<_bytesOfDataFormatDescriptor,bytesOfDataFormatDescriptor>>` must
-equal `dfdTotalSize` + 4.
+equal `dfdTotalSize`.
 
 [NOTE]
 ====
-`dfdTotalSize` largely duplicates `bytesOfDataFormatDescriptor` but is
-included so that the KTX file contains a complete descriptor as defined
-in <<KDF12>>
+`dfdTotalSize` duplicates `bytesOfDataFormatDescriptor` but is
+included so that the KTX file contains a complete descriptor as
+defined in <<KDF12>>
 ====
 
 ==== dfdBlock
