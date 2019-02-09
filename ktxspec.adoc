@@ -720,7 +720,7 @@ Key/Value data consists of a set of key/value pairs. The number of
 pairs is such that
 [stem]
 +++++
-\sum_{i=0}^{n} \left\lceil{\frac{keyAndValueByteSize[i]}{4}}\right\rceil * 4 = bytesOfKeyValueData.
+\sum_{i=0}^{n-1} \left\lceil{\frac{keyAndValueByteSize[i]}{4}}\right\rceil * 4 + keyAndValueByteSize[n]  = bytesOfKeyValueData.
 +++++
 
 Loaders must treat any file that does not meet the above condition as
