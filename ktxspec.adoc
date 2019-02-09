@@ -52,13 +52,13 @@
 [abstract]
 == Abstract
 The KTX file format, version 2 is a format for storing textures
-for OpenGL^®^, OpenGL ES^™️^ and Vulkan^®^ applications.  It is
+for OpenGL^®^, OpenGL ES^™️^, Vulkan^®^ and WebGL^™️^ applications.  It is
 distinguished by the simplicity of the loader required to instantiate
 texture objects from the file contents.
 
 It extends the version 1 format with support for easier loading of Vulkan
-textures, easier use by non-OpenGL and non-Vulkan applications, storage of
-multisample images, streaming and supercompression.
+textures, easier use by non-OpenGL and non-Vulkan applications, support
+for streaming and supercompression.
 
 [discrete]
 === Status of this document
@@ -684,9 +684,6 @@ A _dfDescriptor_ is useful in the following cases:
 
 * precise color management using the descriptor's color space
   information,
-* storing multi-sample images. Neither OpenGL nor Vulkan define formats
-  or an API for loading these. Applications can use the descriptor and
-  a custom shader to load these.
 * easier use of the images by non-OpenGL and non-Vulkan applications.
   There will be no need for large tables to interpret format enums.
 * easier calculation of the offsets of each level, face and layer within
