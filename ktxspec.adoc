@@ -221,7 +221,7 @@ num\_blocks\_x = \left\lceil{\frac{pixelWidth}{block\_width}}\right\rceil
 where _block_depth_, _block_height_, and _block_width_ are `1` for
 uncompressed formats and the block size in that dimension for block
 compressed formats as given in the format's section of the Khronos
-Data Format specification <<KDF12>>.
+Data Format specification <<KDF13>>.
 
 A _block_ is a single pixel for uncompressed formats and
 stem:[block\_width \times block\_height \times block\_depth]
@@ -663,14 +663,14 @@ to read the faces individually rather then as a block of size
 These 3 items combined form a _Data Format Descriptor_
 (dfDescriptor) describing the layout of the texel blocks in `data`.
 The full specification for this is found in the _Khronos Data
-Format Specification_ version 1.2 <<KDF12>>.
+Format Specification_ version 1.2 <<KDF13>>.
 
 If the _dfDescriptor_ describes an sRGB transfer function then
 `<<_vkFormat,vkFormat>>` must be one of the _SRGB_ formats.
 
 The _dfDescriptor_ is partially expanded here in order to provide
 sufficient information for a KTX2 file to be parsed without having to
-refer to <<KDF12>>. If consists of one or more _Descriptor Blocks_
+refer to <<KDF13>>. If consists of one or more _Descriptor Blocks_
 (dfDescriptorBlock).
 
 The _dfDescriptor_ describes the texel blocks as they are when
@@ -691,7 +691,7 @@ A _dfDescriptor_ is useful in the following cases:
 ====
 
 ==== dfdTotalSize
-Called `total_size` in <<KFD12>>, `dfdTotalSize` indicates the total
+Called `total_size` in <<KDF13>>, `dfdTotalSize` indicates the total
 number of bytes in the _dfDescriptor_ including `dfdTotalSize`, all
 `dfdBlock` and all `dfdBlockPadding` fields.
 `<<_bytesOfDataFormatDescriptor,bytesOfDataFormatDescriptor>>` must
@@ -701,11 +701,11 @@ equal `dfdTotalSize`.
 ====
 `dfdTotalSize` duplicates `bytesOfDataFormatDescriptor` but is
 included so that the KTX file contains a complete descriptor as
-defined in <<KDF12>>
+defined in <<KDF13>>
 ====
 
 ==== dfdBlock
-A `Descriptor Block` as defined in <<KDF12>>, the high-order 16
+A `Descriptor Block` as defined in <<KDF13>>, the high-order 16
 bits of its first UInt32 are the `descriptor_type` and the high-order
 16 bits of the second UInt32 are the `descriptor_block_size`.
 `descriptor_block_sizes` are mandated to be multiples of 4
@@ -1069,7 +1069,7 @@ How to refer to the DF descriptor block?::
   definition of a descriptor block here which we do not want to do.
 +
 _Resolved:_ Show that `dfDescriptorBlock` is used as a shorthand for
-<<KDF12>>'s _Descriptor block_.
+<<KDF13>>'s _Descriptor block_.
 
 How to handle endianness of the DF descriptor block?::
   _Discussion_: The DF spec says data structures are assumed to be
@@ -1207,9 +1207,11 @@ Sean Ellis, et al. The Khronos Group, July 2016.
   Data Format Specification version 1.3 (RFC1951)]. L.
 Peter Deutsch. IETF Network Working Group, May 1996.
 
-- [[[KDF12]]] {url-khr-reg}/DataFormat/specs/1.2/dataformat.1.2.html[Khronos
+- [[[KDF13]]] {url-khr-reg}/DataFormat/specs/1.3/dataformat.1.3.html[Khronos
+  Data Format Specification 1.3].
+Andrew Garrard. The Khronos Group, T.B.D 2019.
+For now see {url-khr-reg}/DataFormat/specs/1.2/dataformat.1.2.html[Khronos
   Data Format Specification 1.2].
-Andrew Garrard. The Khronos Group, September 2017.
 
 - [[[OESCPT]]] {url-khr-reg}OpenGL/extensions/OES/OES_compressed_paletted_texture.txt[GL_OES_compressed_paletted_texture].
 Aaftab Munshi. The Khronos Group, July 2003.
