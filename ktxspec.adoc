@@ -52,13 +52,13 @@
 [abstract]
 == Abstract
 The KTX file format, version 2 is a format for storing textures
-for OpenGL^®^, OpenGL ES^™️^ and Vulkan^®^ applications.  It is
+for OpenGL^®^, OpenGL ES^™️^, Vulkan^®^ and WebGL^™️^ applications.  It is
 distinguished by the simplicity of the loader required to instantiate
 texture objects from the file contents.
 
 It extends the version 1 format with support for easier loading of Vulkan
-textures, easier use by non-OpenGL and non-Vulkan applications, storage of
-multisample images, streaming and supercompression.
+textures, easier use by non-OpenGL and non-Vulkan applications, support
+for streaming and supercompression.
 
 [discrete]
 === Status of this document
@@ -109,66 +109,75 @@ followed.
 == File Structure
 
 .Basic Structure
-[source,c]
+[source,c,subs="+quotes,+attributes,+replacements"]
 ----
 Byte[12] identifier
 UInt32 endianness
 UInt32 glTypeSize
-Uint32 vkFormat
+UInt32 vkFormat
 UInt32 pixelWidth
 UInt32 pixelHeight
 UInt32 pixelDepth
 UInt32 numberOfArrayElements
 UInt32 numberOfFaces
-UInt32 numberOfMipmapLevels
+UInt32 numberOfMipLevels
 UInt32 supercompressionScheme
-
-// Data Format Descriptor
-UInt32 bytesOfDataFormatDescriptor <1>
-for each dfDescriptorBlock that fits in bytesOfDataFormatDescriptors
-    dfDescriptorBlock descriptorBlock
-    blockPadding[3 - ((descriptor_block_size + 3) % 4)]
-end
-
-// Key-Value Data
-UInt32 bytesOfKeyValueData
-for each keyValuePair that fits in bytesOfKeyValueData
-    UInt32   keyAndValueByteSize
-    Byte     keyAndValue[keyAndValueByteSize]
-    Byte     valuePadding[3 - ((keyAndValueByteSize + 3) % 4)]
-end
-Byte keyValuePadding[0|4]
-
-// Supercompression Global Data
-UInt64 bytesOfSupercompressionGlobalData
-Byte supercompressionGlobalData[bytesOfSupercompressionsGlobalData]
-Byte sgdPadding[7 - ((bytesOfSupercompressionGlobalData + 7) % 8)]]
-
 UInt64 bytesOfImages
 UInt64 bytesOfUncompressedImages
 
-// Level Index
-for each mipmap level in numberOfMipmapLevels <2>
-    UInt64 levelOffset
-end
+// Index <1>
+UInt32 dataFormatDescriptorOffset
+UInt32 bytesOfDataFormatDescriptor
+UInt32 keyValueDataOffset
+UInt32 bytesOfKeyValueData
+UInt64 supercompressionGlobalDataOffset
+UInt64 bytesOfSupercompressionGlobalData
+struct {
+    UInt64 offset
+    UInt64 bytesOfImages
+    UInt64 bytesOfUncompressedImages
+} levels[max(1, numberOfMipLevels)]
 
-// Mipmap Level Array
-for each mipmap_level in numberOfMipmapLevels <2>
-    Uint64 bytesOfLevelImages
-    Uint64 bytesOfUncompressedLevelImages
-    Byte levelImages[bytesOfLevelImages] <3>
+// Data Format Descriptor <2>
+UInt32 dfdTotalSize
+continue
+    dfDescriptorBlock dfdBlock
+          &#xFE19;
+until dfdTotalSize bytes read
+
+// Key/Value Data <3>
+continue
+    [.optional]#UInt32   keyAndValueByteSize#
+    [.optional]#Byte     keyAndValue[keyAndValueByteSize]#
+    [.optional]#Byte     valuePadding[3 - (keyAndValueByteSize + 3) % 4]#
+                    [.optional]#&#xFE19;#
+    UInt32   keyAndValueByteSize
+    Byte     keyAndValue[keyAndValueByteSize]
+until bytesOfKeyValueData read
+Byte keyValuePadding[7 - (bytesOfKeyValueData + 7) % 8]
+
+// Supercompression Global Data <4>
+Byte supercompressionGlobalData[bytesOfSupercompressionsGlobalData]
+Byte sgdPadding[7 - (bytesOfSupercompressionGlobalData + 7) % 8]
+
+// Mip Level Array <5>
+for each mip_level in numberOfMipLevels <6>
+    Byte levelImages[bytesOfLevelImages] <7>
     Byte mipPadding[0-7]
 end
 ----
-<1> These 5 lines are a Data Format Descriptor. See <<_data_format_descriptor>>.
-    The data format descriptor is required.
-<2> Replace with 1 if this field is 0
-<3> See <<levelImages>> below.
+<1> Required. See <<Index>>.
+<2> Required. See <<Data Format Descriptor>>.
+<3> Required. See <<Key/Value Data>>.
+<4> Not required. See <<Supercompression Global Data>>.
+<5> Required. See <<Mip Level Array>>.
+<6> Replace with 1 if `numberOfMipLevels` is 0
+<7> See the <<levelImages>> below.
 
 After inflation from supercompression or when `supercompressionScheme ==
 0`, `levelImages` looks like this:
 
-[[levelImages,levelImages]]
+[[levelImages,levelImages structure]]
 .levelImages Structure
 [source, c]
 ----
@@ -184,7 +193,7 @@ for each array_element in numberOfArrayElements <1>
    end
 end
 ----
-<1> Replace with 1 if this field is 0.
+<1> Replace with 1 if `numberOfArrayElements` is 0.
 <2> See <<levelImages_defs,the definitions>> below.
 <3> Rows of uncompressed texture images must be tightly packed,
     equivalent to a `GL_UNPACK_ALIGNMENT` of 1.
@@ -212,7 +221,7 @@ num\_blocks\_x = \left\lceil{\frac{pixelWidth}{block\_width}}\right\rceil
 where _block_depth_, _block_height_, and _block_width_ are `1` for
 uncompressed formats and the block size in that dimension for block
 compressed formats as given in the format's section of the Khronos
-Data Format specification <<KDF12>>.
+Data Format specification <<KDF13>>.
 
 A _block_ is a single pixel for uncompressed formats and
 stem:[block\_width \times block\_height \times block\_depth]
@@ -433,7 +442,7 @@ equal 0.
 Although current graphics APIs do not support 3D array textures, KTX 
 files can be used to store them.
 
-Refer to the <<_texture_type>> section for more details about valid values. 
+Refer to <<_texture_type>> for more details about valid values. 
 
 === numberOfFaces
 `numberOfFaces` specifies the number of cubemap faces. For cubemaps
@@ -444,15 +453,15 @@ Applications wanting to store incomplete cubemaps should flatten faces
 into a 2D array and use the metadata described in <<KTXcubemapIncomplete>>
 to signal which faces are present.
 
-=== numberOfMipmapLevels
-`numberOfMipmapLevels` specifies the number of levels in Mipmap
-Level Array and, by extension, the number of indices in the Level
-Index array. A KTX file does not need to contain a complete mipmap
-pyramid.  Mipmap level data is ordered from the level with the
-smallest size images, stem:[level_p] to that with the largest size
-images, stem:[level_{base}] where stem:[p = numberOfMipmapLevels - 1] and
-stem:[base = 0]. stem:[level_p] must not be greater than the maximum
-possible, stem:[level_{max}], where
+=== numberOfMipLevels
+`numberOfMipLevels` specifies the number of levels in the
+<<_mip_level_array,_Mip Level Array_>> and, by extension, the number
+of indices in the `<<_levels,levels>>` array. A KTX file does not need to
+contain a complete mipmap pyramid.  Mip level data is ordered
+from the level with the smallest size images, stem:[level_p] to
+that with the largest size images, stem:[level_{base}] where stem:[p
+= numberOfMipLevels - 1] and stem:[base = 0]. stem:[level_p] must
+not be greater than the maximum possible, stem:[level_{max}], where
 
 [stem]
 // max = log2(max(pixelWidth, pixelHeight, pixelDepth))
@@ -460,11 +469,11 @@ possible, stem:[level_{max}], where
 max = \log _2\left(\max\left(pixelWidth, pixelHeight, pixelDepth\right)\right)
 +++++
 
-stem:[numberOfMipmapLevels = 1] means that a file contains only the
+stem:[numberOfMipLevels = 1] means that a file contains only the
 first level and the texture isn't meant to have other levels. E.g.,
 this could be a LUT rather than a natural image.
 
-stem:[numberOfMipmapLevels = 0] is allowed, except for block-compressed
+stem:[numberOfMipLevels = 0] is allowed, except for block-compressed
 formats, and means that a file contains only the first level and
 consumers, particularly loaders, should generate other levels if
 needed.
@@ -496,11 +505,11 @@ format of the data in `<<levelImages>>` for a scheme is specified
 in the reference given in the _Level Data Format_ column of
 <<supercompressionSchemes>>.
 
-Schemes that require data global to all levels can store it in
-`<<supercompressionGlobalData>>`. Currently only Crunch CRN uses
-global data. Thje format of the global data for a scheme is specified
-in the reference given in the _Global Data Format_ column
-of <<supercompressionSchemes>>.
+Schemes that require data global to all levels can store it as
+described in `<<supercompressionGlobalData>>`. Currently only Crunch
+CRN uses global data. The format of the global data for a scheme
+is specified in the reference given in the _Global Data Format_
+column of <<supercompressionSchemes>>.
 
 When a supercompression scheme is used, the image data must be
 inflated from the scheme prior to GPU sampling.
@@ -534,97 +543,207 @@ block-compressed texture formats.
 * Checksums are optional. If a checksum is present, inflators should
   verify it.
 
+=== bytesOfImages
+The total size of the image data. That is the sum of the
+`<<_bytesOfLevelImages,bytesOfLevelImages>>` within the
+<<_mip_level_array,_Mip Level Array_>>.
+
+=== bytesOfUncompressedImages
+The total size of the image data after expansion from supercompression.
+When `supercompressionScheme = 0`, `<<_bytesOfImages,bytesOfImages>>`
+must have the same value as this.
+
+=== Index
+An index giving the byte offsets from the start of the file and byte
+sizes of the various sections of the KTX file.
+
+==== dataFormatDescriptorOffset
+The offset from the start of the file of the
+`<<_dfdTotalBytes,dfdTotalBytes>>` field of the
+<<_data_format_descriptor,_Data Format Descriptor_>>.
+
+==== bytesOfDataFormatDescriptor
+The total number of bytes in the <<_data_format_descriptor,_Data
+Format Descriptor_>> including the `<<_dfdTotalSize,dfdTotalSize>>`
+field. `bytesOfDataFormatDescriptor` must equal
+`<<_dfdTotalSize,dfdTotalSize>>`.
+
+==== keyValueDataOffset
+An arbitrary number of <<_key/value_data,key/value pairs>> may
+follow the Index. These can be used to encode any arbitrary data.
+The `keyValueDataOffset` field gives the offset of this data, i.e.
+that of first key/value pair, from the start of the file.
+
+==== bytesOfKeyValueData
+The total number of bytes of key/value data including all
+`<<_keyAndValueByteSize,keyAndValueByteSize>>` fields, all
+`<<_keyAndValue,keyAndValue>>` fields and all
+`<<_valuePadding,valuePadding>>` fields but not the
+`<<_keyValuePadding,keyValuePadding>>` field.
+
+==== supercompressionGlobalDataOffset
+The offset from the start of the file of
+`<<_supercompressionGlobalData,supercompressionGlobalData>>`.  The
+value must be 0 when `bytesOfSupercompressionGlobalData` = 0.
+
+==== bytesOfSupercompressionGlobalData
+The number of bytes of
+`<<_supercompressionGlobalData,supercompressionGlobalData>>`.  It
+does not include `<<_sgdPadding,sgdPadding>>`. For most supercompression
+schemes the value is 0.
+
+==== levels
+An array giving the offset from the start of the file and
+compressed and uncompressed byte sizes of the image data for each
+mip level within the <<_mip_level_array,_Mip Level Array_>> The array is ordered
+starting with stem:[level_{base}] (the level with the largest size images)
+at index _0_. Image for stem:[level_p] will be found at index _p_.
+
+===== levels[n].offset
+
+The offset from the start of the file of the first byte of image data
+for mip level _n_.
+
+===== levels[n].bytesOfImages
+
+The total size of the data for supercompressed mip level _n_.
+
+`levels[n].bytesOfImages` is the number of bytes of pixel data in
+LOD stem:[level_n]. This includes all z slices, all faces, all rows
+(or rows of blocks) and all pixels (or blocks) in each row for the
+mip level.
+
+If
+[stem]
++++++
+\sum_{i=0}^{\max\left(1, numberOfMipLevels\right) - 1} level[i].bytesOfImages \neq bytesOfImages
++++++
+
+loaders should consider the file invalid and not load it.
+
+==== levels[n].bytesOfUncompressedImages
+
+The number of bytes of image data for mipmap level _n_ after reflation
+from supercompression.  When `supercompressionScheme == 0`,
+`<<_levels[n].bytesOfImages,levels[n].bytesOfImages>>` must have
+the same value as this.
+
+`levels[n].bytesOfUncompressedImages` is the number of bytes of pixel
+data in LOD stem:[level_n] after reflation from supercompression.
+This includes all z slices, all faces, all rows (or rows of blocks)
+and all pixels (or blocks) in each row for the mipmap level. It
+does not include any bytes in `<<_mipPadding,mipPadding>>`.
+
+The value of a level's `bytesOfUncompressedImages` must satisfy the
+following condition:
+[listing]
+----
+bytesOfUncompressedImages % (numberOfFaces * max(1, numberOfArrayElements)) == 0
+----
+
+If
+[stem]
++++++
+\sum_{i=0}^{\max\left(1, numberOfMipLevels\right) - 1} level[i].bytesOfUncompressedImages \neq bytesOfUncompressedImages
++++++
+
+loaders should consider the file invalid and not load it.
+
+[TIP]
+====
+In versions of OpenGL < 4.5 and in OpenGL ES, faces of non-array
+cubemap textures (any texture where `numberOfFaces` is 6 and
+`numberOfArrayElements` is 0) must be uploaded individually. Loaders
+wishing to minimize the size of their intermediate buffers may want
+to read the faces individually rather then as a block of size
+`level[n].bytesOfUncompressedImages`.
+====
+
 === Data Format Descriptor
-The next 3 items combined form a _Data Format Descriptor_
+These 3 items combined form a _Data Format Descriptor_
 (dfDescriptor) describing the layout of the texel blocks in `data`.
-The full specification for this can be found in the _Khronos Data
-Format Specification_ version 1.2 <<KDF12>>.
+The full specification for this is found in the _Khronos Data
+Format Specification_ version 1.2 <<KDF13>>.
 
-If the dfDescriptor describes an sRGB transfer function then `vkFormat`
-must be one of the _SRGB_ formats.
+If the _dfDescriptor_ describes an sRGB transfer function then
+`<<_vkFormat,vkFormat>>` must be one of the _SRGB_ formats.
 
-The dfDescriptor is partially expanded here in order to provide
+The _dfDescriptor_ is partially expanded here in order to provide
 sufficient information for a KTX2 file to be parsed without having to
-refer to <<KDF12>>. If consists of one or more _Descriptor Blocks_
+refer to <<KDF13>>. If consists of one or more _Descriptor Blocks_
 (dfDescriptorBlock).
 
-If the 
-
-The Data Format Descriptor describes the texel blocks as they are when
-`supercompressionScheme == 0` or after reflation when
-`supercompressionScheme != 0`.
+The _dfDescriptor_ describes the texel blocks as they are when
+`<<_supercompression,supercompressionScheme>> == 0` or after reflation when
+`<<_supercompressionScheme,supercompressionScheme>> != 0`.
 
 [NOTE]
 .Rationale
 ====
-`dfFormatDescriptor` is useful in the following cases:
+A _dfDescriptor_ is useful in the following cases:
 
 * precise color management using the descriptor's color space
   information,
-* storing multi-sample images. Neither OpenGL nor Vulkan define formats
-  or an API for loading these. Applications can use the descriptor and
-  a custom shader to load these.
 * easier use of the images by non-OpenGL and non-Vulkan applications.
   There will be no need for large tables to interpret format enums.
 * easier calculation of the offsets of each level, face and layer within
   the data. Again there will be no need for large tables.
 ====
 
-==== bytesOfDataFormatDescriptor
-Called `total_size` in <<KFD12>>, `bytesOfDataFormatDescriptor`
-indicates the total number of bytes in the dfDescriptor including
-all dfDescriptorBlocks and all `<<blockPadding>>` fields.
+==== dfdTotalSize
+Called `total_size` in <<KDF13>>, `dfdTotalSize` indicates the total
+number of bytes in the _dfDescriptor_ including `dfdTotalSize`, all
+`dfdBlock` and all `dfdBlockPadding` fields.
+`<<_bytesOfDataFormatDescriptor,bytesOfDataFormatDescriptor>>` must
+equal `dfdTotalSize`.
 
-==== descriptorBlock
-A `Descriptor Block` as defined in <<KDF12>>, the high-order 16
-bits of its first UInt32 give the descriptor type and the high-order
-16 bits of the second UInt32 give the `descriptor_block_size`.
+[NOTE]
+====
+`dfdTotalSize` duplicates `bytesOfDataFormatDescriptor` but is
+included so that the KTX file contains a complete descriptor as
+defined in <<KDF13>>
+====
 
-==== blockPadding
-`blockPadding` contains between 0 and 3 bytes of value `0x00` to ensure
-that the byte following the last byte in `blockPadding` is at a file offset
-that is a multiple of 4. This ensures that every `descriptorBlock` field and
-the following `bytesOfKeyValueData` field are 4-byte aligned. This padding
-is included in `<<bytesOfDataFormatDescriptor>>` but not in the individual
-`descriptor_block_sizes`.
+==== dfdBlock
+A `Descriptor Block` as defined in <<KDF13>>, the high-order 16
+bits of its first UInt32 are the `descriptor_type` and the high-order
+16 bits of the second UInt32 are the `descriptor_block_size`.
+`descriptor_block_sizes` are mandated to be multiples of 4
+which guarantees that the following `keyAndValueByteSize`
+will be aligned in a 32-bit word.
 
-The _Khronos Basic Data Format Descriptor Block_ which will be the type
-used in the vast majority of cases has a length guaranteed to be a
-multiple of 4 so typically there will be 0 bytes of padding.
+=== Key/Value Data
+Key/Value data consists of a set of key/value pairs. The number of
+pairs is such that
+[stem]
++++++
+\sum_{i=0}^{n-1} \left\lceil{\frac{keyAndValueByteSize[i]}{4}}\right\rceil * 4 + keyAndValueByteSize[n]  = bytesOfKeyValueData.
++++++
 
-=== Key-Value Data
-==== bytesOfKeyValueData
-An arbitrary number of key/value pairs may follow the header. This
-can be used to encode any arbitrary data. The `bytesOfKeyValueData`
-field indicates the total number of bytes of key/value data including
-all `keyAndValueByteSize` fields, all `keyAndValue` fields and all
-`<<valuePadding>>` fields but not the `<<keyValuePadding>>` field.
-The file offset of the `<<bytesOfImages>>` field is located at the
-file offset of the `bytesOfKeyValueData` field plus 4 plus the value
-of the `bytesOfKeyValueData` field rounded to the next 8-byte
-boundary.
+Loaders must treat any file that does not meet the above condition as
+invalid and not load it.
 
 KTX2 editors must preserve any key/value data they do not understand
 or which is not modified by the user.
 
 ==== keyAndValueByteSize
-`keyAndValueByteSize` is the number of bytes of combined key and value
-data in one key/value pair following the header. This includes the
-size of the key, the NUL byte terminating the key, and all the bytes
-of data in the value. If the value is a UTF-8 string it should be
-NUL terminated and the `keyAndValueByteSize` should include tlhe NUL
-character (but code that reads KTX files must not assume that value
-fields are NUL terminated). `keyAndValueByteSize` does not include
-the bytes in `<<valuePadding>>`.
+The number of bytes of combined key and value data in one key/value
+pair. This includes the size of the key, the required NUL byte
+terminating the key, and all the bytes of data in the value. If the
+value is a UTF-8 string it should be NUL terminated and
+`keyAndValueByteSize` should include the NUL character (but code
+that reads KTX files must not assume that value fields are NUL
+terminated). `keyAndValueByteSize` does not include the bytes in
+`<<_valuePadding,valuePadding>>`.
 
 ==== keyAndValue
 `keyAndValue` contains 2 separate sections. First it contains a key
-encoded in UTF-8 without a byte order mark (BOM). The key must be 
-terminated by a NUL character (a single 0x00 byte). Keys that begin 
-with the 3 ASCII characters 'KTX' or 'ktx' are reserved and must not
-be used except as described by this spec (this version of the KTX spec
-defines two keys). Immediately following the NUL character that terminates
-the key is the Value data.
+encoded in UTF-8 without a byte order mark (BOM). The key must be
+terminated by a NUL character (a single 0x00 byte). Keys that begin
+with the 3 ASCII characters 'KTX' or 'ktx' are reserved and must
+not be used except as described by this specification (this version
+of the KTX spec.  defines seven keys). Immediately following the NUL
+character that terminates the key is the Value data.
 
 The Value data may consist of any arbitrary data bytes. Any byte
 value is allowed. It is encouraged that the value be a NUL terminated
@@ -633,64 +752,36 @@ is binary, it is a sequence of bytes rather than of words. It is up to
 the vendor defining the key to specify how those bytes are to be
 interpreted (including the endianness of any encoded numbers). If
 the Value data is a string of bytes then the NUL termination should
-be included in the `<<keyAndValueByteSize>>` byte count (but programs
+be included in the `keyAndValueByteSize` byte count (but programs
 that read KTX files must not rely on this).
 
 ==== valuePadding
-`valuePadding` contains between 0 and 3 bytes of value `0x00` to ensure that
-the byte following the last byte in `valuePadding` is at a file offset that
-is a multiple of 4. This ensures that every `<<keyAndValueByteSize>>`
+Contains between 0 and 3 bytes of value `0x00` to ensure that the
+byte following the last byte in `valuePadding` is at a file offset
+that is a multiple of 4. This ensures that every `keyAndValueByteSize`
 field is 4-byte aligned. This padding is included in the
-`<<bytesOfKeyValueData>>` field but not the individual
-`<<keyAndValueByteSize>>` fields.
+`<<_bytesOfKeyValueData,bytesOfKeyValueData>>` field but not the
+individual `keyAndValueByteSize` fields.
 
 ==== keyValuePadding
-`keyValuePadding` contains either 0 or 4 bytes of value `0x00` to ensure that
-the following `<<bytesOfSupercompressionGlobalData>>` field is at a file
-offset that is a multiple of 8.
+Contains between 0 and 7 bytes of value `0x00` to ensure that the
+following `supercompressionGlobalData` field is at a file offset
+that is a multiple of 8.
 
 === Supercompression Global Data
-==== bytesOfSupercompressionGlobalData
-`bytesOfSupercompressionGlobalData` indicates the number of bytes
-of `<<supercompressionGlobalData>>`. It does not include `sgdPadding`.
-For most schemes the value is 0.
-
 ==== supercompressionGlobalData
-`supercompressionGlobalData` is an array of data used by certain 
-supercompression schemes that must be available before any mip level
-can be expanded.
+An array of data used by certain supercompression schemes that must
+be available before any mip level can be expanded.
 
 ==== sgdPadding
-`sgdPadding` contains between 0 and 7 bytes of value `0x00` to ensure
-that `<<bytesOfImages>>` is at a file offset that is a multiple of 8.
+Contains between 0 and 7 bytes of value `0x00` to ensure that
+mip level data starts at a file offset that is a multiple of 8.
 
-=== bytesOfImages
-The total size of the image data. That is the sum of the
-`<<bytesOfLevelImages>>` within the Mipmap level array.
+=== Mip Level Array
 
-=== bytesOfUncompressedImages
-The size of the image data after expansion from supercompression.
-When `supercompressionScheme == 0`, `<<bytesOfImages>>` must have the same
-value as this.
-
-=== Level Index
-This array provides the offset within the <<_mipmap_level_array>>
-for each mip level. The offsets are ordered starting with that of
-_level~base~_ (the level with the largest size images) at index 0.
-This index provides random access to supercompressed data. It is
-not necessary for non-supercompressed data, as the sizes and offsets
-can be calculated, but for consistency and reducing the possibilities
-for error it must always be included in a KTX file.
-
-==== levelOffset
-`levelOffset` gives the offset of a mipmap level from the start of the
-<<_mipmap_level_array>>.
-
-=== Mipmap Level Array
-
-Mipmap levels in the array are ordered from the level with the
-smallest size images, _level~p~_ to that with the largest size
-images, _level~base~_.
+Mip levels in the array are ordered from the level with the
+smallest size images, stem:[level_p] to that with the largest size
+images, stem:[level_{base}].
 
 [NOTE]
 .Rationale
@@ -702,60 +793,16 @@ in a `VkCmdCopyBufferToImage`, to display a low resolution image quickly
 without waiting for the entire texture data.
 ====
 
-==== bytesOfLevelImages
-The total size of the data for a supercompressed mipmap level.
-
-`bytesOfLevelImages` is the number of bytes of pixel data in the
-current LOD level. This includes all z slices, all faces, all rows
-(or rows of blocks) and all pixels (or blocks) in each row for the
-mipmap level.
-
-If the sum of `bytesOfLevelImages` within the array is not equal
-to `<<bytesOfImages>>`, loaders should consider the file invalid and
-not load it.
-
-==== bytesOfUncompressedLevelImages
-The size of the data for a mipmap level after reflation from
-supercompression.  When `supercompressionScheme == 0`,
-`<<bytesOfLevelImages>>` must have the same value as this.
-
-`bytesOfUncompressedLevelImages` is the number of bytes of pixel
-data in the current LOD level after reflation from supercompression.
-This includes all z slices, all faces, all rows (or rows of blocks)
-and all pixels (or blocks) in each row for the mipmap level. It
-does not include any bytes in `<<mipPadding>>`.
-
-The value of `bytesOfUncompressedLevelImages` must satisfy the
-following condition:
-[listing]
-----
-bytesOfUncompressedLevelImages % (numberOfFaces * max(1, numberOfArrayElements)) == 0
-----
-
-If the sum of `bytesOfUncompressedLevelImages` within the array is
-not equal to `<<bytesOfUncompressedImages>>`, loaders should consider
-the file invalid and not load it.
-
-[TIP]
-====
-In versions of OpenGL < 4.5 and in OpenGL ES, faces of non-array
-cubemap textures (any texture where `numberOfFaces` is 6 and
-`numberOfArrayElements` is 0) must be uploaded individually. Loaders
-wishing to minimize the size of their intermediate buffers may want
-to read the faces individually rather then as a block of size
-`bytesOfUncompressedLevelImages`.
-====
-
 ==== levelImages
 `levelImages` is an array of Bytes holding all the image data for a
 level.
 
-When `<<supercompressionScheme>> != 0` these bytes are formatted as specified
-in the scheme documentation.
+When `<<_supercompressionScheme,supercompressionScheme>> != 0` these
+bytes are formatted as specified in the scheme documentation.
 
 === mipPadding
 `mipPadding` is between 0 and 7 bytes of value `0x00` to make sure that all
-`<<bytesOfLevelImages>>` fields are at a file offset that is a multiple of 8.
+mip level data starts at a file offset that is a multiple of 8.
 
 == General comments
 Rows of uncompressed pixel data are tightly packed. Each row in
@@ -1022,7 +1069,7 @@ How to refer to the DF descriptor block?::
   definition of a descriptor block here which we do not want to do.
 +
 _Resolved:_ Show that `dfDescriptorBlock` is used as a shorthand for
-<<KDF12>>'s _Descriptor block_.
+<<KDF13>>'s _Descriptor block_.
 
 How to handle endianness of the DF descriptor block?::
   _Discussion_: The DF spec says data structures are assumed to be
@@ -1160,9 +1207,11 @@ Sean Ellis, et al. The Khronos Group, July 2016.
   Data Format Specification version 1.3 (RFC1951)]. L.
 Peter Deutsch. IETF Network Working Group, May 1996.
 
-- [[[KDF12]]] {url-khr-reg}/DataFormat/specs/1.2/dataformat.1.2.html[Khronos
+- [[[KDF13]]] {url-khr-reg}/DataFormat/specs/1.3/dataformat.1.3.html[Khronos
+  Data Format Specification 1.3].
+Andrew Garrard. The Khronos Group, T.B.D 2019.
+For now see {url-khr-reg}/DataFormat/specs/1.2/dataformat.1.2.html[Khronos
   Data Format Specification 1.2].
-Andrew Garrard. The Khronos Group, September 2017.
 
 - [[[OESCPT]]] {url-khr-reg}OpenGL/extensions/OES/OES_compressed_paletted_texture.txt[GL_OES_compressed_paletted_texture].
 Aaftab Munshi. The Khronos Group, July 2003.
