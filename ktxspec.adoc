@@ -230,7 +230,7 @@ pixels for block compressed formats.
 == Field Descriptions
 
 === identifier
-The file identifier is a unique set of bytes that will differentiate the file 
+The file identifier is a unique set of bytes that will differentiate the file
 from other types of files. It consists of 12 bytes, as follows:
 [source,c]
 ----
@@ -250,18 +250,18 @@ on the rationale for the identifier in the PNG specification. This
 identifier both identifies the file as a KTX file and provides for
 immediate detection of common file-transfer problems.
 
-  * Byte [0] is chosen as a non-ASCII value to reduce the probability that a 
+  * Byte [0] is chosen as a non-ASCII value to reduce the probability that a
     text file may be misrecognized as a KTX file.
   * Byte [0] also catches bad file transfers that clear bit 7.
-  * Bytes [1..6] identify the format, and are the ascii values for the string 
+  * Bytes [1..6] identify the format, and are the ascii values for the string
     "KTX 22".
-  * Byte [7] is for aesthetic balance with byte 1 (they are a matching pair 
+  * Byte [7] is for aesthetic balance with byte 1 (they are a matching pair
     of double-angle quotation marks).
-  * Bytes [8..9] form a CR-LF sequence which catches bad file transfers that 
+  * Bytes [8..9] form a CR-LF sequence which catches bad file transfers that
     alter newline sequences.
-  * Byte [10] is a control-Z character, which stops file display under MS-DOS, 
+  * Byte [10] is a control-Z character, which stops file display under MS-DOS,
     and further reduces the chance that a text file will be falsely recognised.
-  * Byte [11] is a final line feed, which checks for the inverse of the CR-LF 
+  * Byte [11] is a final line feed, which checks for the inverse of the CR-LF
     translation problem.
 
 === endianness
@@ -439,10 +439,10 @@ cube textures `pixelDepth` must be 0.
 the texture is not an array texture, `numberOfArrayElements` must
 equal 0.
 
-Although current graphics APIs do not support 3D array textures, KTX 
+Although current graphics APIs do not support 3D array textures, KTX
 files can be used to store them.
 
-Refer to <<_texture_type>> for more details about valid values. 
+Refer to <<_texture_type>> for more details about valid values.
 
 === numberOfFaces
 `numberOfFaces` specifies the number of cubemap faces. For cubemaps
@@ -663,14 +663,14 @@ to read the faces individually rather then as a block of size
 These 3 items combined form a _Data Format Descriptor_
 (dfDescriptor) describing the layout of the texel blocks in `data`.
 The full specification for this is found in the _Khronos Data
-Format Specification_ version 1.2 <<KDF13>>.
+Format Specification_ version 1.3 <<KDF13>>.
 
 If the _dfDescriptor_ describes an sRGB transfer function then
 `<<_vkFormat,vkFormat>>` must be one of the _SRGB_ formats.
 
 The _dfDescriptor_ is partially expanded here in order to provide
 sufficient information for a KTX2 file to be parsed without having to
-refer to <<KDF13>>. If consists of one or more _Descriptor Blocks_
+refer to <<KDF13>>. It consists of one or more _Descriptor Blocks_
 (dfDescriptorBlock).
 
 The _dfDescriptor_ describes the texel blocks as they are when
@@ -812,7 +812,7 @@ data must be packed according to the rules described in section
 with `GL_UNPACK_ROW_LENGTH` = 0 and `GL_UNPACK_ALIGNMENT` = 1.
 
 === Texture Type
-The type of texture can be determined from the following table. Any 
+The type of texture can be determined from the following table. Any
 other combination of parameters makes the KTX file invalid.
 
 [options="header"]
@@ -831,10 +831,10 @@ other combination of parameters makes the KTX file invalid.
 == Predefined Key-Value Pairs
 
 === KTXcubemapIncomplete
-A KTX file can be used to store an incomplete cubemap or an array of 
-incomplete cubemaps. In such a case, `numberOfFaces` must be `1` and 
+A KTX file can be used to store an incomplete cubemap or an array of
+incomplete cubemaps. In such a case, `numberOfFaces` must be `1` and
 `numberOfArrayElements` must be equal to the number of faces present
-(in case of a single cubemap) or to the number of faces present times 
+(in case of a single cubemap) or to the number of faces present times
 the number of cubemaps (in case of a cubemap array). The faces that are
 present must be indicated using the metadata key
 
@@ -844,7 +844,7 @@ The value is a one-byte bitfield defined as:
 
 [listing]
 -----
-00xxxxx1 - +X is present 
+00xxxxx1 - +X is present
 00xxxx1x - -X is present
 00xxx1xx - +Y is present
 00xx1xxx - -Y is present
@@ -856,7 +856,7 @@ Any value, not matching the mask above is invalid.
 
 At least one face must be present (i.e., value cannot be `0`).
 
-Within the <<levelImages>> structure, faces must be written in the 
+Within the <<levelImages>> structure, faces must be written in the
 same order as with complete cubemaps: +X, -X, +Y, -Y, +Z, -Z.
 
 When a texture is a cubemap array, missing/present faces must be
@@ -911,7 +911,7 @@ where
 - `u` indicates T values increasing upwards
 - `o` indicates R values increasing out from the screen (moving towards viewer)
 - `i` indicates R values increasing in towards the screen (moving away from viewer)
- 
+
 When a texture is an array, all its elements have the same orientation.
 
 Values not matching the table above are invalid.
@@ -995,19 +995,19 @@ The value is a four-byte NUL-terminated string formatted as (<<REGEXP>>):
 
 -   `/^[rgba01]{4}$/`
 
-where each symbol represents source component (or fixed value) that 
-is used for red, green, blue, and alpha values, thus `rgba` being 
+where each symbol represents source component (or fixed value) that
+is used for red, green, blue, and alpha values, thus `rgba` being
 a default swizzling state.
 
 For example, `rg01` means:
 
-- the red and green channels are sampled from the red and green texture 
+- the red and green channels are sampled from the red and green texture
   components respectively;
 - the blue channel is set to zero, ignoring texture data;
 - the alpha channel is set to one (fully saturated), ignoring texture data.
 
-When a channel is not present in the texture, a value of `0` must be 
-used for colors (red, green, and blue) and a value of `1` (fully 
+When a channel is not present in the texture, a value of `0` must be
+used for colors (red, green, and blue) and a value of `1` (fully
 saturated) must be used for alpha.
 
 ==== Common Mappings
@@ -1015,7 +1015,7 @@ saturated) must be used for alpha.
 Use the following formats and swizzles to map alpha-only, luminance and
 luminance-alpha formats.
 
-Alpha8:: 
+Alpha8::
 `vkFormat`: `VK_FORMAT_R8_UNORM` (9)
  +
 `KTXswizzle`: 000r
