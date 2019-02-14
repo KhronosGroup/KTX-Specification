@@ -484,20 +484,25 @@ scheme has been applied to the data in `<<levelImages>>`.  It must
 be one of the values from <<supercompressionSchemes>>. A value of `0`
 indicates no supercompression.
 
-[width=100%,align=center,cols="^15,<25,<30,<30",options=header]
+[width=100%,align=center,cols="^22,<18,<30,<30",options=header]
 [[supercompressionSchemes]]
 .Supercompression Schemes
 |===
-| Scheme Id   | Scheme Name | Level Data Format | Global Data Format
-| 0           | None        |   n/a       | n/a
-| 1           | Crunch CRN  |   T.B.C     | T.B.C
-| 2           | ZLIB        |  <<ZLIB>>   | n/a
-| 3           | Zstandard   |  <<ZSTD>>   | n/a
-| 4･･･2^32^-1 | Reserved^1^ |             |
+| Scheme Id            | Scheme Name | Level Data Format | Global Data Format
+| 0                    | None        |   n/a             | n/a
+| 1                    | Crunch CRN  |   T.B.C           | T.B.C
+| 2                    | ZLIB        |  <<ZLIB>>         | n/a
+| 3                    | Zstandard   |  <<ZSTD>>         | n/a
+| 4･･･0xffff           | Reserved^1^ |                   |
+| 0x10000･･･0x1ffff    | Reserved^2^ |                   |
+| 0x20000･･･0xffffffff | Reserved^3^ |                   |
 |===
 
-1. A registry will be established to issue values in the reserved range
-   for vendor compression schemes thus avoiding conflicts.
+1. Reserved for KTX use.
+2. Reserved for vendor compression schemes. A registry will be
+   established from which vendors can request assignment of values
+   thus avoiding conflicts.
+3. Reserved. Do not use.
 
 The supercompression scheme is applied independently to each mip
 level to permit streaming and random access to the levels. The
