@@ -731,6 +731,9 @@ invalid and not load it.
 KTX2 editors must preserve any key/value data they do not understand
 or which is not modified by the user.
 
+Key/value data must be written to the file sorted by the Unicode
+code points of the keys starting from a key's first character.
+
 ==== keyAndValueByteSize
 The number of bytes of combined key and value data in one key/value
 pair. This includes the size of the key, the required NUL byte
@@ -833,7 +836,7 @@ other combination of parameters makes the KTX file invalid.
 |Cubemap Array|> 0       |> 0        |0         |> 0                  |6
 |====
 
-== Predefined Key-Value Pairs
+== Predefined Key/Value Pairs
 
 === KTXcubemapIncomplete
 A KTX file can be used to store an incomplete cubemap or an array of
