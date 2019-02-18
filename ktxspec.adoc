@@ -112,8 +112,6 @@ followed.
 [source,c,subs="+quotes,+attributes,+replacements"]
 ----
 Byte[12] identifier
-UInt32 endianness
-UInt32 glTypeSize
 UInt32 vkFormat
 UInt32 pixelWidth
 UInt32 pixelHeight
@@ -813,6 +811,18 @@ bytes are formatted as specified in the scheme documentation.
 mip level data starts at a file offset that is a multiple of 8.
 
 == General comments
+=== Endianness
+KTX files are little endian. All header fields and all uncompressed
+XXX Is compressed data little-endian as well? XXX
+data is stored in little endian order. Readers on big-endian machines
+must endian convert all header UInt32s and UInt64s and, when the
+data is uncompressed XXX does the DFD test for component type size
+result in a size of 1 for compressed formats? XXX and `<<glTypeSize>> != 1`, all `data` to the
+big endian and writers must endian convert these items to little
+endian.
+
+
+=== Packing
 Rows of uncompressed pixel data are tightly packed. Each row in
 memory immediately follows the end of the preceding row. I.e the
 data must be packed according to the rules described in section
