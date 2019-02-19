@@ -697,8 +697,8 @@ A _dfDescriptor_ is useful in the following cases:
 
 ==== dfdTotalSize
 Called `total_size` in <<KDF13>>, `dfdTotalSize` indicates the total
-number of bytes in the _dfDescriptor_ including `dfdTotalSize`, all
-`dfdBlock` and all `dfdBlockPadding` fields.
+number of bytes in the _dfDescriptor_ including `dfdTotalSize` and all
+`dfdBlock` fields.
 `<<_bytesOfDataFormatDescriptor,bytesOfDataFormatDescriptor>>` must
 equal `dfdTotalSize`.
 
