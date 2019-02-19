@@ -163,7 +163,7 @@ Byte sgdPadding[7 - (bytesOfSupercompressionGlobalData + 7) % 8]
 // Mip Level Array <5>
 for each mip_level in numberOfMipLevels <6>
     Byte levelImages[bytesOfLevelImages] <7>
-    Byte mipPadding[0-7]
+    Byte mipPadding[7 - (bytesOfLevelImages + 7) % 8]
 end
 ----
 <1> Required. See <<Index>>.
@@ -697,8 +697,8 @@ A _dfDescriptor_ is useful in the following cases:
 
 ==== dfdTotalSize
 Called `total_size` in <<KDF13>>, `dfdTotalSize` indicates the total
-number of bytes in the _dfDescriptor_ including `dfdTotalSize`, all
-`dfdBlock` and all `dfdBlockPadding` fields.
+number of bytes in the _dfDescriptor_ including `dfdTotalSize` and all
+`dfdBlock` fields.
 `<<_bytesOfDataFormatDescriptor,bytesOfDataFormatDescriptor>>` must
 equal `dfdTotalSize`.
 
