@@ -113,6 +113,7 @@ followed.
 ----
 Byte[12] identifier
 UInt32 vkFormat
+UInt32 typeSize
 UInt32 pixelWidth
 UInt32 pixelHeight
 UInt32 pixelDepth
@@ -262,30 +263,6 @@ immediate detection of common file-transfer problems.
   * Byte [11] is a final line feed, which checks for the inverse of the CR-LF
     translation problem.
 
-=== endianness
-`endianness` contains the number 0x04030201 written as a 32 bit
-integer. If the file is little endian then this is represented as
-the bytes 0x01 0x02 0x03 0x04. If the file is big endian then this
-is represented as the bytes 0x04 0x03 0x02 0x01. When reading
-`endianness` as a 32 bit integer produces the value 0x04030201 then
-the endianness of the file matches the endianness of the program
-that is reading the file and no conversion is necessary.  When
-reading `endianness` as a 32 bit integer produces the value 0x01020304
-then the endianness of the file is opposite the endianness of the
-program that is reading the file. In that case the program reading
-the file must endian convert all header UInt32s and UInt64s and,
-when `<<glTypeSize>> != 1`, all `data` to the endianness of the program
-(i.e. a little endian program must convert from big endian, and a
-big endian program must convert from little endian).
-
-=== glTypeSize
-`glTypeSize` specifies the data type size that should be used when
-endianness conversion is required for the texture data stored in
-the file. If glType is not 0, this should be the size in bytes
-corresponding to glType. For texture data which does not depend on
-platform endianness, including block compressed texture data,
-`glTypeSize` must equal 1.
-
 === vkFormat
 `vkFormat` specifies the image format using Vulkan `VkFormat` enum
 values. It can be any value defined in core Vulkan 1.1 <<VULKAN11>>,
@@ -421,6 +398,28 @@ as a workaround.
 This is felt to be an acceptable trade-off for simplifying this
 specification as the formats are not in wide use and applications
 needing them can use KTX version 1.
+====
+
+=== typeSize
+`typeSize` specifies the data type size that should be used when
+endianness conversion is required for the texture data stored in
+the file. Software on big-endian systems will need to this as all
+data in a KTX file is little endian. For formats whose Vulkan names
+have the suffix `_BLOCK` it must equal 1. For formats with the
+suffix `_PACKxx` it must equal the value of stem:[xx / 8]. For
+unpacked formats it must equal the number of bytes needed for a
+single component which can be derived from the format name. E.g for
+`VK_FORMAT_R16G16B16_UNORM` it will be stem:[16 / 8]. This means
+it will equal 1 for any format with 8-bit components.
+
+[NOTE]
+.Rationale
+====
+The type size can be calculated from the Data Format Descriptor but
+the calculation is not straightforward. Although big-endian machines
+are in the minority we have chosen to provide a useful piece of
+data for them instead of the 4 bytes of padding that would otherwise
+be needed for proper alignment of `bytesOfImages`.
 ====
 
 === [[dimensions]]pixelWidth, pixelHeight, pixelDepth
@@ -571,6 +570,15 @@ Format Descriptor_>> including the `<<_dfdTotalSize,dfdTotalSize>>`
 field. `bytesOfDataFormatDescriptor` must equal
 `<<_dfdTotalSize,dfdTotalSize>>`.
 
+[NOTE]
+====
+This field is not necessary. Since no padding is needed for DFDs
+the value is easily calculated from the offsets. However, if it is
+removed, we would need 4 bytes of padding instead for proper alignment
+of `supercompressionGlobalData`. Retaining it means all sections of
+the file can be handled uniformly.
+====
+
 ==== keyValueDataOffset
 An arbitrary number of <<_key/value_data,key/value pairs>> may
 follow the Index. These can be used to encode any arbitrary data.
@@ -622,7 +630,7 @@ If
 \sum_{i=0}^{\max\left(1, numberOfMipLevels\right) - 1} level[i].bytesOfImages \neq bytesOfImages
 +++++
 
-loaders should consider the file invalid and not load it.
+the file is invalid.
 
 ==== levels[n].bytesOfUncompressedImages
 
@@ -650,7 +658,7 @@ If
 \sum_{i=0}^{\max\left(1, numberOfMipLevels\right) - 1} level[i].bytesOfUncompressedImages \neq bytesOfUncompressedImages
 +++++
 
-loaders should consider the file invalid and not load it.
+the file is invalid.
 
 [TIP]
 ====
@@ -700,11 +708,17 @@ number of bytes in the _dfDescriptor_ including `dfdTotalSize` and all
 `<<_bytesOfDataFormatDescriptor,bytesOfDataFormatDescriptor>>` must
 equal `dfdTotalSize`.
 
+If
+[stem]
++++++
+dfdTotalSize \neq keyValueDataOffset - dataFormatDescriptorOffset
++++++
+the file is invalid.
+
 [NOTE]
 ====
-`dfdTotalSize` duplicates `bytesOfDataFormatDescriptor` but is
-included so that the KTX file contains a complete descriptor as
-defined in <<KDF13>>
+`dfdTotalSize` is included so that the KTX file contains a complete
+descriptor as defined in <<KDF13>>.
 ====
 
 ==== dfdBlock
@@ -720,11 +734,11 @@ Key/Value data consists of a set of key/value pairs. The number of
 pairs is such that
 [stem]
 +++++
-\sum_{i=0}^{n-1} \left\lceil{\frac{keyAndValueByteSize[i]}{4}}\right\rceil * 4 + keyAndValueByteSize[n]  = bytesOfKeyValueData.
+\sum_{i=0}^{n-1} \left\lceil{\frac{keyAndValueByteSize[i]}{4}}\right\rceil * 4
++ keyAndValueByteSize[n] = bytesOfKeyValueData.
 +++++
 
-Loaders must treat any file that does not meet the above condition as
-invalid and not load it.
+Any file that does not meet the above condition is invalid.
 
 KTX2 editors must preserve any key/value data they do not understand
 or which is not modified by the user.
@@ -812,15 +826,16 @@ mip level data starts at a file offset that is a multiple of 8.
 
 == General comments
 === Endianness
-KTX files are little endian. All header fields and all uncompressed
-XXX Is compressed data little-endian as well? XXX
-data is stored in little endian order. Readers on big-endian machines
-must endian convert all header UInt32s and UInt64s and, when the
-data is uncompressed XXX does the DFD test for component type size
-result in a size of 1 for compressed formats? XXX and `<<glTypeSize>> != 1`, all `data` to the
-big endian and writers must endian convert these items to little
-endian.
-
+KTX files are little endian. All header fields and the data for all
+uncompressed texture formats are stored in little endian order.
+Readers on big-endian machines must endian convert all header UInt32s
+and UInt64s and, when <<_typeSize,typeSize>> > 1, all `data` to big
+endian. The data of block compressed formats does not need endian
+converting.  When `data` is being converted the Data Format Descriptor
+must also be rewritten as it describes the data as laid out in
+memory. Writers must endian convert these items to little endian
+on writing the file. Sample code for rewriting DFDs is given in
+<<Data Format Descriptor Endian Conversion>>.
 
 === Packing
 Rows of uncompressed pixel data are tightly packed. Each row in
@@ -1098,7 +1113,8 @@ How to handle endianness of the DF descriptor block?::
   with the net which is big-endian and incompatible with `endianness`.
   What should we do?
 +
-_Unresolved._
+_Resolved._All fields and data in KTX files will be little endian as
+that is the endianness of the vast majority of machines.
 
 Can we guarantee the DF descriptor blocks are always a multiple of 4 bytes?::
   _Discussion_ The _Khronos Basic Data Format Descriptor Block_ is
@@ -1301,8 +1317,16 @@ Rich Geldreich, Jr.
 - Data format descriptor added.
 - Supercompression added.
 - OpenGL format information fields removed.
+- Files always little endian.
 - Swizzle and writer id metadata added.
 - Row and cube padding removed.
+
+[appendix]
+== Data Format Descriptor Endian Conversion
+[source,c]
+----
+// To be written.
+----
 
 [discrete]
 == Revision History
