@@ -961,6 +961,9 @@ UInt32 glFormat
 UInt32 glType
 ----
 
+For compressed formats, `glFormat` and `glType` must be set to zero; 
+and `glInternalformat` must be used for providing mapping.
+
 ==== KTXdxgiFormat__
 
 For Direct3D the mapping is specified with the key
