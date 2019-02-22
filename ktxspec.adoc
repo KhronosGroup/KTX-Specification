@@ -400,6 +400,32 @@ specification as the formats are not in wide use and applications
 needing them can use KTX version 1.
 ====
 
+==== Depth and Stencil Formats
+Despite that Vulkan requires separate uploads of depth and stencil
+components, combined depth/stencil pixel formats can be used with KTX.
+[NOTE]
+.Rationale
+====
+Other GPU APIs support combined uploads and given KTX data alignment it's 
+trivial to upload components separately in Vulkan.
+====
+
+Depth or stencil formats cannot be used for 3D textures.
+
+`VK_FORMAT_D16_UNORM_S8_UINT` is defined as two 16-bit words per texel.
+The first word contains the D16 value. The second word contains the S8
+value in the eight LSBs and zeros in the eight MSBs.
+
+`VK_FORMAT_D24_UNORM_S8_UINT` is defined as one 32-bit word per texel
+with the S8 value in the eight LSBs of the word and the D24 value in the MSBs.
+
+`VK_FORMAT_D32_SFLOAT_S8_UINT` is defined as two 32-bit words per texel.
+The first word contains the floating-point D32 value. The second word contains
+the S8 value in the eight LSBs and zeros in the MSBs.
+
+`VK_FORMAT_S8_UINT`, `VK_FORMAT_D16_UNORM`, `VK_FORMAT_X8_D24_UNORM_PACK32`,
+and `VK_FORMAT_D32_SFLOAT` are defined as in <<VULKAN11EXT>>.
+
 === typeSize
 `typeSize` specifies the data type size that should be used when
 the texture data must be endian converted. Software on big-endian
@@ -432,6 +458,8 @@ For 1D textures `pixelHeight` and `pixelDepth` must be 0. For 2D and
 cube textures `pixelDepth` must be 0.
 
 `pixelWidth` cannot be 0.
+
+`pixelDepth` must be 0 for depth or stencil formats.
 
 === numberOfArrayElements
 `numberOfArrayElements` specifies the number of array elements. If
@@ -1047,6 +1075,8 @@ For example, `rg01` means:
 When a channel is not present in the texture, a value of `0` must be
 used for colors (red, green, and blue) and a value of `1` (fully
 saturated) must be used for alpha.
+
+This metadata has no effect on depth or stencil texture formats.
 
 ==== Common Mappings
 
