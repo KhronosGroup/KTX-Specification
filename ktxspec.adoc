@@ -454,8 +454,15 @@ be needed for proper alignment of `bytesOfImages`.
 ====
 
 === [[dimensions]]pixelWidth, pixelHeight, pixelDepth
-The size of the texture image for level 0, in pixels. No rounding
-to block sizes should be applied for block compressed textures.
+The size of the texture image for level 0, in pixels.
+
+Image dimensions must adhere to format-specific requirements, including:
+
+* width and height being multiples of 4 for BCn and ETC1/ETC2/EAC formats;
+* width, height, and depth being multiples of the corresponding block size
+dimensions for ASTC formats;
+* various restrictions for PVRTC formats (see <<PVRTC>>, <<PVRTC1_OES>>, and
+<<PVRTC2_OES>>).
 
 For 1D textures `pixelHeight` and `pixelDepth` must be 0. For 2D and
 cube textures `pixelDepth` must be 0.
@@ -795,7 +802,7 @@ encoded in UTF-8 without a byte order mark (BOM). The key must be
 terminated by a NUL character (a single 0x00 byte). Keys that begin
 with the 3 ASCII characters 'KTX' or 'ktx' are reserved and must
 not be used except as described by this specification (this version
-of the KTX spec.  defines seven keys). Immediately following the NUL
+of the KTX spec. defines eight keys). Immediately following the NUL
 character that terminates the key is the Value data.
 
 The Value data may consist of any arbitrary data bytes. Any byte
@@ -1120,6 +1127,16 @@ Only the most recent writer should be identified.  Editing tools
 must overwrite this value when rewriting a file originally written
 by a different tool.
 
+=== KTXastcDecodeRGB9E5
+KTX file containing ASTC HDR data that is compatible with `rgb9e5` decoding
+mode (as defined in <<VULKAN11EXT>>, `VK_EXT_astc_decode_mode`), may indicate
+that with the key
+
+-   `KTXastcDecodeRGB9E5`
+
+This metadata entry has no value.
+
+
 == An example KTX file:
 
 TBC
@@ -1291,6 +1308,15 @@ Aaftab Munshi. The Khronos Group, July 2003.
 - [[[OPENGL46]]] {url-khr-reg}OpenGL/specs/gl/glspec46.core.pdf[The
   OpenGL^®^ Graphics System, A Specification (Version 4.6 (Core Profile))].
 Mark Segal, Kurt Akeley; Editor: Jon Leech. The Khronos Group, July 2017.
+
+- [[[PVRTC]]] https://www.imgtec.com/downloads/download-info/pvrtc-texture-compression-user-guide-2/[PVRTC 
+Specification and User Guide]. Imagination Technologies Limited, 23 Nov 2018
+
+- [[[PVRTC1_OES]]] https://www.khronos.org/registry/OpenGL/extensions/IMG/IMG_texture_compression_pvrtc.txt[IMG_texture_compression_pvrtc].
+Imagination Technologies Limited, 2005
+
+- [[[PVRTC2_OES]]] https://www.khronos.org/registry/OpenGL/extensions/IMG/IMG_texture_compression_pvrtc2.txt[IMG_texture_compression_pvrtc2].
+Imagination Technologies Limited, 2011
 
 - [[[REGEXP]]] https://www.ecma-international.org/ecma-262/5.1/index.html#sec-15.10[Standard
  ECMA-262 5.1{nbsp}Edition, Section 15.10: RegExp (Regular Expression) Objects].
