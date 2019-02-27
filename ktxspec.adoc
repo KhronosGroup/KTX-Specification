@@ -63,7 +63,8 @@ for streaming and supercompression.
 [discrete]
 === Status of this document
 
-WIP. Under review; not ready for implementation.
+Ready for trial implementation. Some changes may still be made to the
+DFD support but the spec. is otherwise stable.
 
 == Introduction
 
@@ -142,7 +143,7 @@ UInt32 dfdTotalSize
 continue
     dfDescriptorBlock dfdBlock
           &#xFE19;
-until dfdTotalSize bytes read
+until bytesOfDataFormatDescriptor read
 
 // Key/Value Data <3>
 continue
@@ -1375,9 +1376,9 @@ Rich Geldreich, Jr.
 == Changes compared to KTX
 
 - `vkFormat` added.
+- OpenGL format information fields removed.
 - Data format descriptor added.
 - Supercompression added.
-- OpenGL format information fields removed.
 - Files always little endian.
 - Swizzle and writer id metadata added.
 - Row and cube padding removed.
@@ -1427,10 +1428,16 @@ Rich Geldreich, Jr.
                                     after ANS removal. Alphabetize
                                     references. Improve wording and
                                     formatting. Change status.
-|     {docrev}      |  {revdate}  | Change status back to not ready for
+|      draft8       |  2018-10-26 | Change status back to not ready for
                                     implementation in view of
                                     https://github.com/KhronosGroup/KTX-Specification/issues/8[issue
                                     #8].
+|     {docrev}      |  {revdate}  | Use Khronos style sheet. Drop GL
+                                    format info. Add index for direct
+                                    access to data. Change to little
+                                    endian. Specify padding values.
+                                    Remove ambiguity and potential
+                                    conflicts.
 |===
 
 [discrete]
@@ -1438,8 +1445,8 @@ Rich Geldreich, Jr.
 Thanks to Manmohan Bishnoi for designing the KTX file and application
 icons.
 
-Thanks to Alexey Knyazev for help tightening and simplifying the
-specification.
+Thanks to Alexey Knyazev for enormous help tightening the specification
+and removing potential conflicts.
 
 Thanks to David Wilkinson for chairing the effort.
 
