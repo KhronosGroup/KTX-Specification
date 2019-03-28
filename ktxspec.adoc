@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL^®^ and Vulkan^®^ textures.
-:docrev: draft9
+:docrev: draft10
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -1434,12 +1434,14 @@ Rich Geldreich, Jr.
                                     implementation in view of
                                     https://github.com/KhronosGroup/KTX-Specification/issues/8[issue
                                     #8].
-|     {docrev}      |  {revdate}  | Use Khronos style sheet. Drop GL
+|      draft9       |  2019-02-27 | Use Khronos style sheet. Drop GL
                                     format info. Add index for direct
                                     access to data. Change to little
                                     endian. Specify padding values.
                                     Remove ambiguity and potential
                                     conflicts.
+|     {docrev}      |  {revdate}  | Add "do not distribute files"
+                                    warning to status.
 |===
 
 [discrete]
