@@ -63,8 +63,10 @@ for streaming and supercompression.
 [discrete]
 === Status of this document
 
-Ready for trial implementation. Some changes may still be made to the
-DFD support but the spec. is otherwise stable.
+Ready for trial implementation. Be aware that changes may be made
+if issues are discovered during trial. In particular changes may
+be made to the DFD support. KTX2 files to this specification should
+_NOT_ be distributed.
 
 == Introduction
 
