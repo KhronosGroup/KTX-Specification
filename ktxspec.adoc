@@ -425,35 +425,36 @@ with the S8 value in the eight LSBs of the word and the D24 value in the MSBs.
 `VK_FORMAT_X8_D24_UNORM_PACK32` is defined as one 32-bit word per texel
 with the D24 value in the LSBs of the word and zeros in the eight MSBs.
 
-`VK_FORMAT_D32_SFLOAT_S8_UINT` is defined as two 32-bit words per texel.
-The first word contains the floating-point D32 value. The second word contains
-the S8 value in the eight LSBs and zeros in the MSBs.
+`VK_FORMAT_D32_SFLOAT_S8_UINT` is defined as two 32-bit words per
+texel.  The first word contains the floating-point D32 value. The
+second word contains the S8 value in the eight LSBs and zeros in
+the MSBs.
 
 `VK_FORMAT_S8_UINT`, `VK_FORMAT_D16_UNORM`, and `VK_FORMAT_D32_SFLOAT` 
 are defined as in <<VULKAN11EXT>>.
 
 === typeSize
-`typeSize` specifies the data type size that should be used when
-the texture data must be endian converted. Software on big-endian
-systems will need to this as all data in a KTX file is little endian.
-For formats whose Vulkan names have the suffix `_BLOCK` it must
-equal 1. For formats with the suffix `_PACKxx` it must equal the
-value of stem:[xx / 8]. For unpacked formats, except combined
-depth/stencil formats, it must equal the number of bytes needed for
-a single component which can be derived from the format name. E.g
-for `VK_FORMAT_R16G16B16_UNORM` it will be stem:[16 / 8]. This means
-it will equal 1 for any format with 8-bit components. For the
-combined depth/stencil formats using the layouts defined in this
-specification, the value will be 4.
+`typeSize` specifies the size of the data type in bytes used to
+upload the data to a graphics API. When `typeSize` is greater than
+1, software on big-endian systems must endian convert all image
+data since it is little-endian. When format is `VK_UNKNOWN`,
+`typeSize` must equal 1. For formats whose Vulkan names have the suffix
+`_BLOCK` it must equal 1. For formats with the suffix `_PACKxx` it
+must equal the value of stem:[xx / 8]. For unpacked formats, except
+combined depth/stencil formats, it must equal the number of bytes
+needed for a single component which can be derived from the format
+name. E.g for `VK_FORMAT_R16G16B16_UNORM` it will be stem:[16 / 8].
+This means it will equal 1 for any format with 8-bit components.
+For the combined depth/stencil formats using the layouts defined
+in this specification, the value will be 4.
 
 [NOTE]
 .Rationale
 ====
-The type size can be calculated from the Data Format Descriptor but
-the calculation is not straightforward. Although big-endian machines
-are in the minority we have chosen to provide a useful piece of
-data for them instead of the 4 bytes of padding that would otherwise
-be needed for proper alignment of `bytesOfImages`.
+Although `typeSize` can be calculated from the Data Format Descriptor
+and big-endian machines are in the minority we have chosen to provide
+a useful piece of data instead of the 4 bytes of padding that would
+otherwise be needed for proper alignment of `bytesOfImages`.
 ====
 
 === [[dimensions]]pixelWidth, pixelHeight, pixelDepth
@@ -872,13 +873,18 @@ mip level data starts at a file offset that is a multiple of 8.
 KTX {ktxver} files are little endian. All header fields and the
 data for all uncompressed texture formats are stored in little
 endian order.  Readers on big-endian machines must endian convert
-all header UInt32s and UInt64s and, when <<_typeSize,typeSize>> >
-1, all `data` to big endian. The data of block compressed formats
-does not need endian converting.  When `data` is being converted
-the Data Format Descriptor must also be rewritten as it describes
-the data as laid out in memory. Writers must endian convert these
-items to little endian on writing the file. Sample code for rewriting
-DFDs is given in <<Data Format Descriptor Endian Conversion>>.
+all header UInt32s and UInt64s and, when <<_typeSize,typeSize>> is
+greater than 1, all `data` to big endian. The data of block compressed
+formats, those ending in `*_BLOCK`, does not need endian converting.
+
+If an application on a big-endian machine intends to use the sample
+information in the Data Format Descriptor, the DFD must be rewritten
+for the endian-converted `data` as the samples describe the data as
+laid out in memory. Sample code for rewriting DFDs is given in
+<<Data Format Descriptor Endian Conversion>>.
+
+Writers must endian convert these items to little endian on writing
+the file.
 
 === Packing
 Rows of uncompressed pixel data are tightly packed. Each row in
@@ -1387,7 +1393,11 @@ Rich Geldreich, Jr.
 
 [appendix]
 == Data Format Descriptor Endian Conversion
+
+This appendix is informative only.
+
 [source,c]
+.Endian converting sample information
 ----
 // To be written.
 ----
