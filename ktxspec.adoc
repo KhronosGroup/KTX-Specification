@@ -439,15 +439,16 @@ are defined as in <<VULKAN11EXT>>.
 upload the data to a graphics API. When `typeSize` is greater than
 1, software on big-endian systems must endian convert all image
 data since it is little-endian. When format is `VK_UNKNOWN`,
-`typeSize` must equal 1. For formats whose Vulkan names have the suffix
-`_BLOCK` it must equal 1. For formats with the suffix `_PACKxx` it
-must equal the value of stem:[xx / 8]. For unpacked formats, except
-combined depth/stencil formats, it must equal the number of bytes
-needed for a single component which can be derived from the format
-name. E.g for `VK_FORMAT_R16G16B16_UNORM` it will be stem:[16 / 8].
-This means it will equal 1 for any format with 8-bit components.
-For the combined depth/stencil formats using the layouts defined
-in this specification, the value will be 4.
+`typeSize` must equal 1. For formats whose Vulkan names have the
+suffix `_BLOCK` it must equal 1. For formats with the suffix `_PACKxx`
+it must equal the value of stem:[xx / 8]. For unpacked formats,
+except combined depth/stencil formats, it must equal the number of
+bytes needed for a single component which can be derived from the
+format name. E.g for `VK_FORMAT_R16G16B16_UNORM` it will be stem:[16
+/ 8].  This means it will equal 1 for any format with 8-bit components.
+For `VK_FORMAT_D16_UNORM_S8_UINT`, using the layout defined in this
+specification, the value will be 2 and for the other combined
+depth/stencil formats the value will be 4.
 
 [NOTE]
 .Rationale
