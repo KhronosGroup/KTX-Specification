@@ -744,13 +744,27 @@ These 3 items combined form a _Data Format Descriptor_
 The full specification for this is found in the _Khronos Data
 Format Specification_ version 1.3 <<KDF13>>.
 
-If the _dfDescriptor_ describes an sRGB transfer function then
-`<<_vkformat,vkFormat>>` must be one of the _SRGB_ formats.
-
 The _dfDescriptor_ is partially expanded here in order to provide
 sufficient information for a KTX2 file to be parsed without having to
 refer to <<KDF13>>. It consists of one or more _Descriptor Blocks_
 (dfDescriptorBlock).
+
+The following restrictions must be obeyed when setting the fields of the
+DFD and the image data must match the chosen values:
+
+* `color model` must be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA`
+  or one of the block compressed color models, currently
+  `KDF_DF_MODEL_BC1` to `KDF_DF_MODEL_ASTC`.
+* `color_primaries` may be any of the available values since conversion
+  to the display's primaries is relatively straightforward.
+  `KHR_DF_PRIMARIES_BT709/SRGB` is recommended for LDR images.
+  `KHR_DF_PRIMARIES_BT2020` is recommended for HDR images.
+* `transfer_function` must be `KHR_DF_TRANSFER_LINEAR` or
+  `KHR_DF_TRANSFER_SRGB` since these are the only ones supported by the
+  vast majority of grahics hardware and correct filtering and blending
+  without hardware support is difficult to impossible.
+* If `transfer_function` is `KHR_DF_TRANSFER_SRGB` then
+  `<<_vkFormat,vkFormat>>` must be one of the `+*_SRGB{,_*}+` formats.
 
 The _dfDescriptor_ describes the texel blocks as they are when
 `<<_supercompressionscheme,supercompressionScheme>> == 0` or after reflation when
