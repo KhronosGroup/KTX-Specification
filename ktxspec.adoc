@@ -144,37 +144,38 @@ struct {
 UInt32 dfdTotalSize
 continue
     dfDescriptorBlock dfdBlock
-          &#xFE19;
+          [.optional]#&#xFE19;#
 until bytesOfDataFormatDescriptor read
 
 // Key/Value Data <3>
 continue
-    [.optional]#UInt32   keyAndValueByteSize#
-    [.optional]#Byte     keyAndValue[keyAndValueByteSize]#
-    [.optional]#Byte     valuePadding[3 - (keyAndValueByteSize + 3) % 4]#
-                    [.optional]#&#xFE19;#
     UInt32   keyAndValueByteSize
     Byte     keyAndValue[keyAndValueByteSize]
+    align(4) valuePadding   // No padding the last time. <4>
+                    [.optional]#&#xFE19;#
 until bytesOfKeyValueData read
-Byte keyValuePadding[7 - (bytesOfKeyValueData + 7) % 8]
+align(8)
 
-// Supercompression Global Data <4>
+// Supercompression Global Data <5>
 Byte supercompressionGlobalData[bytesOfSupercompressionsGlobalData]
-Byte sgdPadding[7 - (bytesOfSupercompressionGlobalData + 7) % 8]
+align(8)
 
-// Mip Level Array <5>
-for each mip_level in numberOfMipLevels <6>
-    Byte levelImages[bytesOfLevelImages] <7>
-    Byte mipPadding[7 - (bytesOfLevelImages + 7) % 8]
+// Mip Level Array <6>
+for each mip_level in numberOfMipLevels <7>
+    Byte     levelImages[bytesOfLevelImages] <8>
+    align(8) mipPadding // No padding the last time.
 end
 ----
 <1> Required. See <<Index>>.
 <2> Required. See <<Data Format Descriptor>>.
 <3> Required. See <<Key/Value Data>>.
-<4> Not required. See <<Supercompression Global Data>>.
-<5> Required. See <<Mip Level Array>>.
-<6> Replace with 1 if `numberOfMipLevels` is 0
-<7> See the <<levelImages>> below.
+<4> `align(n)` is pseudo function that inserts the mimimum number
+    of 0-filled bytes of padding required to align the following
+    item on an n-byte boundary.  where n is the function parameter.
+<5> Not required. See <<Supercompression Global Data>>.
+<6> Required. See <<Mip Level Array>>.
+<7> Replace with 1 if `numberOfMipLevels` is 0
+<8> See the <<levelImages>> below.
 
 After inflation from supercompression or when `supercompressionScheme ==
 0`, `levelImages` looks like this:
@@ -592,10 +593,16 @@ block-compressed texture formats.
 === bytesOfImages
 The total size of the image data. That is the sum of the
 `<<_bytesOfLevelImages,bytesOfLevelImages>>` within the
-<<_mip_level_array,_Mip Level Array_>>.
+<<_mip_level_array,_Mip Level Array_>> plus the sum of the
+`<<_mipPadding,mipPadding>>` fields.
 
 === bytesOfUncompressedImages
 The total size of the image data after expansion from supercompression.
+That is the sum of the
+`<<_bytesOfUncompressedLevelImages,bytesOfUncompressedLevelImages>>`
+within the <<_mip_level_array,_Mip Level Array_>> plus the sum of
+the `<<_mipPadding,mipPadding>>` fields.
+
 When `supercompressionScheme = 0`, `<<_bytesOfImages,bytesOfImages>>`
 must have the same value as this.
 
@@ -633,8 +640,7 @@ that of first key/value pair, from the start of the file.
 The total number of bytes of key/value data including all
 `<<_keyAndValueByteSize,keyAndValueByteSize>>` fields, all
 `<<_keyAndValue,keyAndValue>>` fields and all
-`<<_valuePadding,valuePadding>>` fields but not the
-`<<_keyValuePadding,keyValuePadding>>` field.
+`<<_valuePadding,valuePadding>>` fields.
 
 ==== supercompressionGlobalDataOffset
 The offset from the start of the file of
@@ -644,7 +650,6 @@ value must be 0 when `bytesOfSupercompressionGlobalData` = 0.
 ==== bytesOfSupercompressionGlobalData
 The number of bytes of
 `<<_supercompressionGlobalData,supercompressionGlobalData>>`.  It
-does not include `<<_sgdPadding,sgdPadding>>`. For most supercompression
 schemes the value is 0.
 
 ==== levels
@@ -666,28 +671,34 @@ The total size of the data for supercompressed mip level _n_.
 `levels[n].bytesOfImages` is the number of bytes of pixel data in
 LOD stem:[level_n]. This includes all z slices, all faces, all rows
 (or rows of blocks) and all pixels (or blocks) in each row for the
-mip level.
+mip level. It does not include any bytes in
+`<<_mipPadding,mipPadding>>`.
 
 If
 [stem]
 +++++
-\sum_{i=0}^{\max\left(1, numberOfMipLevels\right) - 1} level[i].bytesOfImages \neq bytesOfImages
+\sum_{i=0}^{n-1}
+\left\lceil{\frac{level[i].bytesOfImages}{8}}\right\rceil * 8
++ level[n].bytesOfImages \neq bytesOfImages.
++++++
+where
+[stem]
++++++
+n = \max\left(1, numberOfMipLevels\right) - 1
 +++++
 
 the file is invalid.
 
 ==== levels[n].bytesOfUncompressedImages
 
-The number of bytes of image data for mipmap level _n_ after reflation
-from supercompression.  When `supercompressionScheme == 0`,
-`<<_levels[n].bytesOfImages,levels[n].bytesOfImages>>` must have
-the same value as this.
-
-`levels[n].bytesOfUncompressedImages` is the number of bytes of pixel
-data in LOD stem:[level_n] after reflation from supercompression.
+`levels[n].bytesOfUncompressedImages` is the number of bytes of
+pixel data in LOD stem:[level_n] after reflation from supercompression.
 This includes all z slices, all faces, all rows (or rows of blocks)
 and all pixels (or blocks) in each row for the mipmap level. It
-does not include any bytes in `<<_mipPadding,mipPadding>>`.
+does not include any bytes in `<<_mipPadding,mipPadding>>`.  When
+`supercompressionScheme == 0`,
+`<<_levels[n].bytesOfImages,levels[n].bytesOfImages>>` must have
+the same value as this.
 
 The value of a level's `bytesOfUncompressedImages` must satisfy the
 following condition:
@@ -699,7 +710,15 @@ bytesOfUncompressedImages % (numberOfFaces * max(1, numberOfArrayElements)) == 0
 If
 [stem]
 +++++
-\sum_{i=0}^{\max\left(1, numberOfMipLevels\right) - 1} level[i].bytesOfUncompressedImages \neq bytesOfUncompressedImages
+\sum_{i=0}^{n-1}
+\left\lceil{\frac{level[i].bytesOfUncompressedImages}{8}}\right\rceil * 8
++ level[n].bytesOfUncompressedImages \\
+\neq bytesOfUncompressedImages.
++++++
+where
+[stem]
++++++
+n = \max\left(1, numberOfMipLevels\right) - 1
 +++++
 
 the file is invalid.
@@ -827,19 +846,11 @@ field is 4-byte aligned. This padding is included in the
 `<<_bytesOfKeyValueData,bytesOfKeyValueData>>` field but not the
 individual `keyAndValueByteSize` fields.
 
-==== keyValuePadding
-Contains between 0 and 7 bytes of value `0x00` to ensure that the
-following `supercompressionGlobalData` field is at a file offset
-that is a multiple of 8.
-
 === Supercompression Global Data
 ==== supercompressionGlobalData
 An array of data used by certain supercompression schemes that must
-be available before any mip level can be expanded.
-
-==== sgdPadding
-Contains between 0 and 7 bytes of value `0x00` to ensure that
-mip level data starts at a file offset that is a multiple of 8.
+be available before any mip level can be expanded. Must start on an
+the next 8-byte boundary following the key/value data.
 
 === Mip Level Array
 
