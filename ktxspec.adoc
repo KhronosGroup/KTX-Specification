@@ -753,8 +753,9 @@ The following restrictions must be obeyed when setting the fields of the
 DFD and the image data must match the chosen values:
 
 * `color_model` must be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA`
-  or one of the block compressed color models, currently
-  `KDF_DF_MODEL_BC1` to `KDF_DF_MODEL_ASTC`.
+  or one of the block compressed color models listed in <<KDF13>> Section
+  5.6 or its successors, currently `KDF_DF_MODEL_BC1A` to
+  `KDF_DF_MODEL_PVRTC2`.
 * `color_primaries` may be any of the available values since conversion
   to the display's primaries is relatively straightforward.
   `KHR_DF_PRIMARIES_BT709/SRGB` is recommended for LDR images.
@@ -763,8 +764,9 @@ DFD and the image data must match the chosen values:
   `KHR_DF_TRANSFER_SRGB` since these are the only ones supported by the
   vast majority of graphics hardware and correct filtering and blending
   without hardware support is difficult to impossible.
-* If `transfer_function` is `KHR_DF_TRANSFER_SRGB` then
-  `<<_vkFormat,vkFormat>>` must be one of the `+*_SRGB{,_*}+` formats.
+* If `<<_vkFormat,vkFormat>>` is one of the `+*_SRGB{,_*}+` formats then
+  `transfer_function` must be `KHR_DF_TRANSFER_SRGB`. For all other
+  formats it must be `KHR_DF_TRANSFER_LINEAR`
 
 The _dfDescriptor_ describes the texel blocks as they are when
 `<<_supercompressionscheme,supercompressionScheme>> == 0` or after reflation when
