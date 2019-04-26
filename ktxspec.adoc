@@ -752,7 +752,7 @@ refer to <<KDF13>>. It consists of one or more _Descriptor Blocks_
 The following restrictions must be obeyed when setting the fields of the
 DFD and the image data must match the chosen values:
 
-* `color model` must be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA`
+* `color_model` must be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA`
   or one of the block compressed color models, currently
   `KDF_DF_MODEL_BC1` to `KDF_DF_MODEL_ASTC`.
 * `color_primaries` may be any of the available values since conversion
@@ -761,7 +761,7 @@ DFD and the image data must match the chosen values:
   `KHR_DF_PRIMARIES_BT2020` is recommended for HDR images.
 * `transfer_function` must be `KHR_DF_TRANSFER_LINEAR` or
   `KHR_DF_TRANSFER_SRGB` since these are the only ones supported by the
-  vast majority of grahics hardware and correct filtering and blending
+  vast majority of graphics hardware and correct filtering and blending
   without hardware support is difficult to impossible.
 * If `transfer_function` is `KHR_DF_TRANSFER_SRGB` then
   `<<_vkFormat,vkFormat>>` must be one of the `+*_SRGB{,_*}+` formats.
