@@ -11,7 +11,7 @@ inlined_images := icons/masters/ktx_document.svg \
                   images/khronos.svg
 
 $(out)/index.html: ktxspec.adoc $(out) $(inlined_images) docinfo.html
-	asciidoctor -r ./inline-images.rb -D $(dir $@) -o $(notdir $@) $<
+	asciidoctor -r ./inline-images.rb -r ./formats-include.rb -D $(dir $@) -o $(notdir $@) $<
 
 $(out)/ktx.pdf:
 

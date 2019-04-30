@@ -1387,10 +1387,10 @@ Rich Geldreich, Jr.
 == Mapping of `vkFormat` values
 
 .Mapping of `vkFormat` values to OpenGL, Direct3D and Metal
-|====
-| |
-| |
-|====
+[%collapsible]
+=====
+include::formats.json[]
+=====
 
 [appendix]
 == Changes compared to KTX
