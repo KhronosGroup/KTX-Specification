@@ -1,0 +1,117 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "GPU Formats JSON Schema",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "type": "string",
+                "enum": [
+                    "RAW",
+                    "PACKED",
+                    "BC",
+                    "ETC",
+                    "ASTC",
+                    "PVRTC",
+                    "MULTI-PLANE"
+                ]
+            },
+            "blockWidth": {
+                "type": "integer",
+                "minimum": 0
+            },
+            "blockHeight": {
+                "type": "integer",
+                "minimum": 0
+            },
+            "blockDepth": {
+                "type": "integer",
+                "minimum": 0
+            },
+            "vkFormat": {
+                "type": "string",
+                "pattern": "^VK_[A-Z0-9_x]+$"
+            },
+            "typeSize": {
+                "type": "integer",
+                "enum": [1, 2, 4, 8]
+            },
+            "glFormat": {
+                "type": ["string", "null"],
+                "enum": [
+                    null,
+                    "GL_BGR",
+                    "GL_BGR_INTEGER",
+                    "GL_BGRA",
+                    "GL_BGRA_INTEGER",
+                    "GL_DEPTH_COMPONENT",
+                    "GL_DEPTH_STENCIL",
+                    "GL_RED",
+                    "GL_RED_INTEGER",
+                    "GL_RG",
+                    "GL_RG_INTEGER",
+                    "GL_RGB",
+                    "GL_RGB_INTEGER",
+                    "GL_RGBA",
+                    "GL_RGBA_INTEGER",
+                    "GL_STENCIL_INDEX"
+                ]
+            },
+            "glType": {
+                "type": ["string", "null"],
+                "enum": [
+                    null,
+                    "GL_BYTE",
+                    "GL_FLOAT",
+                    "GL_FLOAT_32_UNSIGNED_INT_24_8_REV",
+                    "GL_HALF_FLOAT",
+                    "GL_INT",
+                    "GL_SHORT",
+                    "GL_UNSIGNED_BYTE",
+                    "GL_UNSIGNED_INT",
+                    "GL_UNSIGNED_INT_10F_11F_11F_REV",
+                    "GL_UNSIGNED_INT_2_10_10_10_REV",
+                    "GL_UNSIGNED_INT_24_8",
+                    "GL_UNSIGNED_INT_5_9_9_9_REV",
+                    "GL_UNSIGNED_SHORT",
+                    "GL_UNSIGNED_SHORT_4_4_4_4",
+                    "GL_UNSIGNED_SHORT_5_5_5_1",
+                    "GL_UNSIGNED_SHORT_1_5_5_5_REV",
+                    "GL_UNSIGNED_SHORT_5_6_5",
+                    "GL_UNSIGNED_SHORT_5_6_5_REV"
+                ]
+            },
+            "glInternalFormat": {
+                "type": ["string", "null"],
+                "pattern": "^GL_[A-Z0-9_x]+$"
+            },
+            "glDesktopOnly": {
+                "type": ["boolean", "null"]
+            },
+            "dxgiFormat": {
+                "type": ["string", "null"],
+                "pattern": "^DXGI_FORMAT_[A-Z0-9_]+$"
+            },
+            "mtlFormat": {
+                "type": ["string", "null"],
+                "pattern": "^MTLPixelFormat[A-Za-z0-9_]+$"
+            }
+        },
+        "required": [
+            "type",
+            "blockWidth",
+            "blockHeight",
+            "blockDepth",
+            "vkFormat",
+            "typeSize",
+            "glFormat",
+            "glType",
+            "glInternalFormat",
+            "glDesktopOnly",
+            "dxgiFormat",
+            "mtlFormat"
+        ],
+        "additionalProperties": false
+    }
+}
