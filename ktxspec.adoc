@@ -635,7 +635,8 @@ the file can be handled uniformly.
 An arbitrary number of <<_key/value_data,key/value pairs>> may
 follow the Index. These can be used to encode any arbitrary data.
 The `keyValueDataOffset` field gives the offset of this data, i.e.
-that of first key/value pair, from the start of the file.
+that of first key/value pair, from the start of the file.  The value
+must be 0 when `bytesOfKeyValuelData` = 0.
 
 ==== bytesOfKeyValueData
 The total number of bytes of key/value data including all
@@ -645,7 +646,7 @@ The total number of bytes of key/value data including all
 
 ==== supercompressionGlobalDataOffset
 The offset from the start of the file of
-`<<_supercompressionGlobalData,supercompressionGlobalData>>`.  The
+`<<_supercompressionGlobalData,supercompressionGlobalData>>`. The
 value must be 0 when `bytesOfSupercompressionGlobalData` = 0.
 
 ==== bytesOfSupercompressionGlobalData
