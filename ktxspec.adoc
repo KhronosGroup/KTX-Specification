@@ -470,8 +470,11 @@ dimensions for ASTC formats;
 * various restrictions for PVRTC formats (see <<PVRTC>>, <<PVRTC1_OES>>, and
 <<PVRTC2_OES>>).
 
-For 1D textures `pixelHeight` and `pixelDepth` must be 0. For 2D and
-cube textures `pixelDepth` must be 0.
+For 1D textures, `pixelHeight` and `pixelDepth` must be 0.
+
+For 2D and cubemap textures, `pixelDepth` must be 0.
+
+For cubemap textures, `pixelHeight` must be equal to `pixelWidth`. 
 
 `pixelWidth` cannot be 0.
 
@@ -490,7 +493,7 @@ Refer to <<_texture_type>> for more details about valid values.
 === numberOfFaces
 `numberOfFaces` specifies the number of cubemap faces. For cubemaps
 and cubemap arrays this must be 6. For non cubemaps this must be 1.
-Cube map faces are stored in the order: +X, -X, +Y, -Y, +Z, -Z.
+Cubemap faces are stored in the order: +X, -X, +Y, -Y, +Z, -Z.
 
 Applications wanting to store incomplete cubemaps should flatten faces
 into a 2D array and use the metadata described in <<KTXcubemapIncomplete>>
@@ -956,6 +959,8 @@ same order as with complete cubemaps: +X, -X, +Y, -Y, +Z, -Z.
 
 When a texture is a cubemap array, missing/present faces must be
 the same for each element.
+
+As with complete cubemaps, `pixelHeight` must be equal to `pixelWidth`.
 
 === KTXorientation
 Texture data in a KTX file are arranged so that the first pixel in
