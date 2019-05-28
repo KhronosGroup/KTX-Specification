@@ -750,14 +750,15 @@ refer to <<KDF13>>. It consists of one or more _Descriptor Blocks_
 (dfDescriptorBlock).
 
 The following restrictions must be obeyed when setting the fields of the
-DFD and the image data must match the chosen values:
+DFD. The value of `<<_vkformat,vkFormat>>` and the image data must never
+contradict the DFD.
 
 * `color_model` must be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA`
   or one of the block compressed color models listed in <<KDF13>> Section
   5.6 or its successors, currently `KDF_DF_MODEL_BC1A` to
   `KDF_DF_MODEL_PVRTC2`.
 * `color_primaries` may be any of the available values since conversion
-  to the display's primaries is relatively straightforward.
+  to a display's primaries is relatively straightforward.
 
 [NOTE]
 ====
