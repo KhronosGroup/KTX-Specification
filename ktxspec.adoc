@@ -127,62 +127,64 @@ UInt32 typeSize
 UInt32 pixelWidth
 UInt32 pixelHeight
 UInt32 pixelDepth
-UInt32 numberOfArrayElements
-UInt32 numberOfFaces
-UInt32 numberOfMipLevels
+UInt32 arrayElements
+UInt32 faces
+UInt32 levels
 UInt32 supercompressionScheme
-UInt64 bytesOfImages
-UInt64 bytesOfUncompressedImages
+UInt64 byteLength
+UInt64 byteLengthUncompressed
 
 // Index <1>
-UInt32 dataFormatDescriptorOffset
-UInt32 bytesOfDataFormatDescriptor
-UInt32 keyValueDataOffset
-UInt32 bytesOfKeyValueData
-UInt64 supercompressionGlobalDataOffset
-UInt64 bytesOfSupercompressionGlobalData
+UInt32 dfdByteOffset
+UInt32 dfdByteLength
+UInt32 kvdByteOffset
+UInt32 kvdByteLength
+UInt64 sgdByteOffset
+UInt64 sgdByteLength
+// Level Index <2>
 struct {
-    UInt64 offset
-    UInt64 bytesOfImages
-    UInt64 bytesOfUncompressedImages
-} levels[max(1, numberOfMipLevels)]
+    UInt64 byteOffset
+    UInt64 byteLength
+    UInt64 byteLengthUncompressed
+} levels[max(1, levels)]
 
-// Data Format Descriptor <2>
+// Data Format Descriptor <3>
 UInt32 dfdTotalSize
 continue
     dfDescriptorBlock dfdBlock
           [.optional]#&#xFE19;#
-until bytesOfDataFormatDescriptor read
+until dfdByteLength read
 
-// Key/Value Data <3>
+// Key/Value Data <4>
 continue
-    UInt32   keyAndValueByteSize
-    Byte     keyAndValue[keyAndValueByteSize]
-    align(4) valuePadding   // No padding the last time. <4>
+    UInt32   keyAndValueByteLength
+    Byte     keyAndValue[keyAndValueByteLength]
+    align(4) valuePadding   // No padding the last time. <5>
                     [.optional]#&#xFE19;#
-until bytesOfKeyValueData read
+until kvdByteLength read
 align(8)
 
-// Supercompression Global Data <5>
-Byte supercompressionGlobalData[bytesOfSupercompressionsGlobalData]
+// Supercompression Global Data <6>
+Byte supercompressionGlobalData[sgdByteLength]
 align(8)
 
-// Mip Level Array <6>
-for each mip_level in numberOfMipLevels <7>
-    Byte     levelImages[bytesOfLevelImages] <8>
+// Mip Level Array <7>
+for each mip_level in levels <8>
+    Byte     levelImages[bytesOfLevelImages] <9>
     align(8) mipPadding // No padding the last time.
 end
 ----
 <1> Required. See <<Index>>.
-<2> Required. See <<Data Format Descriptor>>.
-<3> Required. See <<Key/Value Data>>.
-<4> `align(n)` is pseudo function that inserts the mimimum number
+<2> Required. See <<Level Index>>.
+<3> Required. See <<Data Format Descriptor>>.
+<4> Required. See <<Key/Value Data>>.
+<5> `align(n)` is pseudo function that inserts the mimimum number
     of 0-filled bytes of padding required to align the following
     item on an n-byte boundary.  where n is the function parameter.
-<5> Not required. See <<Supercompression Global Data>>.
-<6> Required. See <<Mip Level Array>>.
-<7> Replace with 1 if `numberOfMipLevels` is 0
-<8> See the <<levelImages>> below.
+<6> Not required. See <<Supercompression Global Data>>.
+<7> Required. See <<Mip Level Array>>.
+<8> Replace with 1 if `levels` is 0
+<9> See the <<levelImages>> below.
 
 After inflation from supercompression or when `supercompressionScheme ==
 0`, `levelImages` looks like this:
@@ -191,8 +193,8 @@ After inflation from supercompression or when `supercompressionScheme ==
 .levelImages Structure
 [source, c]
 ----
-for each array_element in numberOfArrayElements <1>
-   for each face in numberOfFaces
+for each array_element in arrayElements <1>
+   for each face in faces
        for each z_slice_of_blocks in num_blocks_z <2>
            for each row_of_blocks in num_blocks_y <2>
                for each block in num_blocks_x <2>
@@ -203,7 +205,7 @@ for each array_element in numberOfArrayElements <1>
    end
 end
 ----
-<1> Replace with 1 if `numberOfArrayElements` is 0.
+<1> Replace with 1 if `arrayElements` is 0.
 <2> See <<levelImages_defs,the definitions>> below.
 <3> Rows of uncompressed texture images must be tightly packed,
     equivalent to a `GL_UNPACK_ALIGNMENT` of 1.
@@ -463,7 +465,7 @@ depth/stencil formats the value will be 4.
 Although `typeSize` can be calculated from the Data Format Descriptor
 and big-endian machines are in the minority we have chosen to provide
 a useful piece of data instead of the 4 bytes of padding that would
-otherwise be needed for proper alignment of `bytesOfImages`.
+otherwise be needed for proper alignment of `byteLength`.
 ====
 
 === pixelWidth, pixelHeight, pixelDepth [[dimensions]]
@@ -487,9 +489,9 @@ For cubemap textures, `pixelHeight` must be equal to `pixelWidth`.
 
 `pixelDepth` must be 0 for depth or stencil formats.
 
-=== numberOfArrayElements
-`numberOfArrayElements` specifies the number of array elements. If
-the texture is not an array texture, `numberOfArrayElements` must
+=== arrayElements
+`arrayElements` specifies the number of array elements. If
+the texture is not an array texture, `arrayElements` must
 equal 0.
 
 Although current graphics APIs do not support 3D array textures, KTX
@@ -497,8 +499,8 @@ files can be used to store them.
 
 Refer to <<_texture_type>> for more details about valid values.
 
-=== numberOfFaces
-`numberOfFaces` specifies the number of cubemap faces. For cubemaps
+=== faces
+`faces` specifies the number of cubemap faces. For cubemaps
 and cubemap arrays this must be 6. For non cubemaps this must be 1.
 Cubemap faces are stored in the order: +X, -X, +Y, -Y, +Z, -Z.
 
@@ -506,14 +508,14 @@ Applications wanting to store incomplete cubemaps should flatten faces
 into a 2D array and use the metadata described in <<KTXcubemapIncomplete>>
 to signal which faces are present.
 
-=== numberOfMipLevels
-`numberOfMipLevels` specifies the number of levels in the
+=== levels
+`levels` specifies the number of levels in the
 <<_mip_level_array,_Mip Level Array_>> and, by extension, the number
 of indices in the `<<_levels,levels>>` array. A KTX file does not need to
 contain a complete mipmap pyramid.  Mip level data is ordered
 from the level with the smallest size images, stem:[level_p] to
 that with the largest size images, stem:[level_{base}] where stem:[p
-= numberOfMipLevels - 1] and stem:[base = 0]. stem:[level_p] must
+= levels - 1] and stem:[base = 0]. stem:[level_p] must
 not be greater than the maximum possible, stem:[level_{max}], where
 
 [stem]
@@ -522,11 +524,11 @@ not be greater than the maximum possible, stem:[level_{max}], where
 max = \log _2\left(\max\left(pixelWidth, pixelHeight, pixelDepth\right)\right)
 +++++
 
-stem:[numberOfMipLevels = 1] means that a file contains only the
+stem:[levels = 1] means that a file contains only the
 first level and the texture isn't meant to have other levels. E.g.,
 this could be a LUT rather than a natural image.
 
-stem:[numberOfMipLevels = 0] is allowed, except for block-compressed
+stem:[levels = 0] is allowed, except for block-compressed
 formats, and means that a file contains only the first level and
 consumers, particularly loaders, should generate other levels if
 needed.
@@ -601,35 +603,35 @@ block-compressed texture formats.
 * Checksums are optional. If a checksum is present, inflators should
   verify it.
 
-=== bytesOfImages
+=== byteLength
 The total size of the image data. That is the sum of the
-`<<_levelsn_bytesofimages,levels[n].bytesOfImages>>` within the
+`<<_levelsn_bytelength,levels[n].byteLength>>` within the
 <<_mip_level_array,_Mip Level Array_>> plus the sum of the
 `<<_mippadding,mipPadding>>` fields.
 
-=== bytesOfUncompressedImages
+=== byteLengthUncompressed
 The total size of the image data after expansion from supercompression.
 That is the sum of the
-`<<_levelsn_bytesofuncompressedimages,levels[n].bytesOfUncompressedImages>>`
+`<<_levelsn_bytelengthuncompressed,levels[n].byteLengthUncompressed>>`
 within the <<_mip_level_array,_Mip Level Array_>> plus the sum of
 the `<<_mippadding,mipPadding>>` fields.
 
-When `supercompressionScheme = 0`, `<<bytesOfImages,bytesOfImages>>`
+When `supercompressionScheme = 0`, `<<byteLength,imagesByteLength>>`
 must have the same value as this.
 
 === Index
 An index giving the byte offsets from the start of the file and byte
 sizes of the various sections of the KTX file.
 
-==== dataFormatDescriptorOffset
+==== dfdByteOffset
 The offset from the start of the file of the
 `<<_dfdtotalsize,dfdTotalSize>>` field of the
 <<_data_format_descriptor,_Data Format Descriptor_>>.
 
-==== bytesOfDataFormatDescriptor
+==== dfdByteLength
 The total number of bytes in the <<_data_format_descriptor,_Data
 Format Descriptor_>> including the `<<_dfdtotalsize,dfdTotalSize>>`
-field. `bytesOfDataFormatDescriptor` must equal
+field. `dfdByteLength` must equal
 `<<_dfdtotalsize,dfdTotalSize>>`.
 
 [NOTE]
@@ -641,46 +643,46 @@ of `supercompressionGlobalData`. Retaining it means all sections of
 the file can be handled uniformly.
 ====
 
-==== keyValueDataOffset
+==== kvdByteOffset
 An arbitrary number of <<_keyvalue_data,key/value pairs>> may
 follow the Index. These can be used to encode any arbitrary data.
-The `keyValueDataOffset` field gives the offset of this data, i.e.
+The `kvdByteOffset` field gives the offset of this data, i.e.
 that of first key/value pair, from the start of the file.  The value
-must be 0 when `bytesOfKeyValuelData` = 0.
+must be 0 when `kvdByteLength` = 0.
 
-==== bytesOfKeyValueData
+==== kvdByteLength
 The total number of bytes of key/value data including all
-`<<_keyandvaluebytesize,keyAndValueByteSize>>` fields, all
+`<<_keyandvaluebytelength,keyAndValueByteLength>>` fields, all
 `<<_keyandvalue,keyAndValue>>` fields and all
 `<<_valuepadding,valuePadding>>` fields.
 
-==== supercompressionGlobalDataOffset
+==== sgdByteOffset
 The offset from the start of the file of
 `<<_supercompressionglobaldata,supercompressionGlobalData>>`. The
-value must be 0 when `bytesOfSupercompressionGlobalData` = 0.
+value must be 0 when `sgdByteLength` = 0.
 
-==== bytesOfSupercompressionGlobalData
+==== sgdByteLength
 The number of bytes of
 `<<_supercompressionglobaldata,supercompressionGlobalData>>`.  It
 schemes the value is 0.
 
-==== levels
-An array giving the offset from the start of the file and
+==== Level Index
+An array, `levels` giving the offset from the start of the file and
 compressed and uncompressed byte sizes of the image data for each
 mip level within the <<_mip_level_array,_Mip Level Array_>> The array is ordered
 starting with stem:[level_{base}] (the level with the largest size images)
 at index _0_. Image for stem:[level_p] will be found at index _p_.
 
-===== levels[n].offset
+===== levels[n].byteOffset
 
 The offset from the start of the file of the first byte of image data
 for mip level _n_.
 
-===== levels[n].bytesOfImages
+===== levels[n].byteLength
 
 The total size of the data for supercompressed mip level _n_.
 
-`levels[n].bytesOfImages` is the number of bytes of pixel data in
+`levels[n].byteLength` is the number of bytes of pixel data in
 LOD stem:[level_n]. This includes all z slices, all faces, all rows
 (or rows of blocks) and all pixels (or blocks) in each row for the
 mip level. It does not include any bytes in
@@ -690,47 +692,47 @@ If
 [stem]
 +++++
 \sum_{i=0}^{n-1}
-\left\lceil{\frac{level[i].bytesOfImages}{8}}\right\rceil * 8
-+ level[n].bytesOfImages \neq bytesOfImages.
+\left\lceil{\frac{level[i].byteLength}{8}}\right\rceil * 8
++ level[n].byteLength \neq imagesByteLength.
 +++++
 where
 [stem]
 +++++
-n = \max\left(1, numberOfMipLevels\right) - 1
+n = \max\left(1, levels\right) - 1
 +++++
 
 the file is invalid.
 
-==== levels[n].bytesOfUncompressedImages
+==== levels[n].byteLengthUncompressed
 
-`levels[n].bytesOfUncompressedImages` is the number of bytes of
+`levels[n].byteLengthUncompressed` is the number of bytes of
 pixel data in LOD stem:[level_n] after reflation from supercompression.
 This includes all z slices, all faces, all rows (or rows of blocks)
 and all pixels (or blocks) in each row for the mipmap level. It
 does not include any bytes in `<<_mippadding,mipPadding>>`.  When
 `supercompressionScheme == 0`,
-`<<_levelsn_bytesofimages,levels[n].bytesOfImages>>` must have
+`<<_levelsn_bytelength,levels[n].byteLength>>` must have
 the same value as this.
 
-The value of a level's `bytesOfUncompressedImages` must satisfy the
+The value of a level's `byteLengthUncompressed` must satisfy the
 following condition:
 [listing]
 ----
-bytesOfUncompressedImages % (numberOfFaces * max(1, numberOfArrayElements)) == 0
+byteLengthUncompressed % (faces * max(1, arrayElements)) == 0
 ----
 
 If
 [stem]
 +++++
 \sum_{i=0}^{n-1}
-\left\lceil{\frac{level[i].bytesOfUncompressedImages}{8}}\right\rceil * 8
-+ level[n].bytesOfUncompressedImages \\
-\neq bytesOfUncompressedImages.
+\left\lceil{\frac{level[i].byteLengthUncompressed}{8}}\right\rceil * 8
++ level[n].byteLengthUncompressed \\
+\neq byteLengthUncompressed.
 +++++
 where
 [stem]
 +++++
-n = \max\left(1, numberOfMipLevels\right) - 1
+n = \max\left(1, levels\right) - 1
 +++++
 
 the file is invalid.
@@ -738,11 +740,11 @@ the file is invalid.
 [TIP]
 ====
 In versions of OpenGL < 4.5 and in OpenGL ES, faces of non-array
-cubemap textures (any texture where `numberOfFaces` is 6 and
-`numberOfArrayElements` is 0) must be uploaded individually. Loaders
+cubemap textures (any texture where `faces` is 6 and
+`arrayElements` is 0) must be uploaded individually. Loaders
 wishing to minimize the size of their intermediate buffers may want
 to read the faces individually rather then as a block of size
-`level[n].bytesOfUncompressedImages`.
+`level[n].byteLengthUncompressed`.
 ====
 
 === Data Format Descriptor
@@ -812,15 +814,14 @@ The _dfDescriptor_ describes the texel blocks as they are when
 
 ==== dfdTotalSize
 Called `total_size` in <<KDF13>>, `dfdTotalSize` indicates the total
-number of bytes in the _dfDescriptor_ including `dfdTotalSize` and all
-`dfdBlock` fields.
-`<<_bytesofdataformatdescriptor,bytesOfDataFormatDescriptor>>` must
-equal `dfdTotalSize`.
+number of bytes in the _dfDescriptor_ including `dfdTotalSize` and
+all `dfdBlock` fields.  `<<_dfdbytelength,dfdByteLength>>`
+must equal `dfdTotalSize`.
 
 If
 [stem]
 +++++
-dfdTotalSize \neq keyValueDataOffset - dataFormatDescriptorOffset
+dfdTotalSize \neq kvdByteOffset - dfdByteOffset
 +++++
 the file is invalid.
 
@@ -835,7 +836,7 @@ A `Descriptor Block` as defined in <<KDF13>>, the high-order 16
 bits of its first UInt32 are the `descriptor_type` and the high-order
 16 bits of the second UInt32 are the `descriptor_block_size`.
 `descriptor_block_sizes` are mandated to be multiples of 4
-which guarantees that the following `keyAndValueByteSize`
+which guarantees that the following `keyAndValueByteLength`
 will be aligned in a 32-bit word.
 
 === Key/Value Data
@@ -843,8 +844,8 @@ Key/Value data consists of a set of key/value pairs. The number of
 pairs is such that
 [stem]
 +++++
-\sum_{i=0}^{n-1} \left\lceil{\frac{keyAndValueByteSize[i]}{4}}\right\rceil * 4
-+ keyAndValueByteSize[n] = bytesOfKeyValueData.
+\sum_{i=0}^{n-1} \left\lceil{\frac{keyAndValueByteLength[i]}{4}}\right\rceil * 4
++ keyAndValueByteLength[n] = kvdByteLength.
 +++++
 
 Any file that does not meet the above condition is invalid.
@@ -855,14 +856,14 @@ or which is not modified by the user.
 Key/value data must be written to the file sorted by the Unicode
 code points of the keys starting from a key's first character.
 
-==== keyAndValueByteSize
+==== keyAndValueByteLength
 The number of bytes of combined key and value data in one key/value
 pair. This includes the size of the key, the required NUL byte
 terminating the key, and all the bytes of data in the value. If the
 value is a UTF-8 string it should be NUL terminated and
-`keyAndValueByteSize` should include the NUL character (but code
+`keyAndValueByteLength` should include the NUL character (but code
 that reads KTX files must not assume that value fields are NUL
-terminated). `keyAndValueByteSize` does not include the bytes in
+terminated). `keyAndValueByteLength` does not include the bytes in
 `<<_valuepadding,valuePadding>>`.
 
 ==== keyAndValue
@@ -881,16 +882,16 @@ is binary, it is a sequence of bytes rather than of words. It is up to
 the vendor defining the key to specify how those bytes are to be
 interpreted (including the endianness of any encoded numbers). If
 the Value data is a string of bytes then the NUL termination should
-be included in the `keyAndValueByteSize` byte count (but programs
+be included in the `keyAndValueByteLength` byte count (but programs
 that read KTX files must not rely on this).
 
 ==== valuePadding
 Contains between 0 and 3 bytes of value `0x00` to ensure that the
 byte following the last byte in `valuePadding` is at a file offset
-that is a multiple of 4. This ensures that every `keyAndValueByteSize`
+that is a multiple of 4. This ensures that every `keyAndValueByteLength`
 field is 4-byte aligned. This padding is included in the
-`<<_bytesofkeyvaluedata,bytesOfKeyValueData>>` field but not the
-individual `keyAndValueByteSize` fields.
+`<<_kvdbytelength,kvdByteLength>>` field but not the
+individual `keyAndValueByteLength` fields.
 
 === Supercompression Global Data
 ==== supercompressionGlobalData
@@ -956,7 +957,7 @@ other combination of parameters makes the KTX file invalid.
 
 [options="header"]
 |====
-|Type|<<dimensions,pixelWidth>>|<<dimensions,pixelHeight>>|<<dimensions,pixelDepth>>|<<numberOfArrayElements>>|<<numberOfFaces>>
+|Type|<<dimensions,pixelWidth>>|<<dimensions,pixelHeight>>|<<dimensions,pixelDepth>>|<<_arrayelements,arrayElements>>|<<_faces,faces>>
 |1D           |> 0       |0          |0         |0                    |1
 |2D           |> 0       |> 0        |0         |0                    |1
 |3D           |> 0       |> 0        |> 0       |0                    |1
@@ -971,8 +972,8 @@ other combination of parameters makes the KTX file invalid.
 
 === KTXcubemapIncomplete
 A KTX file can be used to store an incomplete cubemap or an array of
-incomplete cubemaps. In such a case, `numberOfFaces` must be `1` and
-`numberOfArrayElements` must be equal to the number of faces present
+incomplete cubemaps. In such a case, `faces` must be `1` and
+`arrayElements` must be equal to the number of faces present
 (in case of a single cubemap) or to the number of faces present times
 the number of cubemaps (in case of a cubemap array). The faces that are
 present must be indicated using the metadata key
