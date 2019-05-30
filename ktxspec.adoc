@@ -780,8 +780,9 @@ DFD. The fields mentioned here occur in a dfDescriptorBlock.
   or one of the block compressed color models listed in <<KDF13>> Section
   5.6 or its successors, currently `KDF_DF_MODEL_BC1A` to
   `KDF_DF_MODEL_PVRTC2`.
-* `color_primaries` may be any of the available values since conversion
-  to a display's primaries is relatively straightforward.
+* `color_primaries` may be any of the available values since
+  conversion of the selected primaries and white point a display's
+  can be done with simply a 3x3 matrix multiply.
 
 [NOTE]
 ====
