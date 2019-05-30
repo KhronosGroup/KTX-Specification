@@ -127,9 +127,9 @@ UInt32 typeSize
 UInt32 pixelWidth
 UInt32 pixelHeight
 UInt32 pixelDepth
-UInt32 arrayElements
-UInt32 faces
-UInt32 levels
+UInt32 numberOfArrayElements
+UInt32 numberOfFaces
+UInt32 numberOfMipLevels
 UInt32 supercompressionScheme
 UInt64 byteLength
 UInt64 byteLengthUncompressed
@@ -146,7 +146,7 @@ struct {
     UInt64 byteOffset
     UInt64 byteLength
     UInt64 byteLengthUncompressed
-} levels[max(1, levels)]
+} levels[max(1, numberOfMipLevels)]
 
 // Data Format Descriptor <3>
 UInt32 dfdTotalSize
@@ -169,7 +169,7 @@ Byte supercompressionGlobalData[sgdByteLength]
 align(8)
 
 // Mip Level Array <7>
-for each mip_level in levels <8>
+for each mip_level in numberOfMipLevels <8>
     Byte     levelImages[bytesOfLevelImages] <9>
     align(8) mipPadding // No padding the last time.
 end
@@ -183,7 +183,7 @@ end
     item on an n-byte boundary.  where n is the function parameter.
 <6> Not required. See <<Supercompression Global Data>>.
 <7> Required. See <<Mip Level Array>>.
-<8> Replace with 1 if `levels` is 0
+<8> Replace with 1 if `numberOfMipLevels` is 0
 <9> See the <<levelImages>> below.
 
 After inflation from supercompression or when `supercompressionScheme ==
@@ -193,8 +193,8 @@ After inflation from supercompression or when `supercompressionScheme ==
 .levelImages Structure
 [source, c]
 ----
-for each array_element in arrayElements <1>
-   for each face in faces
+for each array_element in numberOfArrayElements <1>
+   for each face in numberOfFaces
        for each z_slice_of_blocks in num_blocks_z <2>
            for each row_of_blocks in num_blocks_y <2>
                for each block in num_blocks_x <2>
@@ -205,7 +205,7 @@ for each array_element in arrayElements <1>
    end
 end
 ----
-<1> Replace with 1 if `arrayElements` is 0.
+<1> Replace with 1 if `numberOfArrayElements` is 0.
 <2> See <<levelImages_defs,the definitions>> below.
 <3> Rows of uncompressed texture images must be tightly packed,
     equivalent to a `GL_UNPACK_ALIGNMENT` of 1.
@@ -489,9 +489,9 @@ For cubemap textures, `pixelHeight` must be equal to `pixelWidth`.
 
 `pixelDepth` must be 0 for depth or stencil formats.
 
-=== arrayElements
-`arrayElements` specifies the number of array elements. If
-the texture is not an array texture, `arrayElements` must
+=== numberOfArrayElements
+`numberOfArrayElements` specifies the number of array elements. If
+the texture is not an array texture, `numberOfArrayElements` must
 equal 0.
 
 Although current graphics APIs do not support 3D array textures, KTX
@@ -499,8 +499,8 @@ files can be used to store them.
 
 Refer to <<_texture_type>> for more details about valid values.
 
-=== faces
-`faces` specifies the number of cubemap faces. For cubemaps
+=== numberOfFaces
+`numberOfFaces` specifies the number of cubemap faces. For cubemaps
 and cubemap arrays this must be 6. For non cubemaps this must be 1.
 Cubemap faces are stored in the order: +X, -X, +Y, -Y, +Z, -Z.
 
@@ -508,15 +508,16 @@ Applications wanting to store incomplete cubemaps should flatten faces
 into a 2D array and use the metadata described in <<KTXcubemapIncomplete>>
 to signal which faces are present.
 
-=== levels
-`levels` specifies the number of levels in the
+=== numberOfMipLevels
+`numberOfMipLevels` specifies the number of levels in the
 <<_mip_level_array,_Mip Level Array_>> and, by extension, the number
-of indices in the `<<_levels,levels>>` array. A KTX file does not need to
-contain a complete mipmap pyramid.  Mip level data is ordered
-from the level with the smallest size images, stem:[level_p] to
-that with the largest size images, stem:[level_{base}] where stem:[p
-= levels - 1] and stem:[base = 0]. stem:[level_p] must
-not be greater than the maximum possible, stem:[level_{max}], where
+of indices in the `<<_numberofmiplevels,numberOfMipLevels>>` array.
+A KTX file does not need to contain a complete mipmap pyramid.  Mip
+level data is ordered from the level with the smallest size images,
+stem:[level_p] to that with the largest size images, stem:[level_{base}]
+where stem:[p = numberOfMipLevels - 1] and stem:[base = 0].
+stem:[level_p] must not be greater than the maximum possible,
+stem:[level_{max}], where
 
 [stem]
 // max = log2(max(pixelWidth, pixelHeight, pixelDepth))
@@ -524,11 +525,11 @@ not be greater than the maximum possible, stem:[level_{max}], where
 max = \log _2\left(\max\left(pixelWidth, pixelHeight, pixelDepth\right)\right)
 +++++
 
-stem:[levels = 1] means that a file contains only the
+stem:[numberOfMipLevels = 1] means that a file contains only the
 first level and the texture isn't meant to have other levels. E.g.,
 this could be a LUT rather than a natural image.
 
-stem:[levels = 0] is allowed, except for block-compressed
+stem:[numberOfMipLevels = 0] is allowed, except for block-compressed
 formats, and means that a file contains only the first level and
 consumers, particularly loaders, should generate other levels if
 needed.
@@ -698,7 +699,7 @@ If
 where
 [stem]
 +++++
-n = \max\left(1, levels\right) - 1
+n = \max\left(1, numberOfMipLevels\right) - 1
 +++++
 
 the file is invalid.
@@ -718,6 +719,7 @@ The value of a level's `byteLengthUncompressed` must satisfy the
 following condition:
 [listing]
 ----
+bytesOfUncompressedImages % (numberOfFaces * max(1, numberOfArrayElements)) == 0
 byteLengthUncompressed % (faces * max(1, arrayElements)) == 0
 ----
 
@@ -732,7 +734,7 @@ If
 where
 [stem]
 +++++
-n = \max\left(1, levels\right) - 1
+n = \max\left(1, numberOfMipLevels\right) - 1
 +++++
 
 the file is invalid.
@@ -740,8 +742,8 @@ the file is invalid.
 [TIP]
 ====
 In versions of OpenGL < 4.5 and in OpenGL ES, faces of non-array
-cubemap textures (any texture where `faces` is 6 and
-`arrayElements` is 0) must be uploaded individually. Loaders
+cubemap textures (any texture where `numberOfFaces` is 6 and
+`numberOfArrayElements` is 0) must be uploaded individually. Loaders
 wishing to minimize the size of their intermediate buffers may want
 to read the faces individually rather then as a block of size
 `level[n].byteLengthUncompressed`.
@@ -957,7 +959,7 @@ other combination of parameters makes the KTX file invalid.
 
 [options="header"]
 |====
-|Type|<<dimensions,pixelWidth>>|<<dimensions,pixelHeight>>|<<dimensions,pixelDepth>>|<<_arrayelements,arrayElements>>|<<_faces,faces>>
+|Type|<<dimensions,pixelWidth>>|<<dimensions,pixelHeight>>|<<dimensions,pixelDepth>>|<<_numberofarrayelements,numberOfArrayElements>>|<<_numberoffaces,numberOfFaces>>
 |1D           |> 0       |0          |0         |0                    |1
 |2D           |> 0       |> 0        |0         |0                    |1
 |3D           |> 0       |> 0        |> 0       |0                    |1
@@ -972,8 +974,8 @@ other combination of parameters makes the KTX file invalid.
 
 === KTXcubemapIncomplete
 A KTX file can be used to store an incomplete cubemap or an array of
-incomplete cubemaps. In such a case, `faces` must be `1` and
-`arrayElements` must be equal to the number of faces present
+incomplete cubemaps. In such a case, `numberOfFaces` must be `1` and
+`numberOfArrayElements` must be equal to the number of faces present
 (in case of a single cubemap) or to the number of faces present times
 the number of cubemaps (in case of a cubemap array). The faces that are
 present must be indicated using the metadata key
