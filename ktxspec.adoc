@@ -131,8 +131,8 @@ UInt32 arrayElementCount
 UInt32 faceCount
 UInt32 levelCount
 UInt32 supercompressionScheme
-UInt64 byteLength
-UInt64 byteLengthUncompressed
+UInt64 imagesByteLength
+UInt64 imagesByteLengthUncompressed
 
 // Index <1>
 UInt32 dfdByteOffset
@@ -465,7 +465,7 @@ depth/stencil formats the value will be 4.
 Although `typeSize` can be calculated from the Data Format Descriptor
 and big-endian machines are in the minority we have chosen to provide
 a useful piece of data instead of the 4 bytes of padding that would
-otherwise be needed for proper alignment of `byteLength`.
+otherwise be needed for proper alignment of `imagesByteLength`.
 ====
 
 === pixelWidth, pixelHeight, pixelDepth [[dimensions]]
@@ -603,20 +603,20 @@ block-compressed texture formats.
 * Checksums are optional. If a checksum is present, inflators should
   verify it.
 
-=== byteLength
+=== imagesByteLength
 The total size of the image data. That is the sum of the
 `<<_levelsp_bytelength,levels[p].byteLength>>` within the
 <<_mip_level_array,_Mip Level Array_>> plus the sum of the
 `<<_mippadding,mipPadding>>` fields.
 
-=== byteLengthUncompressed
+=== imagesByteLengthUncompressed
 The total size of the image data after expansion from supercompression.
 That is the sum of the
 `<<_levelsp_bytelengthuncompressed,levels[p].byteLengthUncompressed>>`
 within the <<_mip_level_array,_Mip Level Array_>> plus the sum of
 the `<<_mippadding,mipPadding>>` fields.
 
-When `supercompressionScheme = 0`, `<<byteLength,imagesByteLength>>`
+When `supercompressionScheme = 0`, `<<imagesbyteLength,imagesByteLength>>`
 must have the same value as this.
 
 === Index
@@ -728,7 +728,7 @@ If
 \sum_{i=0}^{n-1}
 \left\lceil{\frac{level[i].byteLengthUncompressed}{8}}\right\rceil * 8
 + level[n].byteLengthUncompressed \\
-\neq byteLengthUncompressed.
+\neq imagesByteLengthUncompressed.
 +++++
 where
 [stem]
