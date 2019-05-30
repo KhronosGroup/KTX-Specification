@@ -616,7 +616,7 @@ That is the sum of the
 within the <<_mip_level_array,_Mip Level Array_>> plus the sum of
 the `<<_mippadding,mipPadding>>` fields.
 
-When `supercompressionScheme = 0`, `<<imagesbyteLength,imagesByteLength>>`
+When `supercompressionScheme = 0`, `<<_imagesbytelength,imagesByteLength>>`
 must have the same value as this.
 
 === Index
