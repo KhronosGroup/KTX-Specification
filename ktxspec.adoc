@@ -81,6 +81,13 @@ the specification are stored in the KTX-Specification Repository
 repository has a public issue tracker and allows the submission of
 pull requests that improve the specification.
 
+KTX2 files can contain almost any of the wide variety of image
+formats supported by GPUs. Other specifications wishing to refer
+to KTX2 as a container may wish to restrict the range of image
+formats or other items that can be used. Such referers must establish
+a way to identify that given KTX2 files are compliant with their
+subsets such as by adding a metadata item.
+
 === Document Conventions
 
 The KTX2 specification is intended for use by both creators and
@@ -739,56 +746,16 @@ to read the faces individually rather then as a block of size
 ====
 
 === Data Format Descriptor
-These 3 items combined form a _Data Format Descriptor_
-(dfDescriptor) describing the layout of the texel blocks in `data`.
-The full specification for this is found in the _Khronos Data
-Format Specification_ version 1.3 <<KDF13>>.
+The Data Format Descriptor (_dfDescriptor_) describes the layout
+of the texel blocks in `data`.  The full specification for this is
+found in the _Khronos Data Format Specification_ version 1.3
+<<KDF13>>.
 
-The _dfDescriptor_ is partially expanded here in order to provide
-sufficient information for a KTX2 file to be parsed without having to
-refer to <<KDF13>>. It consists of one or more _Descriptor Blocks_
-(dfDescriptorBlock).
-
-The following restrictions must be obeyed when setting the fields of the
-DFD. The value of `<<_vkformat,vkFormat>>` and the image data must never
-contradict the DFD.
-
-* `color_model` must be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA`
-  or one of the block compressed color models listed in <<KDF13>> Section
-  5.6 or its successors, currently `KDF_DF_MODEL_BC1A` to
-  `KDF_DF_MODEL_PVRTC2`.
-* `color_primaries` may be any of the available values since conversion
-  to a display's primaries is relatively straightforward.
-
-[NOTE]
-====
-Specifications which refer to KTX2 as their base format may wish to
-restrict the `color_primaries` that can be used.
-
-`KHR_DF_PRIMARIES_BT709/SRGB` is recommended for low dynamic range,
-standard gamut images.
-====
-* `transfer_function` must be `KHR_DF_TRANSFER_LINEAR` or
-  `KHR_DF_TRANSFER_SRGB` since these are the only ones supported by the
-  vast majority of graphics hardware and correct filtering and blending
-  without hardware support is difficult to impossible.
-* If `<<_vkformat,vkFormat>>` is one of the `+*_SRGB{,_*}+` formats then
-  `transfer_function` must be `KHR_DF_TRANSFER_SRGB`. This requirement
-  is bidirectional. If `transfer_function` is `KHR_DF_TRANSFER_SRGB` then
-  `<<_vkformat,vkFormat>>` must be one of the `+*_SRGB{,_*}+` formats.
-  For all other non-YUV formats it must be `KHR_DF_TRANSFER_LINEAR`.
-
-[NOTE]
-.Editors Note
-====
-Whether KTX2 will support YUV images is not yet decided.
-`transfer_function` restrictions for YUV formats will be updated as
-necessary.
-====
-
-The _dfDescriptor_ describes the texel blocks as they are when
-`<<_supercompressionscheme,supercompressionScheme>> == 0` or after reflation when
-`<<_supercompressionscheme,supercompressionScheme>> != 0`.
+The dfDescriptor is partially expanded in this specification in
+order to provide sufficient information for a KTX2 file to be parsed
+without having to refer to <<KDF13>>. It consists of a total size
+field and one or more Descriptor Blocks (_dfDescriptorBlock_)
+described below.
 
 [NOTE]
 .Rationale
@@ -802,6 +769,45 @@ A _dfDescriptor_ is useful in the following cases:
 * easier calculation of the offsets of each level, face and layer within
   the data. Again there will be no need for large tables.
 ====
+
+The following restrictions must be obeyed when setting the fields of the
+DFD. The fields mentioned here occur in a dfDescriptorBlock.
+
+* The value of `<<_vkformat,vkFormat>>` and the image data must
+  never contradict the DFD and, vice-versa, the DFD must not contradict
+  `<<_vkformat,vkFormat>>`.
+* `color_model` must be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA`
+  or one of the block compressed color models listed in <<KDF13>> Section
+  5.6 or its successors, currently `KDF_DF_MODEL_BC1A` to
+  `KDF_DF_MODEL_PVRTC2`.
+* `color_primaries` may be any of the available values since conversion
+  to a display's primaries is relatively straightforward.
+
+[NOTE]
+====
+`KHR_DF_PRIMARIES_BT709/SRGB` is recommended for low dynamic range,
+standard gamut images.
+====
+* `transfer_function` must be `KHR_DF_TRANSFER_LINEAR` or
+  `KHR_DF_TRANSFER_SRGB` since these are the only ones supported by the
+  vast majority of graphics hardware and correct filtering and blending
+  without hardware support is difficult to impossible.
+* If `<<_vkformat,vkFormat>>` is one of the `+*_SRGB{,_*}+` formats then
+  `transfer_function` must be `KHR_DF_TRANSFER_SRGB` and vice-versa.
+  For all other non-YUV formats `transfer_function` must be
+  `KHR_DF_TRANSFER_LINEAR`.
+
+[NOTE]
+.Editors Note
+====
+Whether KTX2 will support YUV images is not yet decided.
+`transfer_function` restrictions for YUV formats will be updated as
+necessary.
+====
+
+The _dfDescriptor_ describes the texel blocks as they are when
+`<<_supercompressionscheme,supercompressionScheme>> == 0` or after reflation when
+`<<_supercompressionscheme,supercompressionScheme>> != 0`.
 
 ==== dfdTotalSize
 Called `total_size` in <<KDF13>>, `dfdTotalSize` indicates the total
