@@ -145,7 +145,7 @@ UInt64 sgdByteLength
 struct {
     UInt64 byteOffset
     UInt64 byteLength
-    UInt64 byteLengthUncompressed
+    UInt64 uncompressedByteLength
 } levels[max(1, levelCount)]
 
 // Data Format Descriptor <3>
@@ -612,7 +612,7 @@ The total size of the image data. That is the sum of the
 === imagesByteLengthUncompressed
 The total size of the image data after expansion from supercompression.
 That is the sum of the
-`<<_levelsp_bytelengthuncompressed,levels[p].byteLengthUncompressed>>`
+`<<_levelsp_uncompressedbytelength,levels[p].uncompressedByteLength>>`
 within the <<_mip_level_array,_Mip Level Array_>> plus the sum of
 the `<<_mippadding,mipPadding>>` fields.
 
@@ -703,9 +703,9 @@ n = \max\left(1, levelCount\right) - 1
 
 the file is invalid.
 
-===== levels[p].byteLengthUncompressed
+===== levels[p].uncompressedByteLength
 
-`levels[p].byteLengthUncompressed` is the number of bytes of
+`levels[p].uncompressedByteLength` is the number of bytes of
 pixel data in LOD stem:[level_p] after reflation from supercompression.
 This includes all z slices, all faces, all rows (or rows of blocks)
 and all pixels (or blocks) in each row for the mipmap level. It
@@ -714,20 +714,20 @@ does not include any bytes in `<<_mippadding,mipPadding>>`.  When
 `<<_levelsp_bytelength,levels[p].byteLength>>` must have
 the same value as this.
 
-The value of a level's `byteLengthUncompressed` must satisfy the
+The value of a level's `uncompressedByteLength` must satisfy the
 following condition:
 [listing]
 ----
 bytesOfUncompressedImages % (faceCount * max(1, arrayElementCount)) == 0
-byteLengthUncompressed % (faces * max(1, arrayElements)) == 0
+uncompressedByteLength % (faces * max(1, arrayElements)) == 0
 ----
 
 If
 [stem]
 +++++
 \sum_{i=0}^{n-1}
-\left\lceil{\frac{level[i].byteLengthUncompressed}{8}}\right\rceil * 8
-+ level[n].byteLengthUncompressed \\
+\left\lceil{\frac{level[i].uncompressedByteLength}{8}}\right\rceil * 8
++ level[n].uncompressedByteLength \\
 \neq imagesByteLengthUncompressed.
 +++++
 where
@@ -745,7 +745,7 @@ cubemap textures (any texture where `faceCount` is 6 and
 `arrayElementCount` is 0) must be uploaded individually. Loaders
 wishing to minimize the size of their intermediate buffers may want
 to read the faces individually rather then as a block of size
-`level[n].byteLengthUncompressed`.
+`level[n].uncompressedByteLength`.
 ====
 
 === Data Format Descriptor
