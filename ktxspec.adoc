@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL^®^ and Vulkan^®^ textures.
-:docrev: draft10
+:docrev: draft11
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -1461,8 +1461,16 @@ This appendix is informative only.
                                     endian. Specify padding values.
                                     Remove ambiguity and potential
                                     conflicts.
-|     {docrev}      |  {revdate}  | Add "do not distribute files"
+|      draft10      |  2019-03-17 | Add "do not distribute files"
                                     warning to status.
+|     {docrev}      |  {revdate}  | Add format mapping list. Add
+                                    restrictions on DFD use. Remove
+                                    bytesOfImageData and
+                                    bytesOfUncompressedImageData. Rename
+                                    header length and offset fields to
+                                    match glTF conventions. Make many
+                                    language improvements and fix errors
+                                    and typos.
 |===
 
 [discrete]
@@ -1540,3 +1548,4 @@ owners.
 --
 
 // vim: filetype=asciidoc ai expandtab tw=72 ts=4 sts=2 sw=2
+
