@@ -131,8 +131,6 @@ UInt32 arrayElementCount
 UInt32 faceCount
 UInt32 levelCount
 UInt32 supercompressionScheme
-UInt64 imagesByteLength
-UInt64 imagesByteLengthUncompressed
 
 // Index <1>
 UInt32 dfdByteOffset
@@ -465,7 +463,7 @@ depth/stencil formats the value will be 4.
 Although `typeSize` can be calculated from the Data Format Descriptor
 and big-endian machines are in the minority we have chosen to provide
 a useful piece of data instead of the 4 bytes of padding that would
-otherwise be needed for proper alignment of `imagesByteLength`.
+otherwise be needed for proper alignment of `sgdByteOffset`.
 ====
 
 === pixelWidth, pixelHeight, pixelDepth [[dimensions]]
@@ -603,22 +601,6 @@ block-compressed texture formats.
 * Checksums are optional. If a checksum is present, inflators should
   verify it.
 
-=== imagesByteLength
-The total size of the image data. That is the sum of the
-`<<_levelsp_bytelength,levels[p].byteLength>>` within the
-<<_mip_level_array,_Mip Level Array_>> plus the sum of the
-`<<_mippadding,mipPadding>>` fields.
-
-=== imagesByteLengthUncompressed
-The total size of the image data after expansion from supercompression.
-That is the sum of the
-`<<_levelsp_uncompressedbytelength,levels[p].uncompressedByteLength>>`
-within the <<_mip_level_array,_Mip Level Array_>> plus the sum of
-the `<<_mippadding,mipPadding>>` fields.
-
-When `supercompressionScheme = 0`, `<<_imagesbytelength,imagesByteLength>>`
-must have the same value as this.
-
 === Index
 An index giving the byte offsets from the start of the file and byte
 sizes of the various sections of the KTX file.
@@ -688,21 +670,6 @@ LOD stem:[level_p]. This includes all z slices, all faces, all rows
 mip level. It does not include any bytes in
 `<<_mippadding,mipPadding>>`.
 
-If
-[stem]
-+++++
-\sum_{i=0}^{n-1}
-\left\lceil{\frac{level[i].byteLength}{8}}\right\rceil * 8
-+ level[n].byteLength \neq imagesByteLength.
-+++++
-where
-[stem]
-+++++
-n = \max\left(1, levelCount\right) - 1
-+++++
-
-the file is invalid.
-
 ===== levels[p].uncompressedByteLength
 
 `levels[p].uncompressedByteLength` is the number of bytes of
@@ -718,25 +685,8 @@ The value of a level's `uncompressedByteLength` must satisfy the
 following condition:
 [listing]
 ----
-bytesOfUncompressedImages % (faceCount * max(1, arrayElementCount)) == 0
-uncompressedByteLength % (faces * max(1, arrayElements)) == 0
+uncompressedByteLength % (faceCount * max(1, arrayElementCount)) == 0
 ----
-
-If
-[stem]
-+++++
-\sum_{i=0}^{n-1}
-\left\lceil{\frac{level[i].uncompressedByteLength}{8}}\right\rceil * 8
-+ level[n].uncompressedByteLength \\
-\neq imagesByteLengthUncompressed.
-+++++
-where
-[stem]
-+++++
-n = \max\left(1, levelCount\right) - 1
-+++++
-
-the file is invalid.
 
 [TIP]
 ====
