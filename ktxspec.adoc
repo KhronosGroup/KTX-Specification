@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL^®^ and Vulkan^®^ textures.
-:docrev: draft11
+:docrev: draft12
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -245,14 +245,14 @@ from other types of files. It consists of 12 bytes, as follows:
 [source,c]
 ----
 Byte[12] FileIdentifier = {
-  0xAB, 0x4B, 0x54, 0x58, 0x20, 0x32, 0x32, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A
+  0xAB, 0x4B, 0x54, 0x58, 0x20, 0x32, 0x30, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A
 }
 ----
 This can also be expressed using C-style character definitions as:
 [source,c]
 ----
 Byte[12] FileIdentifier = {
-  '«', 'K', 'T', 'X', ' ', '2', '2', '»', '\r', '\n', '\x1A', '\n'
+  '«', 'K', 'T', 'X', ' ', '2', '0', '»', '\r', '\n', '\x1A', '\n'
 }
 ----
 The rationale behind the choice of values in the identifier is based
@@ -264,7 +264,7 @@ immediate detection of common file-transfer problems.
     text file may be misrecognized as a KTX file.
   * Byte [0] also catches bad file transfers that clear bit 7.
   * Bytes [1..6] identify the format, and are the ascii values for the string
-    "KTX 22".
+    "KTX 20".
   * Byte [7] is for aesthetic balance with byte 1 (they are a matching pair
     of double-angle quotation marks).
   * Bytes [8..9] form a CR-LF sequence which catches bad file transfers that
@@ -1463,7 +1463,7 @@ This appendix is informative only.
                                     conflicts.
 |      draft10      |  2019-03-17 | Add "do not distribute files"
                                     warning to status.
-|     {docrev}      |  {revdate}  | Add format mapping list. Add
+|      draft11      |  2019-06-03 | Add format mapping list. Add
                                     restrictions on DFD use. Remove
                                     bytesOfImageData and
                                     bytesOfUncompressedImageData. Rename
@@ -1471,6 +1471,7 @@ This appendix is informative only.
                                     match glTF conventions. Make many
                                     language improvements and fix errors
                                     and typos.
+|     {docrev}      |  {revdate}  | Change 22 in identifier to 20.
 |===
 
 [discrete]
