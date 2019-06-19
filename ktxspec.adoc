@@ -127,7 +127,7 @@ UInt32 typeSize
 UInt32 pixelWidth
 UInt32 pixelHeight
 UInt32 pixelDepth
-UInt32 arrayElementCount
+UInt32 layerCount
 UInt32 faceCount
 UInt32 levelCount
 UInt32 supercompressionScheme
@@ -191,21 +191,20 @@ After inflation from supercompression or when `supercompressionScheme ==
 .levelImages Structure
 [source, c]
 ----
-for each element in arrayElementCount <1>
+for each layer in max(1,layerCount)
    for each face in faceCount
-       for each z_slice_of_blocks in num_blocks_z <2>
-           for each row_of_blocks in num_blocks_y <2>
-               for each block in num_blocks_x <2>
-                   Byte data[format-specific-number-of-bytes] <3>
+       for each z_slice_of_blocks in num_blocks_z <1>
+           for each row_of_blocks in num_blocks_y <1>
+               for each block in num_blocks_x <1>
+                   Byte data[format-specific-number-of-bytes] <2>
                end
            end
        end
    end
 end
 ----
-<1> Replace with 1 if `arrayElementCount` is 0.
-<2> See <<levelImages_defs,the definitions>> below.
-<3> Rows of uncompressed texture images must be tightly packed,
+<1> See <<levelImages_defs,the definitions>> below.
+<2> Rows of uncompressed texture images must be tightly packed,
     equivalent to a `GL_UNPACK_ALIGNMENT` of 1.
 
 [[levelImages_defs]]In the `levelImages` loops above,
@@ -487,9 +486,9 @@ For cubemap textures, `pixelHeight` must be equal to `pixelWidth`.
 
 `pixelDepth` must be 0 for depth or stencil formats.
 
-=== arrayElementCount
-`arrayElementCount` specifies the number of array elements. If
-the texture is not an array texture, `arrayElementCount` must
+=== layerCount
+`layerCount` specifies the number of array elements. If
+the texture is not an array texture, `layerCount` must
 equal 0.
 
 Although current graphics APIs do not support 3D array textures, KTX
@@ -685,14 +684,14 @@ The value of a level's `uncompressedByteLength` must satisfy the
 following condition:
 [listing]
 ----
-uncompressedByteLength % (faceCount * max(1, arrayElementCount)) == 0
+uncompressedByteLength % (faceCount * max(1, layerCount)) == 0
 ----
 
 [TIP]
 ====
 In versions of OpenGL < 4.5 and in OpenGL ES, faces of non-array
 cubemap textures (any texture where `faceCount` is 6 and
-`arrayElementCount` is 0) must be uploaded individually. Loaders
+`layerCount` is 0) must be uploaded individually. Loaders
 wishing to minimize the size of their intermediate buffers may want
 to read the faces individually rather then as a block of size
 `level[n].uncompressedByteLength`.
@@ -908,7 +907,7 @@ other combination of parameters makes the KTX file invalid.
 
 [options="header"]
 |====
-|Type|<<dimensions,pixelWidth>>|<<dimensions,pixelHeight>>|<<dimensions,pixelDepth>>|<<_arrayelementcount,arrayElementCount>>|<<_facecount,faceCount>>
+|Type|<<dimensions,pixelWidth>>|<<dimensions,pixelHeight>>|<<dimensions,pixelDepth>>|<<_layercount,layerCount>>|<<_facecount,faceCount>>
 |1D           |> 0       |0          |0         |0                    |1
 |2D           |> 0       |> 0        |0         |0                    |1
 |3D           |> 0       |> 0        |> 0       |0                    |1
@@ -924,7 +923,7 @@ other combination of parameters makes the KTX file invalid.
 === KTXcubemapIncomplete
 A KTX file can be used to store an incomplete cubemap or an array of
 incomplete cubemaps. In such a case, `faceCount` must be `1` and
-`arrayElementCount` must be equal to the number of faces present
+`layerCount` must be equal to the number of faces present
 (in case of a single cubemap) or to the number of faces present times
 the number of cubemaps (in case of a cubemap array). The faces that are
 present must be indicated using the metadata key
