@@ -278,16 +278,16 @@ immediate detection of common file-transfer problems.
 values. It can be any value defined in core Vulkan 1.1 <<VULKAN11>>,
 future core versions or by a registered Vulkan extension. Values
 defined by core Vulkan 1.1 are given in
-{url-khr-vulkan}/specs/1.1/html/vkspec.html#features-formats-definition[section
-30.3.1 _Format Definition_] of <<VULKAN11>>.  The list of registered
-extensions is provided in the {url-khr-vulkan}vulkan/#repo-docs[Khronos
+{url-khr-vulkan}/specs/1.1/html/vkspec.html#formats-definition[section
+32.1 _Format Definition_] of <<VULKAN11>>.  The list of registered
+extensions is provided in the {url-khr-vulkan}/#repos[Khronos
 Vulkan Registry]. A complete list of values defined by both core
 Vulkan 1.1 and extensions can be found in
-{url-khr-vulkan}/specs/1.1-extensions/html/vkspec.html#features-formats-definition[section
-35.4.1 _Format Definition_] of <<VULKAN11EXT>>.
+{url-khr-vulkan}/specs/1.1-extensions/html/vkspec.html#formats-definition[section
+37.1 _Format Definition_] of <<VULKAN11EXT>>.
 
 NOTE: The section number given for <<VULKAN11EXT>> is as of this
-writing (Vulkan 1.1.96). It is subject to change as future extensions
+writing (Vulkan 1.1.117). It is subject to change as future extensions
 are added to the document but the link should remain valid as it is to
 an internal anchor.
 
@@ -625,7 +625,7 @@ the file can be handled uniformly.
 ====
 
 ==== kvdByteOffset
-An arbitrary number of <<_keyvalue_data,key/value pairs>> may
+An arbitrary number of <<_key_value_data,key/value pairs>> may
 follow the Index. These can be used to encode any arbitrary data.
 The `kvdByteOffset` field gives the offset of this data, i.e.
 that of first key/value pair, from the start of the file.  The value
@@ -677,7 +677,7 @@ This includes all z slices, all faces, all rows (or rows of blocks)
 and all pixels (or blocks) in each row for the mipmap level. It
 does not include any bytes in `<<_mippadding,mipPadding>>`.  When
 `supercompressionScheme == 0`,
-`<<_levelsp_bytelength,levels[p].byteLength>>` must have
+`<<_levels_p_bytelength,levels[p].byteLength>>` must have
 the same value as this.
 
 The value of a level's `uncompressedByteLength` must satisfy the
@@ -1321,10 +1321,10 @@ Andrew Garrard. The Khronos Group, T.B.D 2019.
 For now see {url-khr-reg}/DataFormat/specs/1.2/dataformat.1.2.html[Khronos
   Data Format Specification 1.2].
 
-- [[[OESCPT]]] {url-khr-reg}OpenGL/extensions/OES/OES_compressed_paletted_texture.txt[GL_OES_compressed_paletted_texture].
+- [[[OESCPT]]] {url-khr-reg}/OpenGL/extensions/OES/OES_compressed_paletted_texture.txt[GL_OES_compressed_paletted_texture].
 Aaftab Munshi. The Khronos Group, July 2003.
 
-- [[[OPENGL46]]] {url-khr-reg}OpenGL/specs/gl/glspec46.core.pdf[The
+- [[[OPENGL46]]] {url-khr-reg}/OpenGL/specs/gl/glspec46.core.pdf[The
   OpenGL^®^ Graphics System, A Specification (Version 4.6 (Core Profile))].
 Mark Segal, Kurt Akeley; Editor: Jon Leech. The Khronos Group, July 2017.
 
