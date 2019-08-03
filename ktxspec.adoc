@@ -72,7 +72,7 @@ _NOT_ be distributed.
 
 This document describes the KTX file format version 2.0, hereafter
 referred to as _KTX2_^™️^. KTX2 files are used for storing textures for
-use with 3D API's such as OpenGL, OpenGL ES and Vulkan.
+use with 3D APIs such as OpenGL, OpenGL ES and Vulkan.
 
 The canonical version of the specification is available in the
 Khronos Registry ({url-khr-reg}). The source files used to generate
@@ -84,7 +84,7 @@ pull requests that improve the specification.
 KTX2 files can contain almost any of the wide variety of image
 formats supported by GPUs. Other specifications wishing to refer
 to KTX2 as a container may wish to restrict the range of image
-formats or other items that can be used. Such referers must establish
+formats or other items that can be used. Such referrers must establish
 a way to identify that given KTX2 files are compliant with their
 subsets such as by adding a metadata item.
 
@@ -176,7 +176,7 @@ end
 <2> Required. See <<Level Index>>.
 <3> Required. See <<Data Format Descriptor>>.
 <4> Required. See <<Key/Value Data>>.
-<5> `align(n)` is pseudo function that inserts the mimimum number
+<5> `align(n)` is pseudo function that inserts the minimum number
     of 0-filled bytes of padding required to align the following
     item on an n-byte boundary.  where n is the function parameter.
 <6> Not required. See <<Supercompression Global Data>>.
@@ -262,14 +262,14 @@ immediate detection of common file-transfer problems.
   * Byte [0] is chosen as a non-ASCII value to reduce the probability that a
     text file may be misrecognized as a KTX file.
   * Byte [0] also catches bad file transfers that clear bit 7.
-  * Bytes [1..6] identify the format, and are the ascii values for the string
+  * Bytes [1..6] identify the format, and are the ASCII values for the string
     "KTX 20".
   * Byte [7] is for aesthetic balance with byte 1 (they are a matching pair
     of double-angle quotation marks).
   * Bytes [8..9] form a CR-LF sequence which catches bad file transfers that
     alter newline sequences.
   * Byte [10] is a control-Z character, which stops file display under MS-DOS,
-    and further reduces the chance that a text file will be falsely recognised.
+    and further reduces the chance that a text file will be falsely recognized.
   * Byte [11] is a final line feed, which checks for the inverse of the CR-LF
     translation problem.
 
@@ -416,7 +416,7 @@ components, combined depth/stencil pixel formats can be used with KTX.
 [NOTE]
 .Rationale
 ====
-Other GPU APIs support combined uploads and given KTX data alignment it's 
+Other GPU APIs support combined uploads and given KTX data alignment it's
 trivial to upload components separately in Vulkan.
 ====
 
@@ -437,7 +437,7 @@ texel.  The first word contains the floating-point D32 value. The
 second word contains the S8 value in the eight LSBs and zeros in
 the MSBs.
 
-`VK_FORMAT_S8_UINT`, `VK_FORMAT_D16_UNORM`, and `VK_FORMAT_D32_SFLOAT` 
+`VK_FORMAT_S8_UINT`, `VK_FORMAT_D16_UNORM`, and `VK_FORMAT_D32_SFLOAT`
 are defined as in <<VULKAN11EXT>>.
 
 === typeSize
@@ -480,7 +480,7 @@ For 1D textures, `pixelHeight` and `pixelDepth` must be 0.
 
 For 2D and cubemap textures, `pixelDepth` must be 0.
 
-For cubemap textures, `pixelHeight` must be equal to `pixelWidth`. 
+For cubemap textures, `pixelHeight` must be equal to `pixelWidth`.
 
 `pixelWidth` cannot be 0.
 
@@ -1023,7 +1023,7 @@ as other values may not be widely supported by other tools.
 === Format Mapping
 
 When <<formatMapping>> does not have an entry for the value of
-`vkFormat`, which will happen for newly addded Vulkan formats, the
+`vkFormat`, which will happen for newly added Vulkan formats, the
 KTX writer must provide any known mapping via the following key-value
 pairs.
 
@@ -1045,7 +1045,7 @@ UInt32 glFormat
 UInt32 glType
 ----
 
-For compressed formats, `glFormat` and `glType` must be set to zero; 
+For compressed formats, `glFormat` and `glType` must be set to zero;
 and `glInternalformat` must be used for providing mapping.
 
 ==== KTXdxgiFormat__
@@ -1328,7 +1328,7 @@ Aaftab Munshi. The Khronos Group, July 2003.
   OpenGL^®^ Graphics System, A Specification (Version 4.6 (Core Profile))].
 Mark Segal, Kurt Akeley; Editor: Jon Leech. The Khronos Group, July 2017.
 
-- [[[PVRTC]]] https://www.imgtec.com/downloads/download-info/pvrtc-texture-compression-user-guide-2/[PVRTC 
+- [[[PVRTC]]] https://www.imgtec.com/downloads/download-info/pvrtc-texture-compression-user-guide-2/[PVRTC
 Specification and User Guide]. Imagination Technologies Limited, 23 Nov 2018
 
 - [[[PVRTC1_OES]]] https://www.khronos.org/registry/OpenGL/extensions/IMG/IMG_texture_compression_pvrtc.txt[IMG_texture_compression_pvrtc].
@@ -1365,7 +1365,7 @@ Collet, M. Kucherawy, Ed. Internet Engineering Task Force (IETF), October 2018.
 
 [NOTE]
 ====
-The Vulkan 1.1 references are to living documents that are updated
+The Vulkan 1.1 references are living documents that are updated
 weekly with corrections, clarifications and, in the case of
 <<VULKAN11EXT>>, newly released extensions. References to the
 specifications do not imply that KTX header field values are limited
