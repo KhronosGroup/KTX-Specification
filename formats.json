@@ -1779,6 +1779,20 @@
     },
     {
         "type": "ASTC",
+        "vkFormat": "VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK_EXT",
+        "typeSize": 1,
+        "blockWidth": 4,
+        "blockHeight": 4,
+        "blockDepth": 1,
+        "glInternalFormat": "GL_COMPRESSED_RGBA_ASTC_4x4_KHR",
+        "glDesktopOnly": false,
+        "glFormat": null,
+        "glType": null,
+        "dxgiFormat": null,
+        "mtlFormat": null
+    },
+    {
+        "type": "ASTC",
         "vkFormat": "VK_FORMAT_ASTC_5x4_UNORM_BLOCK",
         "typeSize": 1,
         "blockWidth": 5,
@@ -1804,6 +1818,20 @@
         "glType": null,
         "dxgiFormat": null,
         "mtlFormat": "MTLPixelFormatASTC_5x4_sRGB"
+    },
+    {
+        "type": "ASTC",
+        "vkFormat": "VK_FORMAT_ASTC_5x4_SFLOAT_BLOCK_EXT",
+        "typeSize": 1,
+        "blockWidth": 5,
+        "blockHeight": 4,
+        "blockDepth": 1,
+        "glInternalFormat": "GL_COMPRESSED_RGBA_ASTC_5x4_KHR",
+        "glDesktopOnly": false,
+        "glFormat": null,
+        "glType": null,
+        "dxgiFormat": null,
+        "mtlFormat": null
     },
     {
         "type": "ASTC",
@@ -1835,6 +1863,20 @@
     },
     {
         "type": "ASTC",
+        "vkFormat": "VK_FORMAT_ASTC_5x5_SFLOAT_BLOCK_EXT",
+        "typeSize": 1,
+        "blockWidth": 5,
+        "blockHeight": 5,
+        "blockDepth": 1,
+        "glInternalFormat": "GL_COMPRESSED_RGBA_ASTC_5x5_KHR",
+        "glDesktopOnly": false,
+        "glFormat": null,
+        "glType": null,
+        "dxgiFormat": null,
+        "mtlFormat": null
+    },
+    {
+        "type": "ASTC",
         "vkFormat": "VK_FORMAT_ASTC_6x5_UNORM_BLOCK",
         "typeSize": 1,
         "blockWidth": 6,
@@ -1860,6 +1902,20 @@
         "glType": null,
         "dxgiFormat": null,
         "mtlFormat": "MTLPixelFormatASTC_6x5_sRGB"
+    },
+    {
+        "type": "ASTC",
+        "vkFormat": "VK_FORMAT_ASTC_6x5_SFLOAT_BLOCK_EXT",
+        "typeSize": 1,
+        "blockWidth": 6,
+        "blockHeight": 5,
+        "blockDepth": 1,
+        "glInternalFormat": "GL_COMPRESSED_RGBA_ASTC_6x5_KHR",
+        "glDesktopOnly": false,
+        "glFormat": null,
+        "glType": null,
+        "dxgiFormat": null,
+        "mtlFormat": null
     },
     {
         "type": "ASTC",
@@ -1891,6 +1947,20 @@
     },
     {
         "type": "ASTC",
+        "vkFormat": "VK_FORMAT_ASTC_6x6_SFLOAT_BLOCK_EXT",
+        "typeSize": 1,
+        "blockWidth": 6,
+        "blockHeight": 6,
+        "blockDepth": 1,
+        "glInternalFormat": "GL_COMPRESSED_RGBA_ASTC_6x6_KHR",
+        "glDesktopOnly": false,
+        "glFormat": null,
+        "glType": null,
+        "dxgiFormat": null,
+        "mtlFormat": null
+    },
+    {
+        "type": "ASTC",
         "vkFormat": "VK_FORMAT_ASTC_8x5_UNORM_BLOCK",
         "typeSize": 1,
         "blockWidth": 8,
@@ -1916,6 +1986,20 @@
         "glType": null,
         "dxgiFormat": null,
         "mtlFormat": "MTLPixelFormatASTC_8x5_sRGB"
+    },
+    {
+        "type": "ASTC",
+        "vkFormat": "VK_FORMAT_ASTC_8x5_SFLOAT_BLOCK_EXT",
+        "typeSize": 1,
+        "blockWidth": 8,
+        "blockHeight": 5,
+        "blockDepth": 1,
+        "glInternalFormat": "GL_COMPRESSED_RGBA_ASTC_8x5_KHR",
+        "glDesktopOnly": false,
+        "glFormat": null,
+        "glType": null,
+        "dxgiFormat": null,
+        "mtlFormat": null
     },
     {
         "type": "ASTC",
@@ -1947,6 +2031,20 @@
     },
     {
         "type": "ASTC",
+        "vkFormat": "VK_FORMAT_ASTC_8x6_SFLOAT_BLOCK_EXT",
+        "typeSize": 1,
+        "blockWidth": 8,
+        "blockHeight": 6,
+        "blockDepth": 1,
+        "glInternalFormat": "GL_COMPRESSED_RGBA_ASTC_8x6_KHR",
+        "glDesktopOnly": false,
+        "glFormat": null,
+        "glType": null,
+        "dxgiFormat": null,
+        "mtlFormat": null
+    },
+    {
+        "type": "ASTC",
         "vkFormat": "VK_FORMAT_ASTC_8x8_UNORM_BLOCK",
         "typeSize": 1,
         "blockWidth": 8,
@@ -1972,6 +2070,20 @@
         "glType": null,
         "dxgiFormat": null,
         "mtlFormat": "MTLPixelFormatASTC_8x8_sRGB"
+    },
+    {
+        "type": "ASTC",
+        "vkFormat": "VK_FORMAT_ASTC_8x8_SFLOAT_BLOCK_EXT",
+        "typeSize": 1,
+        "blockWidth": 8,
+        "blockHeight": 8,
+        "blockDepth": 1,
+        "glInternalFormat": "GL_COMPRESSED_RGBA_ASTC_8x8_KHR",
+        "glDesktopOnly": false,
+        "glFormat": null,
+        "glType": null,
+        "dxgiFormat": null,
+        "mtlFormat": null
     },
     {
         "type": "ASTC",
@@ -2003,6 +2115,20 @@
     },
     {
         "type": "ASTC",
+        "vkFormat": "VK_FORMAT_ASTC_10x5_SFLOAT_BLOCK_EXT",
+        "typeSize": 1,
+        "blockWidth": 10,
+        "blockHeight": 5,
+        "blockDepth": 1,
+        "glInternalFormat": "GL_COMPRESSED_RGBA_ASTC_10x5_KHR",
+        "glDesktopOnly": false,
+        "glFormat": null,
+        "glType": null,
+        "dxgiFormat": null,
+        "mtlFormat": null
+    },
+    {
+        "type": "ASTC",
         "vkFormat": "VK_FORMAT_ASTC_10x6_UNORM_BLOCK",
         "typeSize": 1,
         "blockWidth": 10,
@@ -2028,6 +2154,20 @@
         "glType": null,
         "dxgiFormat": null,
         "mtlFormat": "MTLPixelFormatASTC_10x6_sRGB"
+    },
+    {
+        "type": "ASTC",
+        "vkFormat": "VK_FORMAT_ASTC_10x6_SFLOAT_BLOCK_EXT",
+        "typeSize": 1,
+        "blockWidth": 10,
+        "blockHeight": 6,
+        "blockDepth": 1,
+        "glInternalFormat": "GL_COMPRESSED_RGBA_ASTC_10x6_KHR",
+        "glDesktopOnly": false,
+        "glFormat": null,
+        "glType": null,
+        "dxgiFormat": null,
+        "mtlFormat": null
     },
     {
         "type": "ASTC",
@@ -2059,6 +2199,20 @@
     },
     {
         "type": "ASTC",
+        "vkFormat": "VK_FORMAT_ASTC_10x8_SFLOAT_BLOCK_EXT",
+        "typeSize": 1,
+        "blockWidth": 10,
+        "blockHeight": 8,
+        "blockDepth": 1,
+        "glInternalFormat": "GL_COMPRESSED_RGBA_ASTC_10x8_KHR",
+        "glDesktopOnly": false,
+        "glFormat": null,
+        "glType": null,
+        "dxgiFormat": null,
+        "mtlFormat": null
+    },
+    {
+        "type": "ASTC",
         "vkFormat": "VK_FORMAT_ASTC_10x10_UNORM_BLOCK",
         "typeSize": 1,
         "blockWidth": 10,
@@ -2084,6 +2238,20 @@
         "glType": null,
         "dxgiFormat": null,
         "mtlFormat": "MTLPixelFormatASTC_10x10_sRGB"
+    },
+    {
+        "type": "ASTC",
+        "vkFormat": "VK_FORMAT_ASTC_10x10_SFLOAT_BLOCK_EXT",
+        "typeSize": 1,
+        "blockWidth": 10,
+        "blockHeight": 10,
+        "blockDepth": 1,
+        "glInternalFormat": "GL_COMPRESSED_RGBA_ASTC_10x10_KHR",
+        "glDesktopOnly": false,
+        "glFormat": null,
+        "glType": null,
+        "dxgiFormat": null,
+        "mtlFormat": null
     },
     {
         "type": "ASTC",
@@ -2115,6 +2283,20 @@
     },
     {
         "type": "ASTC",
+        "vkFormat": "VK_FORMAT_ASTC_12x10_SFLOAT_BLOCK_EXT",
+        "typeSize": 1,
+        "blockWidth": 12,
+        "blockHeight": 10,
+        "blockDepth": 1,
+        "glInternalFormat": "GL_COMPRESSED_RGBA_ASTC_12x10_KHR",
+        "glDesktopOnly": false,
+        "glFormat": null,
+        "glType": null,
+        "dxgiFormat": null,
+        "mtlFormat": null
+    },
+    {
+        "type": "ASTC",
         "vkFormat": "VK_FORMAT_ASTC_12x12_UNORM_BLOCK",
         "typeSize": 1,
         "blockWidth": 12,
@@ -2140,6 +2322,20 @@
         "glType": null,
         "dxgiFormat": null,
         "mtlFormat": "MTLPixelFormatASTC_12x12_sRGB"
+    },
+    {
+        "type": "ASTC",
+        "vkFormat": "VK_FORMAT_ASTC_12x12_SFLOAT_BLOCK_EXT",
+        "typeSize": 1,
+        "blockWidth": 12,
+        "blockHeight": 12,
+        "blockDepth": 1,
+        "glInternalFormat": "GL_COMPRESSED_RGBA_ASTC_12x12_KHR",
+        "glDesktopOnly": false,
+        "glFormat": null,
+        "glType": null,
+        "dxgiFormat": null,
+        "mtlFormat": null
     },
     {
         "type": "PVRTC",
