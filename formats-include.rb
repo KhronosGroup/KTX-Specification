@@ -63,7 +63,7 @@ end
 
 def write_gl_api_support(name, version, extensions, content)
   content << "#{name} Support::::\n"
-  
+
   if version
     content << "** Core #{version}+.\n"
   end
@@ -71,12 +71,12 @@ def write_gl_api_support(name, version, extensions, content)
   if extensions
     extensions.each do |exts|
       content << "** "
-      content << exts.map{|ext| name == 'WebGL' ? "#{WEBGL_EX_URL_BASE}#{ext}[`#{ext}`]" : "`#{ext}`"}.join(' + ')
+      content << exts.map { |ext| name == 'WebGL' ? "#{WEBGL_EX_URL_BASE}#{ext}[`#{ext}`]" : "`#{ext}`" }.join(' + ')
       content << ".\n"
     end
   end
-  
-  if !(version || extensions)
+
+  unless version || extensions
     content << "** None.\n"
   end
 end
