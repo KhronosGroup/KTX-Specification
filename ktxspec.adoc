@@ -1374,6 +1374,14 @@ Rich Geldreich, Jr.
 [appendix#formatMapping]
 == Mapping of `vkFormat` values
 
+CAUTION: This section is non-normative.
+
+CAUTION: Provided mappings for BGR(A) formats are based on non-ES OpenGL specifications. See the relevant OpenGL ES extensions for more options.
+
+CAUTION: Half-Float data type uses different enum values on different OpenGL ES and WebGL versions.
+
+CAUTION: Some vendor-specific extensions (e.g. `GL_NV_depth_buffer_float`) define custom enum values for symbols used in the ratified specifications.
+
 .Mapping of `vkFormat` values to OpenGL, Direct3D and Metal
 [%collapsible]
 =====

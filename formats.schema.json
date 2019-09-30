@@ -86,8 +86,56 @@
                 "type": ["string", "null"],
                 "pattern": "^GL_[A-Z0-9_x]+$"
             },
-            "glDesktopOnly": {
-                "type": ["boolean", "null"]
+            "glVersion": {
+                "type": ["string", "null"],
+                "pattern": "^[1-4]\\.[0-6]$"
+            },
+            "glExtensions": {
+                "type": ["array", "null"],
+                "minItems": 1,
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true,
+                    "minItems": 1
+                }
+            },
+            "glEsVersion": {
+                "type": ["string", "null"],
+                "pattern": "^[1-3]\\.[0-2]$"
+            },
+            "glEsExtensions": {
+                "type": ["array", "null"],
+                "minItems": 1,
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true,
+                    "minItems": 1
+                }
+            },
+            "glWebVersion": {
+                "type": ["string", "null"],
+                "pattern": "^[1-2]\\.0$"
+            },
+            "glWebExtensions": {
+                "type": ["array", "null"],
+                "minItems": 1,
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true,
+                    "minItems": 1
+                }
             },
             "dxgiFormat": {
                 "type": ["string", "null"],
@@ -108,7 +156,12 @@
             "glFormat",
             "glType",
             "glInternalFormat",
-            "glDesktopOnly",
+            "glVersion",
+            "glExtensions",
+            "glEsVersion",
+            "glEsExtensions",
+            "glWebVersion",
+            "glWebExtensions",
             "dxgiFormat",
             "mtlFormat"
         ],
