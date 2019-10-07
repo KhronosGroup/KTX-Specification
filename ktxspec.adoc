@@ -1136,15 +1136,26 @@ Only the most recent writer should be identified.  Editing tools
 must overwrite this value when rewriting a file originally written
 by a different tool.
 
-=== KTXastcDecodeRGB9E5
-KTX file containing ASTC HDR data that is compatible with `rgb9e5` decoding
-mode (as defined in <<VULKAN11EXT>>, `VK_EXT_astc_decode_mode`), may indicate
-that with the key
+=== KTXastcDecodeMode
+By default, ASTC decoders produce pixel values with half-float precision for HDR and
+linear LDR blocks. KTX file writers may indicate that the data is compatible with
+more compact decoding modes (as defined in <<VULKAN11EXT>>, `VK_EXT_astc_decode_mode`)
+by using the key
 
--   `KTXastcDecodeRGB9E5`
+-   `KTXastcDecodeMode`
 
-This metadata entry has no value.
+The value `rgb9e5` means that pixel values could be decoded with RGB9E5 mode.
 
+The value `unorm8` (valid only for LDR formats) means that pixel values could
+be decoded witn UNORM8 mode.
+
+Other values are not allowed.
+
+This metadata entry has no effect on and should not be present in KTX files that
+use sRGB transfer function.
+
+This metadata entry has no effect on and should not be present in KTX files that
+use non-ASTC formats.
 
 == An example KTX file:
 
