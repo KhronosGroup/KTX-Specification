@@ -1318,9 +1318,7 @@ Peter Deutsch. IETF Network Working Group, May 1996.
 
 - [[[KDF13]]] {url-khr-reg}/DataFormat/specs/1.3/dataformat.1.3.html[Khronos
   Data Format Specification 1.3].
-Andrew Garrard. The Khronos Group, T.B.D 2019.
-For now see {url-khr-reg}/DataFormat/specs/1.2/dataformat.1.2.html[Khronos
-  Data Format Specification 1.2].
+Andrew Garrard. The Khronos Group.
 
 - [[[OESCPT]]] {url-khr-reg}/OpenGL/extensions/OES/OES_compressed_paletted_texture.txt[GL_OES_compressed_paletted_texture].
 Aaftab Munshi. The Khronos Group, July 2003.
