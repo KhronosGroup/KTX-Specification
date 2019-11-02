@@ -1515,15 +1515,20 @@ _Resolved:_ No. We can rely on modern transmission mechanisms. However if
 the supercompression scheme includes a checksum readers should verify
 it.
 
-Should we use the DFD to indicate the number of channels in Basis Universal supercompressed data?::
-  _Discussion:_ Basis Universal compressed data may have 2, 3 or 4
-  channels. The number of channels affects the choice of transcode
-  target format. The information could be provided within the
-  supercompression global data or by the DFD. Currently presence of
-  an alpha channel is indicated by a flag in the global data. There is
-  nothing to indicate if there are only 2 channels.
+Should we use the DFD to indicate the number of components in Basis Universal supercompressed data?::
+  _Discussion:_ Basis Universal compressed data may have 1, 2, 3
+  or 4 components. The number of components affects the choice of
+  transcode target format. The information could be provided within
+  the supercompression global data or by the DFD. Currently presence
+  of alpha slices, but not necessarily an alpha component, is indicated
+  by a flag in the global data. The number of components is needed by
+  applications that may have no knowledge of the original images.
 +
-_Unresolved:_
+_Resolved:_ No. Put the number in the supercompression global data.
+The DFDs for block-compressed image formats all have a single
+"sample" (roughly equivalent to a component) so the information
+would have to be stripped from the DFD of the transcoded texture.
+Therefore there is no advantage to storing it there.
 
 == References
 [bibliography]
