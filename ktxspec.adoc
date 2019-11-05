@@ -533,14 +533,15 @@ of `0` indicates no supercompression.
 [[supercompressionSchemes]]
 .Supercompression Schemes
 |===
-| Scheme Id            | Scheme Name     | Level Data Format | Global Data Format
-| 0                    | None            |   n/a             | n/a
-| 1                    | Basis Universal |   T.B.C           | <<basisu_gd,BasisU Global Data>>
-| 2                    | ZLIB            |  <<ZLIB>>         | T.B.D
-| 3                    | Zstandard       |  <<ZSTD>>         | T.B.D
-| 4･･･0xffff           | Reserved^1^     |                   |
-| 0x10000･･･0x1ffff    | Reserved^2^     |                   |
-| 0x20000･･･0xffffffff | Reserved^3^     |                   |
+| Scheme Id            | Scheme Name     | Level Data Format  | Global Data Format
+| 0                    | None            |   n/a              | n/a
+| 1                    | Basis Universal |   T.B.C            | <<basisu_gd,BasisU Global Data>>
+| 2                    | ZLIB            |  <<RFC1950>>       | T.B.D
+| 3                    | Zstandard       |  <<RFC8478>>       | T.B.D
+| 4                    | LZMA            |  <<LZMA>>          | T.B.D
+| 5･･･0xffff           | Reserved^1^     |                    |
+| 0x10000･･･0x1ffff    | Reserved^2^     |                    |
+| 0x20000･･･0xffffffff | Reserved^3^     |                    |
 |===
 
 [small]
@@ -603,7 +604,7 @@ not be visible.
 
 ===== ZLIB
 
-* With Deflate <<DEFLATE>> compression scheme.
+* With Deflate <<RFC1951>> compression scheme.
 
 ===== Zstandard
 * Only _Zstandard_ frames are required. Inflators may skip _Skippable_
@@ -1538,18 +1539,14 @@ Therefore there is no advantage to storing it there.
   {url-khr-reg}/OpenGL/extensions/OES/OES_texture_compression_astc.txt[GL_OES_texture_compression_astc].
 Sean Ellis, et al. The Khronos Group, July 2016.
 
-////
-// "L." after the doc. title is to make the correct author name
-// L. Peter Deutsch. If I put it at the start of the line following
-// the title, Asciidoctor thinks I am trying to make a list.
-////
-- [[[DEFLATE]]] https://tools.ietf.org/html/rfc1951[DEFLATE Compressed
-  Data Format Specification version 1.3 (RFC1951)]. L.
-Peter Deutsch. IETF Network Working Group, May 1996.
-
 - [[[KDF13]]] {url-khr-reg}/DataFormat/specs/1.3/dataformat.1.3.html[Khronos
   Data Format Specification 1.3].
 Andrew Garrard. The Khronos Group.
+
+- [[[LZMA]]] https://www.7-zip.org/a/lzma-specification.7z[LZMA
+  Specification (DRAFT version)] and
+  https://www.7-zip.org/sdk.html[LZMA Software Development
+  Kit]. Igor Pavlov. June 2015.
 
 - [[[OESCPT]]] {url-khr-reg}/OpenGL/extensions/OES/OES_compressed_paletted_texture.txt[GL_OES_compressed_paletted_texture].
 Aaftab Munshi. The Khronos Group, July 2003.
@@ -1574,10 +1571,27 @@ Imagination Technologies Limited, 2011
  ECMA-262 5.1{nbsp}Edition, Section 15.10: RegExp (Regular Expression) Objects].
 Ecma International, June 2011.
 
-// "S" after doc title avoids the Asciidoctor list issue.
+////
+// "L." after the doc. title is to make the correct author name
+// L. Peter Deutsch. If I put it at the start of the line following
+// the title, Asciidoctor thinks I am trying to make a list.
+////
+- [[[RFC1950]]] https://tools.ietf.org/html/rfc1950[ZLib Compressed Data
+  Data Format Specification version 3.3]. L.
+Peter Deutsch, Jean-Loup Gailly. IETF Network Working Group, May 1996.
+
+// "L.", "S." and "Y." after doc titles avoid the Asciidoctor list issue.
+- [[[RFC1951]]] https://tools.ietf.org/html/rfc1951[DEFLATE Compressed
+  Data Format Specification version 1.3]. L.
+Peter Deutsch. IETF Network Working Group, May 1996.
+
 - [[[RFC2119]]] https://www.ietf.org/rfc/rfc2119.txt[Key words for use in RFCs to
 Indicate Requirement Levels]. S.
 Bradner. IETF Network Working Group, March 1997.
+
+- [[[RFC8478]]] https://tools.ietf.org/html/rfc8478[Zstandard Compression
+and the application/zstd Media Type.]. Y.
+Collet, M. Kucherawy, Ed. Internet Engineering Task Force (IETF), October 2018.
 
 - [[[VULKAN11]]] {url-khr-vulkan}/specs/1.1/html/vkspec.html[Vulkan^®^
 1.1 - A Specification].
@@ -1586,15 +1600,6 @@ The Khronos Group, December 2018.
 - [[[VULKAN11EXT]]] {url-khr-vulkan}/specs/1.1-extensions/html/vkspec.html[Vulkan^®^
 1.1 - A Specification (with all registered Vulkan extensions)].
 The Khronos Group, December 2018.
-
-// "L." & "Y." after doc titles avoid the Asciidoctor list issue.
-- [[[ZLIB]]] https://tools.ietf.org/html/rfc1950[ZLib Compressed Data
-  Data Format Specification version 3.3 (RFC1950)]. L.
-Peter Deutsch, Jean-Loup Gailly. IETF Network Working Group, May 1996.
-
-- [[[ZSTD]]] https://tools.ietf.org/html/rfc8478[Zstandard Compression
-and the application/zstd Media Type. (RFC8478)]. Y.
-Collet, M. Kucherawy, Ed. Internet Engineering Task Force (IETF), October 2018.
 
 [NOTE]
 ====
