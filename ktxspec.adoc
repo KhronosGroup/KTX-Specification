@@ -585,21 +585,58 @@ optimization.
 
 ==== Scheme Notes (Normative)
 ===== Basis Universal
-* `<<_vkformat,vkFormat>>` must be `VK_FORMAT_UNDEFINED` (0x00)
-  and the <<_data_format_descriptor,_Data Format Descriptor_>> must
-  not have any sample information. See Section 5.19 "Unsized Formats"
-  of <<KDF13>>. The values of colorModel, colorPrimaries,
-  transferFunction and flags from the DFD describing the pre-deflation
-  image data must be preserved in the post-deflation DFD.
+* `<<_vkformat,vkFormat>>` must be `VK_FORMAT_UNDEFINED` (0x00).
+  The <<_data_format_descriptor,_Data Format Descriptor_>> must
+  indicate which color and alpha components are present by using
+  color model `KHR_DF_MODEL_RGBSDA` with zero length and size samples
+  for the present components. See <<KDF13>> Section 5.19 "Unsized
+  Formats" for details of this usage. The values of colorModel,
+  colorPrimaries, transferFunction and flags from the DFD describing
+  the pre-deflation image data must be preserved in the post-deflation
+  DFD. 
+// <<example_rg>> gives an example DFD for images that had 2
+// components prior to deflation.
+
+////
+[[example_rg]]
+.Example RG descriptor
+[width=75%]
+|================================
+32+^| *~++uint32_t++ bit~*
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+32+^| *_totalSize:_* 60
+15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
+16+^| *_descriptorBlockSize:_* stem:[24 + (16 \times 2) = 56] 16+^| *_versionNumber:_* 2
+8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_*
+*++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_*
+*++RGBSDA++*
+8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 0
+8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Red sample information~
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0
+32+^| *_sampleUpper:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Green sample information~
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0
+32+^| *_sampleUpper:_* 0
+|================================
+////
 
 [NOTE]
 .Rationale
 ====
-The Basis Universal encoder combines encoding to ETC1S and deflation.
-Its transcoder combines inflation with transcoding to one of many
-possible block compressed formats. There is therefore no common
-pre- and post-supercompression format and, if there was, it would
-not be visible.
+The Basis Universal encoder combines encoding to ETC1S with deflation.
+The transcoder combines inflation to ETC1S with transcoding to one
+of many possible block compressed formats. There is therefore no
+common pre- and post-supercompression format and, if there was, it
+would not be visible.
 ====
 
 ===== ZLIB
@@ -741,25 +778,25 @@ DFD. The fields mentioned here occur in a dfDescriptorBlock.
 * The value of `<<_vkformat,vkFormat>>` and the image data must
   never contradict the DFD and, vice-versa, the DFD must not contradict
   `<<_vkformat,vkFormat>>`.
-* `color_model` must be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA`
+* `colorModel` must be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA`
   or one of the block compressed color models listed in <<KDF13>> Section
   5.6 or its successors, currently `KDF_DF_MODEL_BC1A` to
   `KDF_DF_MODEL_PVRTC2`.
-* `color_primaries` may be any of the available values since
+* `colorPrimaries` may be any of the available values since
   conversion of the selected primaries and white point a display's
   can be done with simply a 3x3 matrix multiply.
 
 [NOTE]
 ====
-`KHR_DF_PRIMARIES_BT709/SRGB` is recommended for low dynamic range,
+`KHR_DF_PRIMARIES_BT709/SRGB` is recommended for standard dynamic range,
 standard gamut images.
 ====
-* `transfer_function` must be `KHR_DF_TRANSFER_LINEAR` or
+* `transferFunction` must be `KHR_DF_TRANSFER_LINEAR` or
   `KHR_DF_TRANSFER_SRGB` since these are the only ones supported by the
   vast majority of graphics hardware and correct filtering and blending
   without hardware support is difficult to impossible.
 * If `<<_vkformat,vkFormat>>` is one of the `+*_SRGB{,_*}+` formats then
-  `transfer_function` must be `KHR_DF_TRANSFER_SRGB` and vice-versa.
+  `transferFunction` must be `KHR_DF_TRANSFER_SRGB` and vice-versa.
   For all other non-YUV formats `transfer_function` must be
   `KHR_DF_TRANSFER_LINEAR`.
 
@@ -872,7 +909,7 @@ supercompressing the result using a lossless compression scheme
 with similarites to LZMA.  It creates a global codebook referenced
 by each supercompressed image. The global data block contains this
 codebook in the form of supercompressed ETC1S endpoint and selector
-data and huffman tables.
+data and the huffman tables that are core to lossless supercompression.
 
 It also contains an array of _image descriptors_ with flags for each image
 and the offset and length within the image's mip level of the data for
@@ -880,15 +917,15 @@ that image. Images may consist of 1 or 2 _slices_ depending on the
 components of the pre-deflation image as detailed below.
 
 _One-component images_ must have the component value replicated in all 3
-components of the _rgb_ slice of the compressed data and have no alpha
+components of the _rgb_ slice of the compressed data and have no _alpha_
 slice.
 
 _Two-component images_ must have the R component replicated in all 3
 components of the rgb slice and the G component replicated in all 3
-components of the _alpha_slice.
+components of the alpha slice.
 
 _Three-component images_ must have their RGB components in the rgb
-slice. and no alpha slice.
+slice and no alpha slice.
 
 _Four-component images_ must have their RGB components in the rgb slice
 and the alpha component replicated in all 3 components of the alpha
@@ -899,8 +936,7 @@ The structure of the global data is shown below.
 .Basis Universal Global Data Structure
 [source,c,subs="+quotes,+attributes,+replacements"]
 ----
-UInt16 globalFlags;
-UInt16 origComponentCount;
+UInt32 globalFlags;
 UInt16 endpointCount;
 UInt16 selectorCount;
 UInt32 endpointsByteLength;
@@ -909,23 +945,6 @@ UInt32 tablesByteLength;
 UInt32 extendedByteLength;
 
 ImageDesc[imageCount] imageDescs;
-
-// Images in the array are in the order of layer, face and z_slice as if
-// by the pseudo code.
-//
-//    for each level in levelCount (1 if 0)
-//        for each layer in layerCount (1 if 0)
-//            for each face in faceCount (1 or 6)
-//                for each z_slice in the level's pixelDepth (1 if 0)
-
-// imageCount is the total number of images in the Mip Level Array and
-// may be calculated as follows:
-int imageCount = max(levelCount, 1) * max(layerCount, 1) * faceCount * totalPixelDepth;
-
-// totalPixelDepth can be derived as
-int totalPixelDepth = max(pixelDepth, 1);
-for(int i = 1; i < levelCount; i++)
-    totalPixelDepth += max(pixelDepth >> i, 1);
 
 Byte[endpointsByteLength] endpointsData
 Byte[selectorsByteLength] selectorsData
@@ -945,6 +964,32 @@ UInt32 alphaSliceByteOffset
 UInt32 alphaSliceByteLength
 ----
 
+Descriptions in the `imageDescs` array are in the order layer, face and z_slice as if
+arranged by the following pseudo code.
+[source,c]
+----
+for each level in max(levelCount, 1)
+    for each layer in max (layerCount, 1)
+        for each face in faceCount // 1 or 6
+            for each z_slice in max((pixelDepth of level), 1)
+----
+
+`imageCount` is the total number of images in the Mip Level Array.
+
+[TIP]
+====
+`imageCount` may be calculated as follows:
+[source,c]
+----
+int imageCount = max(levelCount, 1) * max(layerCount, 1) * faceCount * totalPixelDepth;
+
+// where totalPixelDepth can be derived as
+int totalPixelDepth = max(pixelDepth, 1);
+for(int i = 1; i < levelCount; i++)
+    totalPixelDepth += max(pixelDepth >> i, 1);
+----
+====
+
 ===== globalFlags
 Flags with information that is the same for all images. The following
 flags are valid:
@@ -961,9 +1006,6 @@ support.
 `hasAlphaSlices` indicates the Basis data contains alpha slices.
 
 NOTE: This does not necessarily mean the texture has an alpha component.
-
-===== origComponentCount
-The number of components in the original pre-deflation image.
 
 ===== endpointCount
 The number of endpoints in <<_endpointsdata,endpointsData>>.
@@ -997,9 +1039,10 @@ If `isIFrame` is set the image (frame) is an I frame. That is, it
 does not refer to the previous image. If unset, the image is a P
 frame. If the file is not a _video_ file it must be unset.
 
-_Video_ files have a <<layerCount>> > 0 and must have <<KTXanimation>>
-metadata. The value of <<layerCount>> is the number of frames in the
-video. I.e. layers become the temporal axis.
+_Video_ files have a <<_layercount,`layerCount`>> > 0 and must have
+KTXanimation metadata. See <<KTXanimation>>. The value of
+<<_layercount,`layerCount`>> is the number of frames in the video,
+i.e. layers become the temporal axis.
 
 ====== rgbSliceByteOffset, rgbSliceByteLength
 The offset of the start of the RGB slice within the
@@ -1525,11 +1568,11 @@ Should we use the DFD to indicate the number of components in Basis Universal su
   by a flag in the global data. The number of components is needed by
   applications that may have no knowledge of the original images.
 +
-_Resolved:_ No. Put the number in the supercompression global data.
-The DFDs for block-compressed image formats all have a single
-"sample" (roughly equivalent to a component) so the information
-would have to be stripped from the DFD of the transcoded texture.
-Therefore there is no advantage to storing it there.
+_Resolved:_ Yes. The supercompression global data gives information
+about the Basis Universal compressed data not about the images. The
+DFD contains this information prior to supercompression. It makes sense
+to preserve it. Implementations will then have a consistent place to
+query this information.
 
 == References
 [bibliography]
