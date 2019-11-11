@@ -111,9 +111,12 @@ NOTE: Notes are non-normative and give further background information
 such as rationales.
 
 TIP: Tips are non-normative and give helpful suggestions for
+implementers or users.
+
+IMPORTANT: Importants are normative and give directions for
 implementers.
 
-CAUTION: Cautions are normative, giving restrictions that must be
+CAUTION: Cautions are normative and give restrictions that must be
 followed.
 
 == File Structure
@@ -401,7 +404,7 @@ needing them can use KTX version 1.
 ====
 
 ==== Depth and Stencil Formats
-Despite that Vulkan requires separate uploads of depth and stencil
+Despite Vulkan requiring separate uploads of depth and stencil
 components, combined depth/stencil pixel formats can be used with KTX.
 [NOTE]
 .Rationale
@@ -521,25 +524,27 @@ consumers, particularly loaders, should generate other levels if
 needed.
 
 === supercompressionScheme
-`supercompressionScheme` indicates if an optional supercompression
-scheme has been applied to the data in `<<levelImages>>`.  It must
-be one of the values from <<supercompressionSchemes>>. A value of `0`
-indicates no supercompression.
+`supercompressionScheme` indicates if a supercompression scheme has
+been applied to the data in `<<_levelimages, levelImages>>`.  It
+must be one of the values from <<supercompressionSchemes>>. A value
+of `0` indicates no supercompression.
 
 [width=100%,align=center,cols="^22,<18,<30,<30",options=header]
 [[supercompressionSchemes]]
 .Supercompression Schemes
 |===
-| Scheme Id            | Scheme Name | Level Data Format | Global Data Format
-| 0                    | None        |   n/a             | n/a
-| 1                    | Crunch CRN  |   T.B.C           | T.B.C
-| 2                    | ZLIB        |  <<ZLIB>>         | n/a
-| 3                    | Zstandard   |  <<ZSTD>>         | n/a
-| 4･･･0xffff           | Reserved^1^ |                   |
-| 0x10000･･･0x1ffff    | Reserved^2^ |                   |
-| 0x20000･･･0xffffffff | Reserved^3^ |                   |
+| Scheme Id            | Scheme Name     | Level Data Format  | Global Data Format
+| 0                    | None            |   n/a              | n/a
+| 1                    | Basis Universal |  <<BASISU>>        | <<basisu_gd,BasisU Global Data>>
+| 2                    | ZLIB            |  <<RFC1950>>       | T.B.D
+| 3                    | Zstandard       |  <<RFC8478>>       | T.B.D
+| 4                    | LZMA            |  <<LZMA>>          | T.B.D
+| 5･･･0xffff           | Reserved^1^     |                    |
+| 0x10000･･･0x1ffff    | Reserved^2^     |                    |
+| 0x20000･･･0xffffffff | Reserved^3^     |                    |
 |===
 
+[small]
 1. Reserved for KTX use.
 2. Reserved for vendor compression schemes. A registry will be
    established from which vendors can request assignment of values
@@ -553,35 +558,90 @@ in the reference given in the _Level Data Format_ column of
 <<supercompressionSchemes>>.
 
 Schemes that require data global to all levels can store it as
-described in `<<supercompressionGlobalData>>`. Currently only Crunch
-CRN uses global data. The format of the global data for a scheme
+described in `<<supercompressionGlobalData>>`. Currently only Basis
+Universal uses global data. The format of the global data for a scheme
 is specified in the reference given in the _Global Data Format_
 column of <<supercompressionSchemes>>.
 
 When a supercompression scheme is used, the image data must be
 inflated from the scheme prior to GPU sampling.
 
+IMPORTANT: Implementations are only required to support _None_ and
+_Basis Universal_. Support of other schemes is optional.
+
 [TIP]
 ====
 LZW-style lossless supercompression, e.g, schemes 2 and 3, is
-generally ineffective on the block-compressed data of GPU
-texture formats. It is best reserved for use with uncompressed
-texture formats or with block-compressed data that has been specially
-optimized for LZW-style supercompression, such as by Crunch's _Rate
-Distortion Optimization_ mode <<RDO>>.
+generally ineffective on the block-compressed data of GPU texture
+formats. It is best reserved for use with uncompressed texture
+formats or with block-compressed data that has been specially
+optimized for LZW-style supercompression, such as by _Rate Distortion
+Optimization_ mode <<RDO>>.
 
-Crunch CRN is specially designed for supercompression of some
-block-compressed texture formats.
+Basis Universal is specially designed for supercompression of some
+block-compressed texture formats and includes rate distortion
+optimization.
 ====
 
 ==== Scheme Notes (Normative)
-===== Crunch CRN
-* A file that specifies Crunch CRN with base formats other than ETC,
-  ETC2 and BC[1-3] (S3TC_DXT[1-5]) must be considered invalid.
+===== Basis Universal
+* `<<_vkformat,vkFormat>>` must be `VK_FORMAT_UNDEFINED` (0x00).
+  The <<_data_format_descriptor,_Data Format Descriptor_>> must
+  indicate which color and alpha components are present by using
+  color model `KHR_DF_MODEL_RGBSDA` with zero length and size samples
+  for the present components. See <<KDF13>> Section 5.19 "Unsized
+  Formats" for details of this usage. The values of colorModel,
+  colorPrimaries, transferFunction and flags from the DFD describing
+  the pre-deflation image data must be preserved in the post-deflation
+  DFD. 
+// <<example_rg>> gives an example DFD for images that had 2
+// components prior to deflation.
+
+////
+[[example_rg]]
+.Example RG descriptor
+[width=75%]
+|================================
+32+^| *~++uint32_t++ bit~*
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+32+^| *_totalSize:_* 60
+15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
+16+^| *_descriptorBlockSize:_* stem:[24 + (16 \times 2) = 56] 16+^| *_versionNumber:_* 2
+8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_*
+*++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_*
+*++RGBSDA++*
+8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 0
+8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Red sample information~
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0
+32+^| *_sampleUpper:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Green sample information~
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0
+32+^| *_sampleUpper:_* 0
+|================================
+////
+
+[NOTE]
+.Rationale
+====
+The Basis Universal encoder combines encoding to ETC1S with deflation.
+The transcoder combines inflation to ETC1S with transcoding to one
+of many possible block compressed formats. There is therefore no
+common pre- and post-supercompression format and, if there was, it
+would not be visible.
+====
 
 ===== ZLIB
 
-* With Deflate <<DEFLATE>> compression scheme.
+* With Deflate <<RFC1951>> compression scheme.
 
 ===== Zstandard
 * Only _Zstandard_ frames are required. Inflators may skip _Skippable_
@@ -718,25 +778,25 @@ DFD. The fields mentioned here occur in a dfDescriptorBlock.
 * The value of `<<_vkformat,vkFormat>>` and the image data must
   never contradict the DFD and, vice-versa, the DFD must not contradict
   `<<_vkformat,vkFormat>>`.
-* `color_model` must be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA`
+* `colorModel` must be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA`
   or one of the block compressed color models listed in <<KDF13>> Section
   5.6 or its successors, currently `KDF_DF_MODEL_BC1A` to
   `KDF_DF_MODEL_PVRTC2`.
-* `color_primaries` may be any of the available values since
+* `colorPrimaries` may be any of the available values since
   conversion of the selected primaries and white point a display's
   can be done with simply a 3x3 matrix multiply.
 
 [NOTE]
 ====
-`KHR_DF_PRIMARIES_BT709/SRGB` is recommended for low dynamic range,
+`KHR_DF_PRIMARIES_BT709/SRGB` is recommended for standard dynamic range,
 standard gamut images.
 ====
-* `transfer_function` must be `KHR_DF_TRANSFER_LINEAR` or
+* `transferFunction` must be `KHR_DF_TRANSFER_LINEAR` or
   `KHR_DF_TRANSFER_SRGB` since these are the only ones supported by the
   vast majority of graphics hardware and correct filtering and blending
   without hardware support is difficult to impossible.
 * If `<<_vkformat,vkFormat>>` is one of the `+*_SRGB{,_*}+` formats then
-  `transfer_function` must be `KHR_DF_TRANSFER_SRGB` and vice-versa.
+  `transferFunction` must be `KHR_DF_TRANSFER_SRGB` and vice-versa.
   For all other non-YUV formats `transfer_function` must be
   `KHR_DF_TRANSFER_LINEAR`.
 
@@ -837,7 +897,193 @@ individual `keyAndValueByteLength` fields.
 ==== supercompressionGlobalData
 An array of data used by certain supercompression schemes that must
 be available before any mip level can be expanded. Must start on an
-the next 8-byte boundary following the key/value data.
+the next 8-byte boundary following the key/value data. For some schemes,
+the specification for this data block is given below.
+
+[#basisu_gd]
+==== Basis Universal Global Data
+
+Basis Universal combines encoding to a subset of a block-compressed
+texture format, that can be easily transcoded to various GPU-native
+block-compressed formats, with lossless supercompression.
+Supercompression is accomplished by processing the block-compressed
+representation in preparation for entropy encoding then Huffman
+encoding the result.  Basis Universal creates a global codebook
+referenced by each supercompressed image that contains processed
+ETC1S endpoint and selector data and the Huffman tables. The global
+data block contains this codebook.
+
+It also contains an array of _image descriptors_ with flags for each image
+and the offset and length within the image's mip level of the data for
+that image.
+
+Basis Universal currently uses ETC1S (a subset of ETC1, see <<KDF13>>)
+as its base. Plans are for at least one additional base format to
+support higher quality, likely a subset of ASTC (see <<KDF13>>).
+
+The bitstreams for endpoints, selectors, Huffman tables and the image
+data are defined in <<BASISU>>. These bitstreams have to be decoded to
+reconstruct the base images.
+
+Because ETC1 does not support an alpha component, when ETC1S is the
+base, i.e. when `isETC1S` is set in <<_globalflags,globalFlags>>,
+images may consist of 1 or 2 _slices_ depending on the pre-deflation
+components as detailed below.
+
+_One-component images_ must have the component value replicated in all 3
+components of the _rgb_ slice of the compressed data and have no _alpha_
+slice.
+
+_Two-component images_ must have the R component replicated in all 3
+components of the rgb slice and the G component replicated in all 3
+components of the alpha slice.
+
+_Three-component images_ must have their RGB components in the rgb
+slice and no alpha slice.
+
+_Four-component images_ must have their RGB components in the rgb slice
+and the alpha component replicated in all 3 components of the alpha
+slice.
+
+TIP: KTX writers may map components of their original input images into
+the RGB and A components of the supercompressed image in any way choose.
+They may also offer an option to apply KTXswizzle metadata prior to
+supercompressing an uncompressed KTX2 file.
+
+The structure of the global data is shown below.
+
+.Basis Universal Global Data Structure
+[source,c,subs="+quotes,+attributes,+replacements"]
+----
+UInt32 globalFlags;
+UInt16 endpointCount;
+UInt16 selectorCount;
+UInt32 endpointsByteLength;
+UInt32 selectorsByteLength;
+UInt32 tablesByteLength;
+UInt32 extendedByteLength;
+
+ImageDesc[imageCount] imageDescs;
+
+Byte[endpointsByteLength] endpointsData
+Byte[selectorsByteLength] selectorsData
+Byte[tablesByteLength] tablesData
+Bytes[extendedByteLength] extendedData
+----
+
+`ImageDesc` is the following structure.
+
+.ImageDesc
+[source,c]
+----
+UInt32 imageFlags
+UInt32 rgbSliceByteOffset
+UInt32 rgbSliceByteLength
+UInt32 alphaSliceByteOffset
+UInt32 alphaSliceByteLength
+----
+
+Descriptions in the `imageDescs` array are in the order layer, face and z_slice as if
+arranged by the following pseudo code.
+[source,c]
+----
+for each level in max(levelCount, 1)
+    for each layer in max (layerCount, 1)
+        for each face in faceCount // 1 or 6
+            for each z_slice in max((pixelDepth of level), 1)
+----
+
+`imageCount` is the total number of images in the Mip Level Array.
+
+[TIP]
+====
+`imageCount` may be calculated as follows:
+[source,c]
+----
+int imageCount = max(levelCount, 1) * max(layerCount, 1) * faceCount * totalPixelDepth;
+
+// where totalPixelDepth can be derived as
+int totalPixelDepth = max(pixelDepth, 1);
+for(int i = 1; i < levelCount; i++)
+    totalPixelDepth += max(pixelDepth >> i, 1);
+----
+====
+
+===== globalFlags
+Flags with information that is the same for all images. The following
+flags are valid:
+[source,c]
+----
+isETC1S = 0x01
+hasAlphaSlices = 0x02
+----
+
+For current Basis Universal, `isETC1S` must be set. The flag is provided
+together with `extendedData` to enable future enhancements such as HDR
+support.
+
+`hasAlphaSlices` indicates the Basis data contains alpha slices.
+
+NOTE: This does not necessarily mean the texture has an alpha component.
+
+===== endpointCount
+The number of endpoints in <<_endpointsdata,endpointsData>>.
+
+===== selectorCount
+The number of selectorss in <<_selectorsdata,selectorsData>>.
+
+===== endpointsByteLength
+The length of <<_endpointsdata,endpointsData>>.
+
+===== selectorsByteLength
+The length of <<_selectorsdata,selectorsData>>.
+
+===== tablesByteLength
+The length of <<_tablesdata,tablesData>>.
+
+===== extendedByteLength
+The length of <<_extendeddata,extendedData>>. Must be 0 if `isETC1S` is set in flags.
+
+===== ImageDesc
+====== imageFlags
+Flags giving information about an individual image. The following flag
+is valid:
+[source,c]
+----
+isIFrame = 0x02
+----
+
+Basis Universal supports inter-frame (video) encoding for 2D slices.
+If `isIFrame` is set the image (frame) is an I frame. That is, it
+does not refer to the previous image. If unset, the image is a P
+frame. If the file is not an _animation sequence_ it must be unset. See
+<<Animation Sequence>> for details.
+
+====== rgbSliceByteOffset, rgbSliceByteLength
+The offset of the start of the RGB slice within the
+<<_levelimages,levelImages>> of its mip level and its byte length.
+ahe offset of <<_levelimages,levelImages>> within the file is given
+in the <<_level_index,Level Index>>.
+
+====== alphaSliceByteOffset, alphaSliceByteLength
+The offset of the start of the alpha slice within the
+<<_levelimages,levelImages>> of its mip level and its byte length.
+
+If `hasAlpha` is unset these values must be 0.
+
+===== endpointsData
+Compressed endpoints data. The format of this data is described in
+T.B.D.
+
+===== selectorsData
+Compressed selectors data. The format of this data is described in
+T.B.D.
+
+===== tablesData
+Huffman tables data. The format of this data is described in T.B.D.
+
+===== extendedData
+Extended data. The format of this data is described in T.B.D.
 
 === Mip Level Array
 
@@ -857,7 +1103,8 @@ without waiting for the entire texture data.
 
 ==== levelImages
 `levelImages` is an array of Bytes holding all the image data for a
-level.
+level. The offset of a level's `levelImages` is provided by the
+ <<_level_index,Level Index>>.
 
 When `<<_supercompressionscheme,supercompressionScheme>> != 0` these
 bytes are formatted as specified in the scheme documentation.
@@ -907,6 +1154,19 @@ other combination of parameters makes the KTX file invalid.
 |3D Array     |> 0       |> 0        |> 0       |> 0                  |1
 |Cubemap Array|> 0       |> 0        |0         |> 0                  |6
 |====
+
+=== Animation Sequence
+The images of a 2D array texture can be indicated to be the frames
+of a short animation sequence by including <<_ktxanimation,KTXanimation>>
+metadata. Valid _animation_ files must have the combination of
+parameters outlined in <<Texture Type>> for 2D Array textures in
+addition to KTXanimation metadata. <<_layercount,`layerCount`>> is
+the number of frames in the video, i.e. layers become the temporal
+axis.
+
+TIP: Use of uncompressed images for an animation sequence will not be
+memory efficient. Animation sequences should be limited to
+block-compressed or, preferably, Basis Universal compressed textures.
 
 == Predefined Key/Value Pairs
 
@@ -987,6 +1247,7 @@ The value is a NUL-terminated string formatted depending on the texture type.
 
 where
 
+[no-bullet]
 - `r` indicates S values increasing to the right
 - `l` indicates S values increasing to the left
 - `d` indicates T values increasing downwards
@@ -1078,6 +1339,7 @@ Desired component mapping for a texture can be indicated with the key
 
 The value is a four-byte NUL-terminated string formatted as (<<REGEXP>>):
 
+[no-bullet]
 -   `/^[rgba01]{4}$/`
 
 where each symbol represents source component (or fixed value) that
@@ -1130,6 +1392,7 @@ the key
 The value can be any UTF-8 string that will uniquely identify the tool
 writing the file, for example:
 
+[no-bullet]
 -   `AcmeCo TexTool v1.0`
 
 Only the most recent writer should be identified.  Editing tools
@@ -1156,6 +1419,31 @@ use sRGB transfer function.
 
 This metadata entry has no effect on and should not be present in KTX files that
 use non-ASTC formats.
+
+=== KTXanimation
+The images of a 2D array texture can be indicated to be the frames of a
+short animation by using the key
+
+-   `KTXanimation`
+
+The value is 12 bytes representing 3 Uint32 values:
+[source,c]
+----
+UInt32 duration
+UInt32 timescale
+UInt32 isLooped
+----
+
+`duration` is the number of _time units_ per frame. `timescale` is the
+number of _time units_ per 1 second. Thus the duration of a frame in
+seconds is stem:[duration / timescale].
+
+`loopCount` indicates how many times to loop the animation. Values are:
+
+[no-bullet]
+* 0 - loops infinitely
+* 1 - plays once
+* n - plays n times
 
 == An example KTX file:
 
@@ -1250,7 +1538,7 @@ _Resolved:_ Use alphanumeric characters from the set [01rgba].
 Is anything needed to support sparse textures?::
   _Discussion:_ Sparse textures are provided by the
   `GL_ARB_sparse_textures` extension and are a standard feature of
-  Vulkan.  Are any additional KTX features needed to support them?
+  Vulkan. Are any additional KTX features needed to support them?
 +
 _Unresolved:_
 
@@ -1299,28 +1587,40 @@ _Resolved:_ No. We can rely on modern transmission mechanisms. However if
 the supercompression scheme includes a checksum readers should verify
 it.
 
+Should we use the DFD to indicate the number of components in Basis Universal supercompressed data?::
+  _Discussion:_ Basis Universal compressed data may have 1, 2, 3
+  or 4 components. The number of components affects the choice of
+  transcode target format. The information could be provided within
+  the supercompression global data or by the DFD. Currently presence
+  of alpha slices, but not necessarily an alpha component, is indicated
+  by a flag in the global data. The number of components is needed by
+  applications that may have no knowledge of the original images.
++
+_Resolved:_ Yes. The supercompression global data gives information
+about the Basis Universal compressed data not about the images. The
+DFD contains this information prior to supercompression. It makes sense
+to preserve it. Implementations will then have a consistent place to
+query this information.
+
 == References
 [bibliography]
 === Normative References
+
+- [[[BASISU]]]
+  https://somewhere/soon/we/hope
 
 - [[[OES_ASTC]]]
   {url-khr-reg}/OpenGL/extensions/OES/OES_texture_compression_astc.txt[GL_OES_texture_compression_astc].
 Sean Ellis, et al. The Khronos Group, July 2016.
 
-////
-// "L." after the doc. title is to make the correct author name
-// L. Peter Deutsch. If I put it at the start of the line following
-// the title, Asciidoctor thinks I am trying to make a list.
-////
-- [[[DEFLATE]]] https://tools.ietf.org/html/rfc1951[DEFLATE Compressed
-  Data Format Specification version 1.3 (RFC1951)]. L.
-Peter Deutsch. IETF Network Working Group, May 1996.
-
 - [[[KDF13]]] {url-khr-reg}/DataFormat/specs/1.3/dataformat.1.3.html[Khronos
   Data Format Specification 1.3].
-Andrew Garrard. The Khronos Group, T.B.D 2019.
-For now see {url-khr-reg}/DataFormat/specs/1.2/dataformat.1.2.html[Khronos
-  Data Format Specification 1.2].
+Andrew Garrard. The Khronos Group.
+
+- [[[LZMA]]] https://www.7-zip.org/a/lzma-specification.7z[LZMA
+  Specification (DRAFT version)] and
+  https://www.7-zip.org/sdk.html[LZMA Software Development
+  Kit]. Igor Pavlov. June 2015.
 
 - [[[OESCPT]]] {url-khr-reg}/OpenGL/extensions/OES/OES_compressed_paletted_texture.txt[GL_OES_compressed_paletted_texture].
 Aaftab Munshi. The Khronos Group, July 2003.
@@ -1329,8 +1629,11 @@ Aaftab Munshi. The Khronos Group, July 2003.
   OpenGL^®^ Graphics System, A Specification (Version 4.6 (Core Profile))].
 Mark Segal, Kurt Akeley; Editor: Jon Leech. The Khronos Group, July 2017.
 
-- [[[PVRTC]]] https://www.imgtec.com/downloads/download-info/pvrtc-texture-compression-user-guide-2/[PVRTC
-Specification and User Guide]. Imagination Technologies Limited, 23 Nov 2018
+- [[[PVRTC]]]
+  {url-khr-reg}/DataFormat/specs/1.3/dataformat.1.3.html#PVRTC["PVRTC
+  Compressed Texture Image Formats" chapter, Khronos Data Format
+  Specification 1.3].
+Andrew Garrard and Imagination Technologies Limited.
 
 - [[[PVRTC1_OES]]] https://www.khronos.org/registry/OpenGL/extensions/IMG/IMG_texture_compression_pvrtc.txt[IMG_texture_compression_pvrtc].
 Imagination Technologies Limited, 2005
@@ -1342,10 +1645,27 @@ Imagination Technologies Limited, 2011
  ECMA-262 5.1{nbsp}Edition, Section 15.10: RegExp (Regular Expression) Objects].
 Ecma International, June 2011.
 
-// "S" after doc title avoids the Asciidoctor list issue.
+////
+// "L." after the doc. title is to make the correct author name
+// L. Peter Deutsch. If I put it at the start of the line following
+// the title, Asciidoctor thinks I am trying to make a list.
+////
+- [[[RFC1950]]] https://tools.ietf.org/html/rfc1950[ZLib Compressed Data
+  Data Format Specification version 3.3]. L.
+Peter Deutsch, Jean-Loup Gailly. IETF Network Working Group, May 1996.
+
+// "L.", "S." and "Y." after doc titles avoid the Asciidoctor list issue.
+- [[[RFC1951]]] https://tools.ietf.org/html/rfc1951[DEFLATE Compressed
+  Data Format Specification version 1.3]. L.
+Peter Deutsch. IETF Network Working Group, May 1996.
+
 - [[[RFC2119]]] https://www.ietf.org/rfc/rfc2119.txt[Key words for use in RFCs to
 Indicate Requirement Levels]. S.
 Bradner. IETF Network Working Group, March 1997.
+
+- [[[RFC8478]]] https://tools.ietf.org/html/rfc8478[Zstandard Compression
+and the application/zstd Media Type.]. Y.
+Collet, M. Kucherawy, Ed. Internet Engineering Task Force (IETF), October 2018.
 
 - [[[VULKAN11]]] {url-khr-vulkan}/specs/1.1/html/vkspec.html[Vulkan^®^
 1.1 - A Specification].
@@ -1354,15 +1674,6 @@ The Khronos Group, December 2018.
 - [[[VULKAN11EXT]]] {url-khr-vulkan}/specs/1.1-extensions/html/vkspec.html[Vulkan^®^
 1.1 - A Specification (with all registered Vulkan extensions)].
 The Khronos Group, December 2018.
-
-// "L." & "Y." after doc titles avoid the Asciidoctor list issue.
-- [[[ZLIB]]] https://tools.ietf.org/html/rfc1950[ZLib Compressed Data
-  Data Format Specification version 3.3 (RFC1950)]. L.
-Peter Deutsch, Jean-Loup Gailly. IETF Network Working Group, May 1996.
-
-- [[[ZSTD]]] https://tools.ietf.org/html/rfc8478[Zstandard Compression
-and the application/zstd Media Type. (RFC8478)]. Y.
-Collet, M. Kucherawy, Ed. Internet Engineering Task Force (IETF), October 2018.
 
 [NOTE]
 ====
