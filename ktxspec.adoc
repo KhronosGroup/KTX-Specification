@@ -868,8 +868,8 @@ that reads KTX files must not assume that value fields are NUL
 terminated). `keyAndValueByteLength` does not include the bytes in
 `<<_valuepadding,valuePadding>>`.
 
-`keyAndValueByteLength` must be at least 3, that is a 1 byte key plus
-its NUL terminator and the value's NUL terminator.
+`keyAndValueByteLength` must be at least 2, that is a 1 byte key plus
+its NUL terminator.
 
 ==== keyAndValue
 `keyAndValue` contains 2 separate sections. First it contains a key
