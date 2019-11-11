@@ -509,17 +509,17 @@ levelCount - 1] and stem:[base = 0].  stem:[level_p] must not be
 greater than the maximum possible, stem:[level_{max}], where
 
 [stem]
-// max = log2(max(pixelWidth, pixelHeight, pixelDepth))
+// max = floor(log2(max(pixelWidth, pixelHeight, pixelDepth)))
 +++++
-max = \log _2\left(\max\left(pixelWidth, pixelHeight, pixelDepth\right)\right)
+max = \lfloor\log _2\left(\max\left(pixelWidth, pixelHeight, pixelDepth\right)\right)\rfloor
 +++++
 
 stem:[levelCount = 1] means that a file contains only the
-first level and the texture isn't meant to have other levels. E.g.,
+base level and the texture isn't meant to have other levels. E.g.,
 this could be a LUT rather than a natural image.
 
 stem:[levelCount = 0] is allowed, except for block-compressed
-formats, and means that a file contains only the first level and
+formats, and means that a file contains only the base level and
 consumers, particularly loaders, should generate other levels if
 needed.
 
