@@ -844,8 +844,9 @@ Key/Value data consists of a set of key/value pairs. The number of
 pairs is such that
 [stem]
 +++++
-\sum_{i=0}^{n-1} \left\lceil{\frac{keyAndValueByteLength[i]}{4}}\right\rceil * 4
-+ keyAndValueByteLength[n] = kvdByteLength.
+\sum_{i=0}^{n-2}
+\left\lceil{\frac{keyAndValueByteLength[i]}{4}}\right\rceil \times 4
++ keyAndValueByteLength[n-1] + n \times 4 = kvdByteLength.
 +++++
 
 Any file that does not meet the above condition is invalid.
