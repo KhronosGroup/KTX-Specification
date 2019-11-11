@@ -535,7 +535,7 @@ of `0` indicates no supercompression.
 |===
 | Scheme Id            | Scheme Name     | Level Data Format  | Global Data Format
 | 0                    | None            |   n/a              | n/a
-| 1                    | Basis Universal |   T.B.C            | <<basisu_gd,BasisU Global Data>>
+| 1                    | Basis Universal |  <<BASISU>>        | <<basisu_gd,BasisU Global Data>>
 | 2                    | ZLIB            |  <<RFC1950>>       | T.B.D
 | 3                    | Zstandard       |  <<RFC8478>>       | T.B.D
 | 4                    | LZMA            |  <<LZMA>>          | T.B.D
@@ -903,18 +903,32 @@ the specification for this data block is given below.
 [#basisu_gd]
 ==== Basis Universal Global Data
 
-Basis Universal combines encoding to ETC1S (a block-compressed
-texture format that is a subset of ETC1, see <<KDF13>>) then
-supercompressing the result using a lossless compression scheme
-with similarites to LZMA.  It creates a global codebook referenced
-by each supercompressed image. The global data block contains this
-codebook in the form of supercompressed ETC1S endpoint and selector
-data and the huffman tables that are core to lossless supercompression.
+Basis Universal combines encoding to a subset of a block-compressed
+texture format, that can be easily transcoded to various GPU-native
+block-compressed formats, with lossless supercompression.
+Supercompression is accomplished by processing the block-compressed
+representation in preparation for entropy encoding then Huffman
+encoding the result.  Basis Universal creates a global codebook
+referenced by each supercompressed image that contains processed
+ETC1S endpoint and selector data and the Huffman tables. The global
+data block contains this codebook.
 
 It also contains an array of _image descriptors_ with flags for each image
 and the offset and length within the image's mip level of the data for
-that image. Images may consist of 1 or 2 _slices_ depending on the
-components of the pre-deflation image as detailed below.
+that image.
+
+Basis Universal currently uses ETC1S (a subset of ETC1, see <<KDF13>>)
+as its base. Plans are for at least one additional base format to
+support higher quality, likely a subset of ASTC (see <<KDF13>>).
+
+The bitstreams for endpoints, selectors, Huffman tables and the image
+data are defined in <<BASISU>>. These bitstreams have to be decoded to
+reconstruct the base images.
+
+Because ETC1 does not support an alpha component, when ETC1S is the
+base, i.e. when `isETC1S` is set in <<_globalflags,globalFlags>>,
+images may consist of 1 or 2 _slices_ depending on the pre-deflation
+components as detailed below.
 
 _One-component images_ must have the component value replicated in all 3
 components of the _rgb_ slice of the compressed data and have no _alpha_
@@ -930,6 +944,11 @@ slice and no alpha slice.
 _Four-component images_ must have their RGB components in the rgb slice
 and the alpha component replicated in all 3 components of the alpha
 slice.
+
+TIP: KTX writers may map components of their original input images into
+the RGB and A components of the supercompressed image in any way choose.
+They may also offer an option to apply KTXswizzle metadata prior to
+supercompressing an uncompressed KTX2 file.
 
 The structure of the global data is shown below.
 
@@ -1586,6 +1605,9 @@ query this information.
 == References
 [bibliography]
 === Normative References
+
+- [[[BASISU]]]
+  https://somewhere/soon/we/hope
 
 - [[[OES_ASTC]]]
   {url-khr-reg}/OpenGL/extensions/OES/OES_texture_compression_astc.txt[GL_OES_texture_compression_astc].
