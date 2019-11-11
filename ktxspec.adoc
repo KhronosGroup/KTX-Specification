@@ -856,6 +856,8 @@ or which is not modified by the user.
 Key/value data must be written to the file sorted by the Unicode
 code points of the keys starting from a key's first character.
 
+Keys must not appear more than once.
+
 ==== keyAndValueByteLength
 The number of bytes of combined key and value data in one key/value
 pair. This includes the size of the key, the required NUL byte
@@ -865,6 +867,9 @@ value is a UTF-8 string it should be NUL terminated and
 that reads KTX files must not assume that value fields are NUL
 terminated). `keyAndValueByteLength` does not include the bytes in
 `<<_valuepadding,valuePadding>>`.
+
+`keyAndValueByteLength` must be at least 3, that is a 1 byte key plus
+its NUL terminator and the value's NUL terminator.
 
 ==== keyAndValue
 `keyAndValue` contains 2 separate sections. First it contains a key
