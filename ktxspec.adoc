@@ -1037,12 +1037,8 @@ isIFrame = 0x02
 Basis Universal supports inter-frame (video) encoding for 2D slices.
 If `isIFrame` is set the image (frame) is an I frame. That is, it
 does not refer to the previous image. If unset, the image is a P
-frame. If the file is not a _video_ file it must be unset.
-
-_Video_ files have a <<_layercount,`layerCount`>> > 0 and must have
-KTXanimation metadata. See <<KTXanimation>>. The value of
-<<_layercount,`layerCount`>> is the number of frames in the video,
-i.e. layers become the temporal axis.
+frame. If the file is not an _animation sequence_ it must be unset. See
+<<Animation Sequence>> for details.
 
 ====== rgbSliceByteOffset, rgbSliceByteLength
 The offset of the start of the RGB slice within the
@@ -1139,6 +1135,19 @@ other combination of parameters makes the KTX file invalid.
 |3D Array     |> 0       |> 0        |> 0       |> 0                  |1
 |Cubemap Array|> 0       |> 0        |0         |> 0                  |6
 |====
+
+=== Animation Sequence
+The images of a 2D array texture can be indicated to be the frames
+of a short animation sequence by including <<_ktxanimation,KTXanimation>>
+metadata. Valid _animation_ files must have the combination of
+parameters outlined in <<Texture Type>> for 2D Array textures in
+addition to KTXanimation metadata. <<_layercount,`layerCount`>> is
+the number of frames in the video, i.e. layers become the temporal
+axis.
+
+TIP: Use of uncompressed images for an animation sequence will not be
+memory efficient. Animation sequences should be limited to
+block-compressed or, preferably, Basis Universal compressed textures.
 
 == Predefined Key/Value Pairs
 
@@ -1393,8 +1402,8 @@ This metadata entry has no effect on and should not be present in KTX files that
 use non-ASTC formats.
 
 === KTXanimation
-The images of a texture array, i.e. when <<_layercount,`layerCount`>>
-> 1, can be treated as the frames of a short animation by using the key
+The images of a 2D array texture can be indicated to be the frames of a
+short animation by using the key
 
 -   `KTXanimation`
 
@@ -1410,7 +1419,7 @@ UInt32 isLooped
 number of _time units_ per 1 second. Thus the duration of a frame in
 seconds is stem:[duration / timescale].
 
-`isLooped` indicates how many times to loop the animation. Values are:
+`loopCount` indicates how many times to loop the animation. Values are:
 
 [no-bullet]
 * 0 - loops infinitely
