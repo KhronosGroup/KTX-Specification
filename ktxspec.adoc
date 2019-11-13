@@ -578,56 +578,19 @@ formats or with block-compressed data that has been specially
 optimized for LZW-style supercompression, such as by _Rate Distortion
 Optimization_ mode <<RDO>>.
 
-Basis Universal is specially designed for supercompression of some
-block-compressed texture formats and includes rate distortion
-optimization.
+Basis Universal internally uses some block-compressed texture formats
+and includes rate distortion optimization. Normally encoding to the
+internal format is combined with supercompression. So consider it as
+being applicable only to uncompressed images.
 ====
 
 ==== Scheme Notes (Normative)
 ===== Basis Universal
 * `<<_vkformat,vkFormat>>` must be `VK_FORMAT_UNDEFINED` (0x00).
   The <<_data_format_descriptor,_Data Format Descriptor_>> must
-  indicate which color and alpha components are present by using
-  color model `KHR_DF_MODEL_RGBSDA` with zero length and size samples
-  for the present components. See <<KDF13>> Section 5.19 "Unsized
-  Formats" for details of this usage. The values of colorModel,
-  colorPrimaries, transferFunction and flags from the DFD describing
-  the pre-deflation image data must be preserved in the post-deflation
-  DFD. 
-// <<example_rg>> gives an example DFD for images that had 2
-// components prior to deflation.
-
-////
-[[example_rg]]
-.Example RG descriptor
-[width=75%]
-|================================
-32+^| *~++uint32_t++ bit~*
-^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
-32+^| *_totalSize:_* 60
-15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
-16+^| *_descriptorBlockSize:_* stem:[24 + (16 \times 2) = 56] 16+^| *_versionNumber:_* 2
-8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_*
-*++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_*
-*++RGBSDA++*
-8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 0 8+^| 0
-8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 0
-8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Red sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
-8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0 8+^| 0
-32+^| *_sampleLower:_* 0
-32+^| *_sampleUpper:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Green sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
-8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
-8+^| 0 8+^| 0 8+^| 0 8+^| 0
-32+^| *_sampleLower:_* 0
-32+^| *_sampleUpper:_* 0
-|================================
-////
+  retain the pre-deflation color space information and indicate
+  which color and alpha components are present.
+  See <<DFD for Basis Universal>>.
 
 [NOTE]
 .Rationale
@@ -635,13 +598,17 @@ optimization.
 The Basis Universal encoder combines encoding to ETC1S with deflation.
 The transcoder combines inflation to ETC1S with transcoding to one
 of many possible block compressed formats. There is therefore no
-common pre- and post-supercompression format and, if there was, it
-would not be visible.
+common pre- and post-supercompression format.
 ====
 
 ===== ZLIB
 
 * With Deflate <<RFC1951>> compression scheme.
+
+* `<<_vkformat,vkFormat>>` must retain the pre-deflation value.
+  The <<_data_format_descriptor,_Data Format Descriptor_>> must
+  retain pre-deflation color space information.
+  See <<DFD for ZLIB and Zstandard>>.
 
 ===== Zstandard
 * Only _Zstandard_ frames are required. Inflators may skip _Skippable_
@@ -649,6 +616,11 @@ would not be visible.
 
 * Checksums are optional. If a checksum is present, inflators should
   verify it.
+
+* `<<_vkformat,vkFormat>>` must retain the pre-deflation value.
+  The <<_data_format_descriptor,_Data Format Descriptor_>> must
+  retain pre-deflation color space information.
+  See <<DFD for ZLIB and Zstandard>>.
 
 === Index
 An index giving the byte offsets from the start of the file and byte
@@ -768,29 +740,31 @@ A _dfDescriptor_ is useful in the following cases:
   information,
 * easier use of the images by non-OpenGL and non-Vulkan applications.
   There will be no need for large tables to interpret format enums.
-* easier calculation of the offsets of each level, face and layer within
-  the data. Again there will be no need for large tables.
 ====
 
-The following restrictions must be obeyed when setting the fields of the
-DFD. The fields mentioned here occur in a dfDescriptorBlock.
+==== Restrictions
+The following restrictions must be obeyed when setting the fields of a
+_dfDescriptorBlock_.
 
 * The value of `<<_vkformat,vkFormat>>` and the image data must
   never contradict the DFD and, vice-versa, the DFD must not contradict
-  `<<_vkformat,vkFormat>>`.
+  `<<_vkformat,vkFormat>>`. Supercompression schemes > 1 are an
+  exception to this rule. In those cases the DFD will not be that for
+  the `<<_vkformat,vkFormat>>` value.
 * `colorModel` must be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA`
   or one of the block compressed color models listed in <<KDF13>> Section
   5.6 or its successors, currently `KDF_DF_MODEL_BC1A` to
   `KDF_DF_MODEL_PVRTC2`.
 * `colorPrimaries` may be any of the available values since
-  conversion of the selected primaries and white point a display's
-  can be done with simply a 3x3 matrix multiply.
+  conversion of the selected primaries and white point to a display's
+  can be done simply with a 3x3 matrix multiply.
 
 [NOTE]
 ====
 `KHR_DF_PRIMARIES_BT709/SRGB` is recommended for standard dynamic range,
 standard gamut images.
 ====
+
 * `transferFunction` must be `KHR_DF_TRANSFER_LINEAR` or
   `KHR_DF_TRANSFER_SRGB` since these are the only ones supported by the
   vast majority of graphics hardware and correct filtering and blending
@@ -808,9 +782,83 @@ Whether KTX2 will support YUV images is not yet decided.
 necessary.
 ====
 
-The _dfDescriptor_ describes the texel blocks as they are when
-`<<_supercompressionscheme,supercompressionScheme>> == 0` or after reflation when
-`<<_supercompressionscheme,supercompressionScheme>> != 0`.
+==== Providing additional information
+There is one case where the _dfDescriptorBlock_ can be used to provide additional
+information beyond that given by <<_vkformat,vkFormat>>.
+
+Premultiplied Alpha::
+  `KHR_DF_FLAG_ALPHA_PREMULTIPLIED` (= 1) can be set in the `flags`
+  field if the images' RGB components have been multiplied by their
+  alpha components.
+
+==== Special Cases
+
+===== DFD for Basis Universal
+When `<<_supercompressionscheme,supercompressionScheme>> is 1` the
+_dfDescriptorBlock_ must retain the `transferFunction`, `colorPrimaries`,
+and `flags` of the pre-deflation image data. It must also indicate
+which components are present in the deflated data by using color
+model `KHR_DF_MODEL_RGBSDA`, 0 length `bytesPlane[0-7]` and zero length
+and size samples for the present components. See <<KDF13>> Section
+5.19 "Unsized Formats" for details of this usage.
+<<example_rg>> gives an example DFD for images that had 2 components prior to
+deflation.
+
+[[example_rg]]
+.Example RG descriptor
+[.dfdexample, width=75%]
+|================================
+32+^| *~++uint32_t++ bit~*
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+32+^| *_totalSize:_* 60
+15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
+16+^| *_descriptorBlockSize:_* stem:[24 + (16 \times 2) = 56] 16+^| *_versionNumber:_* 2
+8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_*
+*++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_*
+*++RGBSDA++*
+8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 0
+8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Red sample information~
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0
+32+^| *_sampleUpper:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Green sample information~
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* 0
+32+^| *_sampleUpper:_* 0
+|================================
+
+===== DFD for ZLIB and Zstandard
+When `<<_supercompressionscheme,supercompressionScheme>> is 2, 3
+or 4` the _dfDescriptorBlock_ must retain the `transferFunction`,
+`colorPrimaries`, and `flags` of the pre-deflation image data. It must
+not contain any sample information. The retained pre-deflation `vkFormat`
+value provides sufficient information. Therefore the color model must be
+`KHR_DF_MODEL_UNSPECIFIED`.
+<<example_nosamp>> gives an example DFD.
+
+[[example_nosamp]]
+.Example no sample descriptor
+[.dfdexample, width=75%]
+|================================
+32+^| *~++uint32_t++ bit~*
+^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
+32+^| *_totalSize:_* 28
+15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
+16+^| *_descriptorBlockSize:_* 24 16+^| *_versionNumber:_* 2
+8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_*
+*++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++UNSPECIFIED++*
+8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 0
+8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
+|================================
 
 ==== dfdTotalSize
 Called `total_size` in <<KDF13>>, `dfdTotalSize` indicates the total
