@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL^®^ and Vulkan^®^ textures.
-:docrev: draft12
+:docrev: draft13
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -1844,7 +1844,13 @@ This appendix is informative only.
                                     match glTF conventions. Make many
                                     language improvements and fix errors
                                     and typos.
-|     {docrev}      |  {revdate}  | Change 22 in identifier to 20.
+|      draft12      |  2019-06-05 | Change 22 in identifier to 20.
+|     {docrev}      |  {revdate}  | Rename arrayElementCount. Add ASTC
+                                    HDR & 3D enums. Add GL API support
+                                    info. Update supercompression info
+                                    including documenting BasisU global
+                                    data and specifying necessary DFDs.
+                                    Fix various bugs.
 |===
 
 [discrete]
