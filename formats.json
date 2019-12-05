@@ -3379,7 +3379,7 @@
         "glWebVersion": null,
         "glWebExtensions": [["WEBGL_compressed_texture_astc"]],
         "dxgiFormat": null,
-        "mtlFormat": null
+        "mtlFormat": "MTLPixelFormatASTC_4x4_HDR"
     },
     {
         "type": "ASTC",
@@ -3481,7 +3481,7 @@
         "glWebVersion": null,
         "glWebExtensions": [["WEBGL_compressed_texture_astc"]],
         "dxgiFormat": null,
-        "mtlFormat": null
+        "mtlFormat": "MTLPixelFormatASTC_5x4_HDR"
     },
     {
         "type": "ASTC",
@@ -3583,7 +3583,7 @@
         "glWebVersion": null,
         "glWebExtensions": [["WEBGL_compressed_texture_astc"]],
         "dxgiFormat": null,
-        "mtlFormat": null
+        "mtlFormat": "MTLPixelFormatASTC_5x5_HDR"
     },
     {
         "type": "ASTC",
@@ -3685,7 +3685,7 @@
         "glWebVersion": null,
         "glWebExtensions": [["WEBGL_compressed_texture_astc"]],
         "dxgiFormat": null,
-        "mtlFormat": null
+        "mtlFormat": "MTLPixelFormatASTC_6x5_HDR"
     },
     {
         "type": "ASTC",
@@ -3787,7 +3787,7 @@
         "glWebVersion": null,
         "glWebExtensions": [["WEBGL_compressed_texture_astc"]],
         "dxgiFormat": null,
-        "mtlFormat": null
+        "mtlFormat": "MTLPixelFormatASTC_6x6_HDR"
     },
     {
         "type": "ASTC",
@@ -3889,7 +3889,7 @@
         "glWebVersion": null,
         "glWebExtensions": [["WEBGL_compressed_texture_astc"]],
         "dxgiFormat": null,
-        "mtlFormat": null
+        "mtlFormat": "MTLPixelFormatASTC_8x5_HDR"
     },
     {
         "type": "ASTC",
@@ -3991,7 +3991,7 @@
         "glWebVersion": null,
         "glWebExtensions": [["WEBGL_compressed_texture_astc"]],
         "dxgiFormat": null,
-        "mtlFormat": null
+        "mtlFormat": "MTLPixelFormatASTC_8x6_HDR"
     },
     {
         "type": "ASTC",
@@ -4093,7 +4093,7 @@
         "glWebVersion": null,
         "glWebExtensions": [["WEBGL_compressed_texture_astc"]],
         "dxgiFormat": null,
-        "mtlFormat": null
+        "mtlFormat": "MTLPixelFormatASTC_8x8_HDR"
     },
     {
         "type": "ASTC",
@@ -4195,7 +4195,7 @@
         "glWebVersion": null,
         "glWebExtensions": [["WEBGL_compressed_texture_astc"]],
         "dxgiFormat": null,
-        "mtlFormat": null
+        "mtlFormat": "MTLPixelFormatASTC_10x5_HDR"
     },
     {
         "type": "ASTC",
@@ -4297,7 +4297,7 @@
         "glWebVersion": null,
         "glWebExtensions": [["WEBGL_compressed_texture_astc"]],
         "dxgiFormat": null,
-        "mtlFormat": null
+        "mtlFormat": "MTLPixelFormatASTC_10x6_HDR"
     },
     {
         "type": "ASTC",
@@ -4399,7 +4399,7 @@
         "glWebVersion": null,
         "glWebExtensions": [["WEBGL_compressed_texture_astc"]],
         "dxgiFormat": null,
-        "mtlFormat": null
+        "mtlFormat": "MTLPixelFormatASTC_10x8_HDR"
     },
     {
         "type": "ASTC",
@@ -4501,7 +4501,7 @@
         "glWebVersion": null,
         "glWebExtensions": [["WEBGL_compressed_texture_astc"]],
         "dxgiFormat": null,
-        "mtlFormat": null
+        "mtlFormat": "MTLPixelFormatASTC_10x10_HDR"
     },
     {
         "type": "ASTC",
@@ -4603,7 +4603,7 @@
         "glWebVersion": null,
         "glWebExtensions": [["WEBGL_compressed_texture_astc"]],
         "dxgiFormat": null,
-        "mtlFormat": null
+        "mtlFormat": "MTLPixelFormatASTC_12x10_HDR"
     },
     {
         "type": "ASTC",
@@ -4705,7 +4705,7 @@
         "glWebVersion": null,
         "glWebExtensions": [["WEBGL_compressed_texture_astc"]],
         "dxgiFormat": null,
-        "mtlFormat": null
+        "mtlFormat": "MTLPixelFormatASTC_12x12_HDR"
     },
     {
         "type": "ASTC",
