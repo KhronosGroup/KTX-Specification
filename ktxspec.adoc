@@ -968,13 +968,19 @@ character that terminates the key is the Value data.
 
 The Value data may consist of any arbitrary data bytes. Any byte
 value is allowed. It is encouraged that the value be a NUL terminated
-UTF-8 string without a BOM, but this is not required. If the Value
-data is binary, it is a sequence of bytes rather than of words. It
-is up to the vendor defining the key to specify how those bytes are
-to be interpreted. If any bytes encode multi-byte numbers they must
-be in little-endian order. If the Value data is a string then the
-NUL termination, if present, must be included in `keyAndValueByteLength`
-(but programs that read KTX files must not rely on NUL termination).
+UTF-8 string without a BOM, but this is not required.
+
+If the Value data is binary, it is a sequence of bytes rather than
+of words. It is up to the vendor defining the key to specify how
+those bytes are to be interpreted. If any bytes encode multi-byte
+numbers they must be in little-endian order and, if such a number
+appears at the start of the Value data, the key length including
+its terminating NUL must be a multiple of the number of bytes in
+the number so that the number will be properly aligned.
+
+If the Value data is a string then the NUL termination, if present,
+must be included in `keyAndValueByteLength` (but programs that read
+KTX files must not rely on NUL termination).
 
 ==== valuePadding
 Contains between 0 and 3 bytes of value `0x00` to ensure that the
@@ -1249,10 +1255,10 @@ other combination of parameters makes the KTX file invalid.
 
 === Animation Sequence
 The images of a 2D array texture can be indicated to be the frames
-of a short animation sequence by including <<_ktxanimation,KTXanimation>>
+of a short animation sequence by including <<_ktxanimdata,KTXanimData>>
 metadata. Valid _animation_ files must have the combination of
 parameters outlined in <<Texture Type>> for 2D Array textures in
-addition to KTXanimation metadata. <<_layercount,`layerCount`>> is
+addition to KTXanimData metadata. <<_layercount,`layerCount`>> is
 the number of frames in the video, i.e. layers become the temporal
 axis.
 
@@ -1369,9 +1375,6 @@ When <<formatMapping>> does not have an entry for the value of
 `vkFormat`, which will happen for newly added Vulkan formats, the
 KTX writer must provide any known mapping via the following key-value
 pairs.
-
-Note that the length of these keys, including the terminating `NUL`,
-is a multiple of 4 bytes so the values will be 4-byte aligned.
 
 ==== KTXglFormat
 
@@ -1514,11 +1517,11 @@ use sRGB transfer function.
 This metadata entry has no effect on and should not be present in KTX files that
 use non-ASTC formats.
 
-=== KTXanimation
+=== KTXanimData
 The images of a 2D array texture can be indicated to be the frames of a
 short animation by using the key
 
--   `KTXanimation`
+-   `KTXanimData`
 
 The value is 12 bytes representing 3 Uint32 values:
 [source,c]
