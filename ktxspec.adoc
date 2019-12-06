@@ -372,7 +372,7 @@ device.
 The A8B8G8R8*PACK32 formats are prohibited because the end result
 is the same regardless of whether the data is treated as packed
 into 32-bits or as the equivalent R8G8B8A8 format, i.e. as an array
-of 4 bytes, and a Data Format Descriptor cannot distinguish between
+of 4 bytes, so a Data Format Descriptor cannot distinguish between
 these cases.
 
 The \*SCALED* formats are prohibited because they are intended for
@@ -437,7 +437,7 @@ are defined as in <<VULKAN11EXT>>.
 `typeSize` specifies the size of the data type in bytes used to
 upload the data to a graphics API. When `typeSize` is greater than
 1, software on big-endian systems must endian convert all image
-data since it is little-endian. When format is `VK_UNKNOWN`,
+data since it is little-endian. When format is `VK_FORMAT_UNDEFINED`,
 `typeSize` must equal 1. For formats whose Vulkan names have the
 suffix `_BLOCK` it must equal 1. For formats with the suffix `_PACKxx`
 it must equal the value of stem:[xx / 8]. For unpacked formats,
@@ -553,9 +553,9 @@ of `0` indicates no supercompression.
 
 The supercompression scheme is applied independently to each mip
 level to permit streaming and random access to the levels. The
-format of the data in `<<levelImages>>` for a scheme is specified
-in the reference given in the _Level Data Format_ column of
-<<supercompressionSchemes>>.
+format of the data in `<<_levelimages,levelImages>>` for a scheme
+is specified in the reference given in the _Level Data Format_
+column of <<supercompressionSchemes>>.
 
 Schemes that require data global to all levels can store it as
 described in `<<supercompressionGlobalData>>`. Currently only Basis
@@ -575,13 +575,12 @@ LZW-style lossless supercompression, e.g, schemes 2 and 3, is
 generally ineffective on the block-compressed data of GPU texture
 formats. It is best reserved for use with uncompressed texture
 formats or with block-compressed data that has been specially
-optimized for LZW-style supercompression, such as by _Rate Distortion
-Optimization_ mode <<RDO>>.
+optimized such as by _Rate Distortion Optimization_ mode <<RDO>>.
 
 Basis Universal internally uses some block-compressed texture formats
 and includes rate distortion optimization. Normally encoding to the
-internal format is combined with supercompression. So consider it as
-being applicable only to uncompressed images.
+internal format is combined with supercompression. Therefore it is
+applicable only to uncompressed images.
 ====
 
 ==== Scheme Notes (Normative)
@@ -592,13 +591,18 @@ being applicable only to uncompressed images.
   which color and alpha components are present.
   See <<DFD for Basis Universal>>.
 
+* `<<_levelsp_uncompressedbytelength,levels[p].uncompressedByteLength>>`
+  must be 0.
+
 [NOTE]
 .Rationale
 ====
-The Basis Universal encoder combines encoding to ETC1S with deflation.
-The transcoder combines inflation to ETC1S with transcoding to one
-of many possible block compressed formats. There is therefore no
-common pre- and post-supercompression format.
+The Basis Universal encoder combines encoding to a block-compressed
+format, chosen for ease of transcoding, with deflation. The transcoder
+combines inflation back to the internal block-compressed format
+with transcoding to one of many possible other block compressed
+formats. There is therefore no common pre- and post-supercompression
+format.
 ====
 
 ===== ZLIB
@@ -666,8 +670,10 @@ value must be 0 when `sgdByteLength` = 0.
 
 ==== sgdByteLength
 The number of bytes of
-`<<_supercompressionglobaldata,supercompressionGlobalData>>`.  It
-schemes the value is 0.
+`<<_supercompressionglobaldata,supercompressionGlobalData>>`. For
+supercompression schemes for which no reference is provided in the
+_Global Data Format_ column of <<supercompressionSchemes>>.  the
+value must be 0.
 
 ==== Level Index
 An array, `levels`, giving the offset from the start of the file and
@@ -700,7 +706,8 @@ and all pixels (or blocks) in each row for the mipmap level. It
 does not include any bytes in `<<_mippadding,mipPadding>>`.  When
 `supercompressionScheme == 0`,
 `<<_levelsp_bytelength,levels[p].byteLength>>` must have
-the same value as this.
+the same value as this.   When `supercompressionScheme == 1`, Basis
+Universal, the value must be 0.
 
 The value of a level's `uncompressedByteLength` must satisfy the
 following condition:
@@ -750,7 +757,9 @@ _dfDescriptorBlock_.
   never contradict the DFD and, vice-versa, the DFD must not contradict
   `<<_vkformat,vkFormat>>`. Supercompression schemes > 1 are an
   exception to this rule. In those cases the DFD will not be that for
-  the `<<_vkformat,vkFormat>>` value.
+  the `<<_vkformat,vkFormat>>` value. To avoid any doubt,
+  `VK_FORMAT_UNDEFINED` cannot contradict a DFD.
+  DFD.
 * `colorModel` must be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA`
   or one of the block compressed color models listed in <<KDF13>> Section
   5.6 or its successors, currently `KDF_DF_MODEL_BC1A` to
@@ -795,14 +804,16 @@ Premultiplied Alpha::
 
 ===== DFD for Basis Universal
 When `<<_supercompressionscheme,supercompressionScheme>> is 1` the
-_dfDescriptorBlock_ must retain the `transferFunction`, `colorPrimaries`,
-and `flags` of the pre-deflation image data. It must also indicate
-which components are present in the deflated data by using color
-model `KHR_DF_MODEL_RGBSDA`, 0 length `bytesPlane[0-7]` and zero length
-and size samples for the present components. See <<KDF13>> Section
-5.19 "Unsized Formats" for details of this usage.
-<<example_rg>> gives an example DFD for images that had 2 components prior to
-deflation.
+_dfDescriptorBlock_ must retain the `colorModel`, `transferFunction`,
+`colorPrimaries`, and `flags` of the pre-Basis Universal-encoding
+image data. It must also indicate which components are present in
+the deflated data.  Thus the DFD will be that of the pre-Basis
+Universal-encoding data with `bytesPlane[0-7]` set to 0 and all
+samples having zero length and offsets to indicate an _unsized
+format_ as described in Section 5.19 "Unsized Formats" of <<KDF13>>.
+`sampleLower` and `sampleUpper` should also be 0. <<example_rg>>
+gives an example DFD for images that had 2 unsigned components prior
+to Basis Universal encoding.
 
 [[example_rg]]
 .Example RG descriptor
@@ -912,7 +923,7 @@ The number of bytes of combined key and value data in one key/value
 pair. This includes the size of the key, the required NUL byte
 terminating the key, and all the bytes of data in the value. If the
 value is a UTF-8 string it should be NUL terminated and
-`keyAndValueByteLength` should include the NUL character (but code
+`keyAndValueByteLength` must include the NUL character (but code
 that reads KTX files must not assume that value fields are NUL
 terminated). `keyAndValueByteLength` does not include the bytes in
 `<<_valuepadding,valuePadding>>`.
@@ -931,13 +942,13 @@ character that terminates the key is the Value data.
 
 The Value data may consist of any arbitrary data bytes. Any byte
 value is allowed. It is encouraged that the value be a NUL terminated
-UTF-8 string without a BOM, but this is not required. If the Value data
-is binary, it is a sequence of bytes rather than of words. It is up to
-the vendor defining the key to specify how those bytes are to be
-interpreted (including the endianness of any encoded numbers). If
-the Value data is a string of bytes then the NUL termination should
-be included in the `keyAndValueByteLength` byte count (but programs
-that read KTX files must not rely on this).
+UTF-8 string without a BOM, but this is not required. If the Value
+data is binary, it is a sequence of bytes rather than of words. It
+is up to the vendor defining the key to specify how those bytes are
+to be interpreted. If any bytes encode multi-byte numbers they must
+be in little-endian order. If the Value data is a string then the
+NUL termination, if present, must be included in `keyAndValueByteLength`
+(but programs that read KTX files must not rely on NUL termination).
 
 ==== valuePadding
 Contains between 0 and 3 bytes of value `0x00` to ensure that the
@@ -950,22 +961,23 @@ individual `keyAndValueByteLength` fields.
 === Supercompression Global Data
 ==== supercompressionGlobalData
 An array of data used by certain supercompression schemes that must
-be available before any mip level can be expanded. Must start on an
-the next 8-byte boundary following the key/value data. For some schemes,
-the specification for this data block is given below.
+be available before any mip level can be inflated. Must start on
+the next 8-byte boundary following the key/value data. For some
+schemes, the specification for this data block is given below.
 
 [#basisu_gd]
 ==== Basis Universal Global Data
 
-Basis Universal combines encoding to a subset of a block-compressed
-texture format, that can be easily transcoded to various GPU-native
-block-compressed formats, with lossless supercompression.
-Supercompression is accomplished by processing the block-compressed
-representation in preparation for entropy encoding then Huffman
-encoding the result.  Basis Universal creates a global codebook
-referenced by each supercompressed image that contains processed
-ETC1S endpoint and selector data and the Huffman tables. The global
-data block contains this codebook.
+Basis Universal combines encoding to a block-compressed format with
+lossless supercompression.  The block-compressed format is chosen
+such that it can be easily transcoded to various GPU-native
+block-compressed formats. Typically it is a subset of one of those
+formats.  Supercompression is accomplished by processing the
+block-compressed representation in preparation for entropy encoding
+then Huffman encoding the result.  Basis Universal creates a global
+codebook referenced by each supercompressed image that contains
+processed endpoint and selector data from the block-compression and
+the Huffman tables. The global data block contains this codebook.
 
 It also contains an array of _image descriptors_ with flags for each image
 and the offset and length within the image's mip level of the data for
@@ -1084,7 +1096,7 @@ NOTE: This does not necessarily mean the texture has an alpha component.
 The number of endpoints in <<_endpointsdata,endpointsData>>.
 
 ===== selectorCount
-The number of selectorss in <<_selectorsdata,selectorsData>>.
+The number of selectors in <<_selectorsdata,selectorsData>>.
 
 ===== endpointsByteLength
 The length of <<_endpointsdata,endpointsData>>.
@@ -1461,10 +1473,12 @@ by using the key
 
 -   `KTXastcDecodeMode`
 
-The value `rgb9e5` means that pixel values could be decoded with RGB9E5 mode.
+The value is a NUL-terminated string.
 
-The value `unorm8` (valid only for LDR formats) means that pixel values could
-be decoded witn UNORM8 mode.
+`rgb9e5` means that pixel values can be decoded with RGB9E5 mode.
+
+`unorm8` (valid only for LDR formats) means that pixel values can
+be decoded with UNORM8 mode.
 
 Other values are not allowed.
 
@@ -1536,8 +1550,8 @@ Can we guarantee the DF descriptor blocks are always a multiple of 4 bytes?::
   anything to require that extensions' block sizes be a multiple of
   4 bytes? Need to maintain alignment.
 +
-_Resolved:_ The Data Format Specification will be updated to recommend
-but not require padding. This spec. will require padding.
+_Resolved:_ The Data Format Specification has been updated to
+recommend but not require padding. This spec. will require padding.
 
 Should KTX2 support level sizes > 4GB?::
   _Discussion:_ Users have reported having base levels > 4GB for 3D
@@ -1576,7 +1590,7 @@ Should KTX2 drop the `gl*` fields?::
   `glFormat` and `glType` combination.
 +
 _Resolved:_ Drop the `gl*` fields. OpenGL and OpenGL ES loaders
-can include code to do the mapping based on table which will be
+can include code to do the mapping based on table which has been
 added to the spec. Such code is estimated to be about 6 kbytes.
 
 Use alphanumeric characters or binary values for component swizzles?::
