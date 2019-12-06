@@ -160,7 +160,7 @@ until dfdByteLength read
 continue
     UInt32   keyAndValueByteLength
     Byte     keyAndValue[keyAndValueByteLength]
-    align(4) valuePadding   // No padding the last time. <5>
+    align(4) valuePadding <5>
                     [.optional]#&#xFE19;#
 until kvdByteLength read
 align(8)
@@ -172,7 +172,7 @@ align(8)
 // Mip Level Array <7>
 for each mip_level in levelCount <8>
     Byte     levelImages[bytesOfLevelImages] <9>
-    align(8) mipPadding // No padding the last time.
+    align(8) mipPadding
 end
 ----
 <1> Required. See <<Index>>.
