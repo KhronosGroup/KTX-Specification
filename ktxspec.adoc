@@ -589,7 +589,7 @@ applicable only to uncompressed images.
   The <<_data_format_descriptor,_Data Format Descriptor_>> must
   retain the pre-deflation color space information and indicate
   which color and alpha components are present.
-  See <<DFD for Basis Universal>>.
+  See <<DFD for Supercompressed Data>>.
 
 * `<<_levelsp_uncompressedbytelength,levels[p].uncompressedByteLength>>`
   must be 0.
@@ -612,7 +612,9 @@ format.
 * `<<_vkformat,vkFormat>>` must retain the pre-deflation value.
   The <<_data_format_descriptor,_Data Format Descriptor_>> must
   retain pre-deflation color space information.
-  See <<DFD for ZLIB and Zstandard>>.
+  retain pre-deflation color space information and indicated which
+  components are present.
+  See <<DFD for Supercompressed Data>>.
 
 ===== Zstandard
 * Only _Zstandard_ frames are required. Inflators may skip _Skippable_
@@ -623,8 +625,9 @@ format.
 
 * `<<_vkformat,vkFormat>>` must retain the pre-deflation value.
   The <<_data_format_descriptor,_Data Format Descriptor_>> must
-  retain pre-deflation color space information.
-  See <<DFD for ZLIB and Zstandard>>.
+  retain pre-deflation color space information and indicated which
+  components are present.
+  See <<DFD for Supercompressed Data>>.
 
 === Index
 An index giving the byte offsets from the start of the file and byte
@@ -802,21 +805,32 @@ Premultiplied Alpha::
 
 ==== Special Cases
 
-===== DFD for Basis Universal
-When `<<_supercompressionscheme,supercompressionScheme>> is 1` the
-_dfDescriptorBlock_ must retain the `colorModel`, `transferFunction`,
-`colorPrimaries`, and `flags` of the pre-Basis Universal-encoding
-image data. It must also indicate which components are present in
-the deflated data.  Thus the DFD will be that of the pre-Basis
-Universal-encoding data with `bytesPlane[0-7]` set to 0 and all
-samples having zero length and offsets to indicate an _unsized
-format_ as described in Section 5.19 "Unsized Formats" of <<KDF13>>.
-`sampleLower` and `sampleUpper` should also be 0. <<example_rg>>
-gives an example DFD for images that had 2 unsigned components prior
-to Basis Universal encoding.
+===== DFD for Supercompressed Data
+When `<<_supercompressionscheme,supercompressionScheme>> is not 0`
+the _dfDescriptorBlock_ must retain the `colorModel`, `transferFunction`,
+`colorPrimaries`, and `flags` of the pre-deflation images. It must
+also indicate which components are present in the deflated images.
+Thus the DFD will be that of the pre-deflation images with
+`bytesPlane[0-7]` set to 0 and all samples having zero length and
+offsets to indicate an _unsized format_ as described in Section
+5.19 "Unsized Formats" of <<KDF13>>.  `sampleLower` should be 0 or
+`INT32_MIN` and `sampleUpper` should be `UINT32_MAX`or `INT32_MAX`
+indicating that the full representable range of the compressed data
+is mapped to 0..1 or -1..1 respectively.
+
+[NOTE]
+====
+In the event that a block-compressed format is supercompressed, wbicb is
+forbidden for Basis Universal, the DFD will reflect the color model of
+the block-compressed format most of which have only one or two
+components.
+====
+
+<<example_rg>> shows a DFD for images that were `VK_FORMAT_R8G8_UNORM`,
+before deflation, i.e. have two unsigned 8-bit components.
 
 [[example_rg]]
-.Example RG descriptor
+.Example Unsigned RG descriptor
 [.dfdexample, width=75%]
 |================================
 32+^| *~++uint32_t++ bit~*
@@ -836,39 +850,51 @@ to Basis Universal encoding.
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
-32+^| *_sampleUpper:_* 0
+32+^| *_sampleUpper:_* UINT32_MAX
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Green sample information~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
-32+^| *_sampleUpper:_* 0
+32+^| *_sampleUpper:_* UINT32_MAX
 |================================
 
-===== DFD for ZLIB and Zstandard
-When `<<_supercompressionscheme,supercompressionScheme>> is 2, 3
-or 4` the _dfDescriptorBlock_ must retain the `transferFunction`,
-`colorPrimaries`, and `flags` of the pre-deflation image data. It must
-not contain any sample information. The retained pre-deflation `vkFormat`
-value provides sufficient information. Therefore the color model must be
-`KHR_DF_MODEL_UNSPECIFIED`.
-<<example_nosamp>> gives an example DFD.
+<<example_rgb>> shows a DFD for images that were `VK_FORMAT_R8G8B8_SNORM`,
+before deflation, i.e. have 3 signed 8-bit components.
 
-[[example_nosamp]]
-.Example no sample descriptor
+[[example_rgb]]
+.Example Signed RGB descriptor
 [.dfdexample, width=75%]
 |================================
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
-32+^| *_totalSize:_* 28
+32+^| *_totalSize:_* 76
 15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
-16+^| *_descriptorBlockSize:_* 24 16+^| *_versionNumber:_* 2
+16+^| *_descriptorBlockSize:_* stem:[24 + (16 \times 3) = 72] 16+^| *_versionNumber:_* 2
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_*
-*++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++UNSPECIFIED++*
+*++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++RGBSDA++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 0
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Red sample information~
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* INT32_MIN
+32+^| *_sampleUpper:_* INT32_MAX
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Green sample information~
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* INT32_MIN
+32+^| *_sampleUpper:_* INT32_MAX
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Blue sample information~
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
+8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
+8+^| 0 8+^| 0 8+^| 0 8+^| 0
+32+^| *_sampleLower:_* INT32_MIN
+32+^| *_sampleUpper:_* INT32_MAX
 |================================
 
 ==== dfdTotalSize
