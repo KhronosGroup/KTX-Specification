@@ -1903,7 +1903,8 @@ This appendix is informative only.
                                     KTXanimation to KTXanimData. Require
                                     padding after last mip level and
                                     key/value pair for consistent
-                                    handling.
+                                    handling. Add Metal ASTC HDR
+                                    formats.
 |===
 
 [discrete]
