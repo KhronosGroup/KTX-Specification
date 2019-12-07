@@ -808,19 +808,21 @@ Premultiplied Alpha::
 ===== DFD for Supercompressed Data
 When `<<_supercompressionscheme,supercompressionScheme>> is not 0`
 the _dfDescriptorBlock_ must retain the `colorModel`, `transferFunction`,
-`colorPrimaries`, and `flags` of the pre-deflation images. It must
-also indicate which components are present in the deflated images.
-Thus the DFD will be that of the pre-deflation images with
-`bytesPlane[0-7]` set to 0 and all samples having zero length and
-offsets to indicate an _unsized format_ as described in Section
-5.19 "Unsized Formats" of <<KDF13>>.  `sampleLower` should be 0 or
-`INT32_MIN` and `sampleUpper` should be `UINT32_MAX`or `INT32_MAX`
-indicating that the full representable range of the compressed data
-is mapped to 0..1 or -1..1 respectively.
+`colorPrimaries`, and `flags` of the pre-deflation images along
+with each sample's `channelType` and qualifiers in order to indicate
+which components are present in the deflated images.  Thus the DFD
+will be that of the pre-deflation images with `bytesPlane[0-7]` set
+to 0 and all samples having zero length and offsets to indicate an
+_unsized format_ as described in Section 5.19 "Unsized Formats" of
+<<KDF13>>. In addition `sampleLower` must be 0 and `sampleUpper`
+must be `UINT32_MAX` for unsigned components or `INT32_MIN` and
+`INT32_MAX` for signed components. These values indicate that the
+full representable range of the deflated data is mapped to 0..1 or
+-1..1 respectively.
 
 [NOTE]
 ====
-In the event that a block-compressed format is supercompressed, wbicb is
+In the event that a block-compressed format is supercompressed, which is
 forbidden for Basis Universal, the DFD will reflect the color model of
 the block-compressed format most of which have only one or two
 components.
@@ -878,19 +880,19 @@ before deflation, i.e. have 3 signed 8-bit components.
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 0
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Red sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
+^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* INT32_MIN
 32+^| *_sampleUpper:_* INT32_MAX
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Green sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
+^| 0 ^| 1 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* INT32_MIN
 32+^| *_sampleUpper:_* INT32_MAX
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Blue sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
+^| 0 ^| 1 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* INT32_MIN
