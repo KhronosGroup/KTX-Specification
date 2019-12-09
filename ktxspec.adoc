@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL^®^ and Vulkan^®^ textures.
-:docrev: draft14
+:docrev: draft15
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -760,9 +760,10 @@ _dfDescriptorBlock_.
   never contradict the DFD and, vice-versa, the DFD must not contradict
   `<<_vkformat,vkFormat>>`. Supercompression schemes > 1 are an
   exception to this rule. In those cases the DFD will not be that for
-  the `<<_vkformat,vkFormat>>` value. To avoid any doubt,
-  `VK_FORMAT_UNDEFINED` cannot contradict a DFD.
-  DFD.
+  the `<<_vkformat,vkFormat>>` value. Thus the value of `vkFormat` can
+  be used as a shortcut. Only when it is `VK_FORMAT_UNDEFINED`, does an
+  application need to utilize sample information from the DFD. (In this
+  case contradiction is impossible.)
 * `colorModel` must be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA`
   or one of the block compressed color models listed in <<KDF13>> Section
   5.6 or its successors, currently `KDF_DF_MODEL_BC1A` to
@@ -807,18 +808,21 @@ Premultiplied Alpha::
 
 ===== DFD for Supercompressed Data
 When `<<_supercompressionscheme,supercompressionScheme>> is not 0`
-the _dfDescriptorBlock_ must retain the `colorModel`, `transferFunction`,
-`colorPrimaries`, and `flags` of the pre-deflation images along
-with each sample's `channelType` and qualifiers in order to indicate
-which components are present in the deflated images.  Thus the DFD
-will be that of the pre-deflation images with `bytesPlane[0-7]` set
-to 0 and all samples having zero length and offsets to indicate an
-_unsized format_ as described in Section 5.19 "Unsized Formats" of
-<<KDF13>>. In addition `sampleLower` must be 0 and `sampleUpper`
-must be `UINT32_MAX` for unsigned components or `INT32_MIN` and
-`INT32_MAX` for signed components. These values indicate that the
-full representable range of the deflated data is mapped to 0..1 or
--1..1 respectively.
+the _dfDescriptorBlock_ must preserve the `colorModel`, `transferFunction`,
+`colorPrimaries`, and `flags` of the pre-deflation images - for
+Basis Universal (`supercompressionScheme` = 0) the pre-encoding and
+deflation images - along with each sample's `channelType` and
+qualifiers in order to indicate which components are present in the
+deflated images.  `bytesPlane[0-7]` must be set to 0 and all samples
+must have zero length and offset to indicate an _unsized format_
+as described in Section 5.19 "Unsized Formats" of <<KDF13>>.
+
+For Basis Universal, each sample's `sampleLower` and `sampleUpper`
+must be 0.
+
+For the ZLIB, Zstandard and LZMA schemes (`supercompressionScheme`
+values 2 - 4) the pre-deflation values of each sample's `sampleLower`
+and `sampleUpper` must be preserved.
 
 [NOTE]
 ====
@@ -829,10 +833,11 @@ components.
 ====
 
 <<example_rg>> shows a DFD for images that were `VK_FORMAT_R8G8_UNORM`,
-before deflation, i.e. have two unsigned 8-bit components.
+before encoding and deflation, i.e. they have two
+unsigned 8-bit components.
 
 [[example_rg]]
-.Example Unsigned RG descriptor
+.Example Unsigned RG descriptor for Basis Universal
 [.dfdexample, width=75%]
 |================================
 32+^| *~++uint32_t++ bit~*
@@ -852,20 +857,20 @@ before deflation, i.e. have two unsigned 8-bit components.
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
-32+^| *_sampleUpper:_* UINT32_MAX
+32+^| *_sampleUpper:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Green sample information~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
-32+^| *_sampleUpper:_* UINT32_MAX
+32+^| *_sampleUpper:_* 0
 |================================
 
 <<example_rgb>> shows a DFD for images that were `VK_FORMAT_R8G8B8_SNORM`,
 before deflation, i.e. have 3 signed 8-bit components.
 
 [[example_rgb]]
-.Example Signed RGB descriptor
+.Example Signed RGB descriptor for ZLIB/Zstandard/LZMA
 [.dfdexample, width=75%]
 |================================
 32+^| *~++uint32_t++ bit~*
@@ -883,20 +888,20 @@ before deflation, i.e. have 3 signed 8-bit components.
 ^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
-32+^| *_sampleLower:_* INT32_MIN
-32+^| *_sampleUpper:_* INT32_MAX
+32+^| *_sampleLower:_* -127
+32+^| *_sampleUpper:_* 127
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Green sample information~
 ^| 0 ^| 1 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
-32+^| *_sampleLower:_* INT32_MIN
-32+^| *_sampleUpper:_* INT32_MAX
+32+^| *_sampleLower:_* -127
+32+^| *_sampleUpper:_* 127
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Blue sample information~
 ^| 0 ^| 1 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
-32+^| *_sampleLower:_* INT32_MIN
-32+^| *_sampleUpper:_* INT32_MAX
+32+^| *_sampleLower:_* -127
+32+^| *_sampleUpper:_* 127
 |================================
 
 ==== dfdTotalSize
@@ -1896,7 +1901,7 @@ This appendix is informative only.
                                     including documenting BasisU global
                                     data and specifying necessary DFDs.
                                     Fix various bugs.
-|     {docrev}      |  {revdate}  | Fix typos, contradictions &
+|      draft14      |  2019-12-07 | Fix typos, contradictions &
                                     omissions. Retain component info and
                                     signed/unsigned-ness in DFD for all
                                     supercompression schemes. Require
@@ -1907,6 +1912,12 @@ This appendix is informative only.
                                     key/value pair for consistent
                                     handling. Add Metal ASTC HDR
                                     formats.
+|     {docrev}      |  {revdate}  | Correct, simplify and futureproof
+                                    requirementss for DFDs for
+                                    supercompressed images. Clarify that
+                                    app's only need to use DFD sample
+                                    info when `vkFormat` is
+                                    `VK_FORMAT_UNDEFINED`.
 |===
 
 [discrete]
@@ -1917,7 +1928,7 @@ icons.
 Thanks to Alexey Knyazev for enormous help tightening the specification
 and removing potential conflicts.
 
-Thanks to David Wilkinson for chairing the effort.
+Thanks to David Wilkinson for chairing the initial effort.
 
 [discrete,.legal]
 == License
