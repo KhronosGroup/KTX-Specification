@@ -813,9 +813,10 @@ the _dfDescriptorBlock_ must preserve the `colorModel`, `transferFunction`,
 Basis Universal (`supercompressionScheme` = 0) the pre-encoding and
 deflation images - along with each sample's `channelType` and
 qualifiers in order to indicate which components are present in the
-deflated images.  `bytesPlane[0-7]` must be set to 0 and all samples
-must have zero length and offset to indicate an _unsized format_
-as described in Section 5.19 "Unsized Formats" of <<KDF13>>.
+deflated images.  `texelBlockDimension[0-3]` and `bytesPlane[0-7]`
+must be set to 0 to indicate an _unsized format_, as described in
+Section 5.19 "Unsized Formats" of <<KDF13>>,  and all samples must
+have zero length and offset.
 
 For Basis Universal, each sample's `sampleLower` and `sampleUpper`
 must be 0.
