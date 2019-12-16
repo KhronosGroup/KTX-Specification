@@ -813,17 +813,18 @@ the _dfDescriptorBlock_ must preserve the `colorModel`, `transferFunction`,
 Basis Universal (`supercompressionScheme` = 0) the pre-encoding and
 deflation images - along with each sample's `channelType` and
 qualifiers in order to indicate which components are present in the
-deflated images.  `texelBlockDimension[0-3]` and `bytesPlane[0-7]`
-must be set to 0 to indicate an _unsized format_, as described in
-Section 5.19 "Unsized Formats" of <<KDF13>>,  and all samples must
-have zero length and offset.
+deflated images.  `bytesPlane[0-7]` must be set to 0 to indicate
+an _unsized format_, as described in Section 5.19 "Unsized Formats"
+of <<KDF13>>.
 
-For Basis Universal, each sample's `sampleLower` and `sampleUpper`
-must be 0.
+For Basis Universal,`texelBlockDimension[0-3]` and each sample's
+`bitlength`, `bitOffset`, `sampleLower` and `sampleUpper` must be
+0
 
 For the ZLIB, Zstandard and LZMA schemes (`supercompressionScheme`
-values 2 - 4) the pre-deflation values of each sample's `sampleLower`
-and `sampleUpper` must be preserved.
+values 2 - 4) the pre-deflation values of `texelBlockDimension[0-3]`
+and each sample's `bitlength`, `bitOffset`, `sampleLower` and
+`sampleUpper` must be preserved.
 
 [NOTE]
 ====
@@ -886,19 +887,20 @@ before deflation, i.e. have 3 signed 8-bit components.
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 0
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Red sample information~
-^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
+^| 0 ^| 1 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 7 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* -127
 32+^| *_sampleUpper:_* 127
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Green sample information~
-^| 0 ^| 1 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
+^| 0 ^| 1 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 7 16+^| *_bitOffset:_* 8
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* -127
 32+^| *_sampleUpper:_* 127
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Blue sample information~
-^| 0 ^| 1 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
+^| 0 ^| 1 ^| 0 ^| 0 4+^| *++BLUE++* 8+^| *_bitLength:_* 7 16+^|
+*_bitOffset:_* 16
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* -127
@@ -937,7 +939,7 @@ Key/Value data consists of a set of key/value pairs. The number of
 pairs is such that
 [stem]
 +++++
-\sum_{i=0}^{n-2}
+\sum_{i=0}^{n-1}
 \left\lceil{\frac{keyAndValueByteLength[i]}{4}}\right\rceil \times 4
 + keyAndValueByteLength[n-1] + n \times 4 = kvdByteLength.
 +++++
