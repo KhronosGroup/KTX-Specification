@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL^®^ and Vulkan^®^ textures.
-:docrev: draft15
+:docrev: draft16
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -1922,12 +1922,17 @@ This appendix is informative only.
                                     key/value pair for consistent
                                     handling. Add Metal ASTC HDR
                                     formats.
-|     {docrev}      |  {revdate}  | Correct, simplify and futureproof
+|     draft15       |  2019-12-10 | Correct, simplify and futureproof
                                     requirementss for DFDs for
                                     supercompressed images. Clarify that
                                     app's only need to use DFD sample
                                     info when `vkFormat` is
                                     `VK_FORMAT_UNDEFINED`.
+|     {docrev}      |  {revdate}  | Require non-BasisU supercompression
+                                    scheme DFDs retain more sample info.
+                                    Fix check equation for kvdByteLength
+                                    and add similar for the image data
+                                    size.
 |===
 
 [discrete]
