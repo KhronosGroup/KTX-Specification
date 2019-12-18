@@ -700,6 +700,13 @@ LOD stem:[level_p]. This includes all z slices, all faces, all rows
 mip level. It does not include any bytes in
 `<<_mippadding,mipPadding>>`.
 
+The total size of the image data in the file must equal
+[stem]
++++++
+\sum_{p=0}^{\max\left(1, levelCount\right)-1}
+\left\lceil{\frac{levels[p]}{8}}\right\rceil \times 8
++++++
+
 ===== levels[p].uncompressedByteLength
 
 `levels[p].uncompressedByteLength` is the number of bytes of
@@ -941,7 +948,7 @@ pairs is such that
 +++++
 \sum_{i=0}^{n-1}
 \left\lceil{\frac{keyAndValueByteLength[i]}{4}}\right\rceil \times 4
-+ keyAndValueByteLength[n-1] + n \times 4 = kvdByteLength.
++ n \times 4 = kvdByteLength.
 +++++
 
 Any file that does not meet the above condition is invalid.
