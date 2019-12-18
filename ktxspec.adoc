@@ -1130,7 +1130,7 @@ flags are valid:
 [source,c]
 ----
 isETC1S = 0x01
-hasAlphaSlices = 0x02
+hasAlphaSlices = 0x04
 ----
 
 For current Basis Universal, `isETC1S` must be set. The flag is provided
@@ -1932,7 +1932,8 @@ This appendix is informative only.
                                     scheme DFDs retain more sample info.
                                     Fix check equation for kvdByteLength
                                     and add similar for the image data
-                                    size.
+                                    size. Change value of `hasAlphaSlices`
+                                    flag from 2 to 4, a bug fix.
 |===
 
 [discrete]
