@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL^®^ and Vulkan^®^ textures.
-:docrev: draft16
+:docrev: draft17
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -1545,7 +1545,7 @@ The value is 12 bytes representing 3 Uint32 values:
 ----
 UInt32 duration
 UInt32 timescale
-UInt32 isLooped
+UInt32 loopCount
 ----
 
 `duration` is the number of _time units_ per frame. `timescale` is the
@@ -1922,18 +1922,20 @@ This appendix is informative only.
                                     key/value pair for consistent
                                     handling. Add Metal ASTC HDR
                                     formats.
-|     draft15       |  2019-12-10 | Correct, simplify and futureproof
+|      draft15      |  2019-12-10 | Correct, simplify and futureproof
                                     requirementss for DFDs for
                                     supercompressed images. Clarify that
                                     app's only need to use DFD sample
                                     info when `vkFormat` is
                                     `VK_FORMAT_UNDEFINED`.
-|     {docrev}      |  {revdate}  | Require non-BasisU supercompression
+|      draft16      |  2019-12-19 | Require non-BasisU supercompression
                                     scheme DFDs retain more sample info.
                                     Fix check equation for kvdByteLength
                                     and add similar for the image data
                                     size. Change value of `hasAlphaSlices`
                                     flag from 2 to 4, a bug fix.
+|      {docrev}     |  {revdate}  | Change `isLooped` to `loopCount` in
+                                    ktxAnimData value.
 |===
 
 [discrete]
