@@ -135,57 +135,57 @@ UInt32 faceCount
 UInt32 levelCount
 UInt32 supercompressionScheme
 
-// Index <1>
+// Index <.>
 UInt32 dfdByteOffset
 UInt32 dfdByteLength
 UInt32 kvdByteOffset
 UInt32 kvdByteLength
 UInt64 sgdByteOffset
 UInt64 sgdByteLength
-// Level Index <2>
+// Level Index <.>
 struct {
     UInt64 byteOffset
     UInt64 byteLength
     UInt64 uncompressedByteLength
 } levels[max(1, levelCount)]
 
-// Data Format Descriptor <3>
+// Data Format Descriptor <.>
 UInt32 dfdTotalSize
 continue
     dfDescriptorBlock dfdBlock
           [.optional]#&#xFE19;#
 until dfdByteLength read
 
-// Key/Value Data <4>
+// Key/Value Data <.>
 continue
     UInt32   keyAndValueByteLength
     Byte     keyAndValue[keyAndValueByteLength]
-    align(4) valuePadding <5>
+    align(4) valuePadding <.>
                     [.optional]#&#xFE19;#
 until kvdByteLength read
 align(8)
 
-// Supercompression Global Data <6>
+// Supercompression Global Data <.>
 Byte supercompressionGlobalData[sgdByteLength]
 align(8)
 
-// Mip Level Array <7>
-for each mip_level in levelCount <8>
-    Byte     levelImages[bytesOfLevelImages] <9>
+// Mip Level Array <.>
+for each mip_level in levelCount <.>
+    Byte     levelImages[bytesOfLevelImages] <.>
     align(8) mipPadding
 end
 ----
-<1> Required. See <<Index>>.
-<2> Required. See <<Level Index>>.
-<3> Required. See <<Data Format Descriptor>>.
-<4> Required. See <<Key/Value Data>>.
-<5> `align(n)` is pseudo function that inserts the minimum number
+<.> Required. See <<Index>>.
+<.> Required. See <<Level Index>>.
+<.> Required. See <<Data Format Descriptor>>.
+<.> Required. See <<Key/Value Data>>.
+<.> `align(n)` is pseudo function that inserts the minimum number
     of 0-filled bytes of padding required to align the following
     item on an n-byte boundary.  where n is the function parameter.
-<6> Not required. See <<Supercompression Global Data>>.
-<7> Required. See <<Mip Level Array>>.
-<8> Replace with 1 if `levelCount` is 0
-<9> See the <<levelImages>> below.
+<.> Not required. See <<Supercompression Global Data>>.
+<.> Required. See <<Mip Level Array>>.
+<.> Replace with 1 if `levelCount` is 0
+<.> See the <<levelImages>> below.
 
 After inflation from supercompression or when `supercompressionScheme ==
 0`, `levelImages` looks like this:
