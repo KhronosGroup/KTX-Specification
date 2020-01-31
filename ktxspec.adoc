@@ -163,16 +163,16 @@ continue
     align(4) valuePadding <.>
                     [.optional]#&#xFE19;#
 until kvdByteLength read
-align(8)
+sgdByteLength > 0 ? align(8)
 
 // Supercompression Global Data <.>
 Byte supercompressionGlobalData[sgdByteLength]
-align(8)
 
 // Mip Level Array <.>
+align( max(texel block size, 4) ) initialMipPadding <.>
 for each mip_level in levelCount <.>
     Byte     levelImages[bytesOfLevelImages] <.>
-    align(8) mipPadding
+    align(4) mipPadding <.>
 end
 ----
 <.> Required. See <<Index>>.
@@ -184,8 +184,10 @@ end
     item on an n-byte boundary.  where n is the function parameter.
 <.> Not required. See <<Supercompression Global Data>>.
 <.> Required. See <<Mip Level Array>>.
+<.> See <<initialMipPadding>>.
 <.> Replace with 1 if `levelCount` is 0
 <.> See the <<levelImages>> below.
+<.> See <<mipPadding>>.
 
 After inflation from supercompression or when `supercompressionScheme ==
 0`, `levelImages` looks like this:
@@ -1216,6 +1218,16 @@ in a `VkCmdCopyBufferToImage`, to display a low resolution image quickly
 without waiting for the entire texture data.
 ====
 
+==== initialMipPadding
+`initialMipPadding` is between 0 and stem:[\max\left(texel\ block\ size -
+1, 3\right)] bytes of value `0x00`. When `<<_vkformat,vkFormat>>` is not
+`VK_FORMAT_UNDEFINED`, the texel block size is as given for the
+`vkFormat` value in
+{url-khr-vulkan}/specs/1.1-extensions/html/vkspec.html#formats-compatibility[section
+37.1.6 _Format Compatibility Classes_] of <<VULKAN11EXT>>. When it is
+`VK_FORMAT_UNDEFINED`, the texel block size must be considered to be 1
+byte.
+
 ==== levelImages
 `levelImages` is an array of Bytes holding all the image data for a
 level. The offset of a level's `levelImages` is provided by the
@@ -1224,9 +1236,25 @@ level. The offset of a level's `levelImages` is provided by the
 When `<<_supercompressionscheme,supercompressionScheme>> != 0` these
 bytes are formatted as specified in the scheme documentation.
 
-=== mipPadding
-`mipPadding` is between 0 and 7 bytes of value `0x00` to make sure that all
-mip level data starts at a file offset that is a multiple of 8.
+==== mipPadding
+`mipPadding` is between 0 and 3 bytes of value `0x00`.
+
+[NOTE]
+.Padding Rationale
+====
+`initialMipPadding` ensures data for the first mip level is aligned
+on a boundary that enables data to be uploaded to a graphics API
+via memory mapping. For example both Vulkan and Metal require data
+in a staging buffer to be aligned to a texel block size boundary
+and to a 4-byte boundary.
+
+Since levels always have an integral number of blocks, levels after
+the initial level will be automatically block aligned. However the
+size of a level of a 1, 2 or 3 component image in certain uncompressed
+formats may be such that the next level will not align to a 4-byte
+boundary depending on the image size. In these cases `mipPadding`
+bytes are needed to satisfy the 4-byte alignment requirement.
+====
 
 == General comments
 === Endianness
