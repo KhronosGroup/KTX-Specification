@@ -718,7 +718,11 @@ numLevels = \max\left(1, levelCount\right)
 and
 [stem]
 +++++
-requiredAlignment = lcm(texel\ block\ size, 4)
+requiredAlignment =
+  \begin{cases}
+    lcm(texel\ block\ size, 4)      & (\text{supercompressionScheme} = 0) \\
+    1                               & (\text{supercompressionScheme} \neq 0)
+  \end{cases}
 +++++
 _texel block size_ is defined in <<mipPadding>>.
 
