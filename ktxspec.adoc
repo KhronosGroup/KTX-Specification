@@ -688,7 +688,7 @@ at index _0_. Image for stem:[level_p] will be found at index _p_.
 ===== levels[p].byteOffset
 
 The offset from the start of the file of the first byte of image data
-for mip level _p_. It is the offset of the first byte after
+for mip level _p_. It is the offset of the first byte after any
 `<<_mippadding,mipPadding>>`.
 
 ===== levels[p].byteLength
@@ -702,7 +702,7 @@ mip level.
 
 The total size of the image data from
 stem:[levels[numLevels-1\].byteOffset] (i.e., after the first
-`mipPadding`) until the end of the file is:
+`mipPadding`), if any, until the end of the file is:
 [stem]
 +++++
 levels[0].byteLength +
