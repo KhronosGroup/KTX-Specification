@@ -169,10 +169,8 @@ sgdByteLength > 0 ? align(8)
 Byte supercompressionGlobalData[sgdByteLength]
 
 // Mip Level Array <.>
-align( max(texel block size, 4) ) initialMipPadding <.>
 for each mip_level in levelCount <.>
     Byte     levelImages[bytesOfLevelImages] <.>
-    align(4) mipPadding <.>
 end
 ----
 <.> Required. See <<Index>>.
@@ -184,10 +182,8 @@ end
     item on an n-byte boundary.  where n is the function parameter.
 <.> Not required. See <<Supercompression Global Data>>.
 <.> Required. See <<Mip Level Array>>.
-<.> See <<initialMipPadding>>.
 <.> Replace with 1 if `levelCount` is 0
 <.> See the <<levelImages>> below.
-<.> See <<mipPadding>>.
 
 After inflation from supercompression or when `supercompressionScheme ==
 0`, `levelImages` looks like this:
@@ -196,20 +192,22 @@ After inflation from supercompression or when `supercompressionScheme ==
 .levelImages Structure
 [source, c]
 ----
+align( lcm(texel block size, 4) ) mipPadding <1>
 for each layer in max(1,layerCount)
    for each face in faceCount
-       for each z_slice_of_blocks in num_blocks_z <1>
-           for each row_of_blocks in num_blocks_y <1>
-               for each block in num_blocks_x <1>
-                   Byte data[format-specific-number-of-bytes] <2>
+       for each z_slice_of_blocks in num_blocks_z <2>
+           for each row_of_blocks in num_blocks_y <2>
+               for each block in num_blocks_x <2>
+                   Byte data[format-specific-number-of-bytes] <3>
                end
            end
        end
    end
 end
 ----
-<1> See <<levelImages_defs,the definitions>> below.
-<2> Rows of uncompressed texture images must be tightly packed,
+<1> See <<mipPadding>>.
+<2> See <<levelImages_defs,the definitions>> below.
+<3> Rows of uncompressed texture images must be tightly packed,
     equivalent to a `GL_UNPACK_ALIGNMENT` of 1.
 
 [[levelImages_defs]]In the `levelImages` loops above,
@@ -690,7 +688,8 @@ at index _0_. Image for stem:[level_p] will be found at index _p_.
 ===== levels[p].byteOffset
 
 The offset from the start of the file of the first byte of image data
-for mip level _p_.
+for mip level _p_. It is the offset of the first byte after
+`<<_mippadding,mipPadding>>`.
 
 ===== levels[p].byteLength
 
@@ -699,27 +698,40 @@ The total size of the data for supercompressed mip level _p_.
 `levels[p].byteLength` is the number of bytes of pixel data in
 LOD stem:[level_p]. This includes all z slices, all faces, all rows
 (or rows of blocks) and all pixels (or blocks) in each row for the
-mip level. It does not include any bytes in
-`<<_mippadding,mipPadding>>`.
+mip level.
 
-The total size of the image data in the file must equal
+The total size of the image data from
+stem:[levels[numLevels-1\].byteOffset] (i.e., after the first
+`mipPadding`) until the end of the file is:
 [stem]
 +++++
-\sum_{p=0}^{\max\left(1, levelCount\right)-1}
-\left\lceil{\frac{levels[p]}{8}}\right\rceil \times 8
+levels[0].byteLength +
+\sum_{p=1}^{numLevels-1}
+\left\lceil{\frac{levels[p].byteLength}{requiredAlignment}}\right\rceil
+\times requiredAlignment
 +++++
+where
+[stem]
++++++
+numLevels = \max\left(1, levelCount\right)
++++++
+and
+[stem]
++++++
+requiredAlignment = lcm(texel\ block\ size, 4)
++++++
+_texel block size_ is defined in <<mipPadding>>.
 
 ===== levels[p].uncompressedByteLength
 
-`levels[p].uncompressedByteLength` is the number of bytes of
-pixel data in LOD stem:[level_p] after reflation from supercompression.
+`levels[p].uncompressedByteLength` is the number of bytes of pixel
+data in LOD stem:[level_p] after reflation from supercompression.
 This includes all z slices, all faces, all rows (or rows of blocks)
-and all pixels (or blocks) in each row for the mipmap level. It
-does not include any bytes in `<<_mippadding,mipPadding>>`.  When
+and all pixels (or blocks) in each row for the mipmap level. When
 `supercompressionScheme == 0`,
-`<<_levelsp_bytelength,levels[p].byteLength>>` must have
-the same value as this.   When `supercompressionScheme == 1`, Basis
-Universal, the value must be 0.
+`<<_levelsp_bytelength,levels[p].byteLength>>` must have the same
+value as this.   When `supercompressionScheme == 1`, Basis Universal,
+the value must be 0.
 
 The value of a level's `uncompressedByteLength` must satisfy the
 following condition:
@@ -1218,16 +1230,6 @@ in a `VkCmdCopyBufferToImage`, to display a low resolution image quickly
 without waiting for the entire texture data.
 ====
 
-==== initialMipPadding
-`initialMipPadding` is between 0 and stem:[\max\left(texel\ block\ size -
-1, 3\right)] bytes of value `0x00`. When `<<_vkformat,vkFormat>>` is not
-`VK_FORMAT_UNDEFINED`, the texel block size is as given for the
-`vkFormat` value in
-{url-khr-vulkan}/specs/1.1-extensions/html/vkspec.html#formats-compatibility[section
-37.1.6 _Format Compatibility Classes_] of <<VULKAN11EXT>>. When it is
-`VK_FORMAT_UNDEFINED`, the texel block size must be considered to be 1
-byte.
-
 ==== levelImages
 `levelImages` is an array of Bytes holding all the image data for a
 level. The offset of a level's `levelImages` is provided by the
@@ -1237,23 +1239,33 @@ When `<<_supercompressionscheme,supercompressionScheme>> != 0` these
 bytes are formatted as specified in the scheme documentation.
 
 ==== mipPadding
-`mipPadding` is between 0 and 3 bytes of value `0x00`.
+`mipPadding` is between 0 and stem:[lcm(texel\ block\ size, 4) -
+1] bytes of value `0x00`. stem:[lcm] is _least common multiple_.
+This is only required when
+`<<_supercompressionscheme,supercompressionScheme>> == 0`. When
+`<<_vkformat,vkFormat>>` is not `VK_FORMAT_UNDEFINED`, _texel block
+size_ is as given for the `vkFormat` value in
+{url-khr-vulkan}/specs/1.1-extensions/html/vkspec.html#formats-compatibility[section
+37.1.6 _Format Compatibility Classes_] of <<VULKAN11EXT>>. When it
+is `VK_FORMAT_UNDEFINED`, _texel block size_ is 16.
 
 [NOTE]
 .Padding Rationale
 ====
-`initialMipPadding` ensures data for the first mip level is aligned
-on a boundary that enables data to be uploaded to a graphics API
-via memory mapping. For example both Vulkan and Metal require data
-in a staging buffer to be aligned to a texel block size boundary
-and to a 4-byte boundary.
+`mipPadding` ensures that data for each mip level is aligned on a
+boundary that enables data to be uploaded to a graphics API in bulk
+without having to shuffle it around. Among other things, this enables
+memory mapped files to be used with some APIs. Vulkan requires data
+to be aligned to a texel block size boundary and to a 4-byte boundary
+hence the least common multiple requirement.
 
-Since levels always have an integral number of blocks, levels after
-the initial level will be automatically block aligned. However the
-size of a level of a 1, 2 or 3 component image in certain uncompressed
-formats may be such that the next level will not align to a 4-byte
-boundary depending on the image size. In these cases `mipPadding`
-bytes are needed to satisfy the 4-byte alignment requirement.
+Since levels after the first will be naturally aligned to their
+texel block size, in block-compressed formats because an integral
+number of blocks is required regardless of the image size, the
+majority of formats will have 0 bytes of padding between levels.
+The exception is formats whose texel block size is not a multiple
+of 4. Depending on the image size, these may require some `mipPadding`
+bytes between levels to meet the 4-byte alignment requirement.
 ====
 
 == General comments
