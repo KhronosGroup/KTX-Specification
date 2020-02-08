@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL^®^ and Vulkan^®^ textures.
-:docrev: draft17
+:docrev: draft18
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -1250,8 +1250,8 @@ This is only required when
 `<<_vkformat,vkFormat>>` is not `VK_FORMAT_UNDEFINED`, _texel block
 size_ is as given for the `vkFormat` value in
 {url-khr-vulkan}/specs/1.1-extensions/html/vkspec.html#formats-compatibility[section
-37.1.6 _Format Compatibility Classes_] of <<VULKAN11EXT>>. When it
-is `VK_FORMAT_UNDEFINED`, _texel block size_ is 16.
+37.1.6 _Format Compatibility Classes_] of <<VULKAN11EXT>> otherwise
+it is 16.
 
 [NOTE]
 .Padding Rationale
@@ -1269,7 +1269,7 @@ number of blocks is required regardless of the image size, the
 majority of formats will have 0 bytes of padding between levels.
 The exception is formats whose texel block size is not a multiple
 of 4. Depending on the image size, these may require some `mipPadding`
-bytes between levels to meet the 4-byte alignment requirement.
+bytes between levels to meet the alignment requirement.
 ====
 
 == General comments
@@ -1978,8 +1978,10 @@ This appendix is informative only.
                                     and add similar for the image data
                                     size. Change value of `hasAlphaSlices`
                                     flag from 2 to 4, a bug fix.
-|      {docrev}     |  {revdate}  | Change `isLooped` to `loopCount` in
+|      draft17      |  2019-12-30 | Change `isLooped` to `loopCount` in
                                     ktxAnimData value.
+|      {docrev}     |  {revdate}  | Chamge mip level padding to match 3D
+                                    API requirements enabling mmapping.
 |===
 
 [discrete]
