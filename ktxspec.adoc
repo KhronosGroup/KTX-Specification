@@ -278,18 +278,18 @@ immediate detection of common file-transfer problems.
 
 === vkFormat
 `vkFormat` specifies the image format using Vulkan `VkFormat` enum
-values. It can be any value defined in core Vulkan 1.1 <<VULKAN11>>,
+values. It can be any value defined in core Vulkan 1.1 <<VULKAN12>>,
 future core versions or by a registered Vulkan extension. Values
 defined by core Vulkan 1.1 are given in
 {url-khr-vulkan}/specs/1.1/html/vkspec.html#formats-definition[section
-32.1 _Format Definition_] of <<VULKAN11>>.  The list of registered
+32.1 _Format Definition_] of <<VULKAN12>>.  The list of registered
 extensions is provided in the {url-khr-vulkan}/#repos[Khronos
 Vulkan Registry]. A complete list of values defined by both core
 Vulkan 1.1 and extensions can be found in
 {url-khr-vulkan}/specs/1.1-extensions/html/vkspec.html#formats-definition[section
-37.1 _Format Definition_] of <<VULKAN11EXT>>.
+37.1 _Format Definition_] of <<VULKAN12EXT>>.
 
-NOTE: The section number given for <<VULKAN11EXT>> is as of this
+NOTE: The section number given for <<VULKAN12EXT>> is as of this
 writing (Vulkan 1.1.117). It is subject to change as future extensions
 are added to the document but the link should remain valid as it is to
 an internal anchor.
@@ -431,7 +431,7 @@ second word contains the S8 value in the eight LSBs and zeros in
 the MSBs.
 
 `VK_FORMAT_S8_UINT`, `VK_FORMAT_D16_UNORM`, and `VK_FORMAT_D32_SFLOAT`
-are defined as in <<VULKAN11EXT>>.
+are defined as in <<VULKAN12EXT>>.
 
 === typeSize
 `typeSize` specifies the size of the data type in bytes used to
@@ -490,9 +490,38 @@ files can be used to store them.
 Refer to <<_texture_type>> for more details about valid values.
 
 === faceCount
-`faceCount` specifies the number of cubemap faces. For cubemaps
-and cubemap arrays this must be 6. For non cubemaps this must be 1.
+`faceCount` specifies the number of cubemap faces. For cubemaps and
+cubemap arrays this must be 6. For non cubemaps this must be 1.
 Cubemap faces are stored in the order: +X, -X, +Y, -Y, +Z, -Z.
+
+As prescribed by the Vulkan and OpenGL specifications, all faces
+must have a right-down orientation, i.e., an upper left origin, and
+must be arranged using a left-handed coordinate system with +Y up.
+For example in an outdoor scene, the +Y face must be the sky.  When
+facing in the scene what is shown in the +Z face, what is on the
+left must be shown in the -X face and what is on the right in the
++X face.  See the identical face selection tables and the equations
+for calculating (s, t) in
+{url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html#_cube_map_face_selection_and_transformations[section
+15.5.3 Cube Map Face Selection and Transformations] of <<VULKAN12>>
+and
+{url-khr-reg}/OpenGL/specs/gl/glspec46.core.pdf#nameddest=section-8.13[section
+8.13 Cube Map Texture Selection] of <<OPENGL46>>.
+
+[TIP]
+====
+OpenGL has a right-handed coordinate system. Therefore when using a
+skybox cube's coordinates as the uvw coordinates for sampling a cubemap
+those coordinates must first be transformed to a left-handed system by
+multiplying the Z coordinate by -1. Failure to do this will result in
+the displayed scene being a mirror image of reality, a common error in
+samples found on the web.
+
+While Vulkan has a left-handed coordinate system, +Y is down, therefore
+skybox coordinates must be rotated 180 degrees around the X axis before
+they are used to sample a cubemap. Failure to do this will result in the
+scene being upside down.
+====
 
 Applications wanting to store incomplete cubemaps should flatten faces
 into a 2D array and use the metadata described in <<KTXcubemapIncomplete>>
@@ -1250,7 +1279,7 @@ This is only required when
 `<<_vkformat,vkFormat>>` is not `VK_FORMAT_UNDEFINED`, _texel block
 size_ is as given for the `vkFormat` value in
 {url-khr-vulkan}/specs/1.1-extensions/html/vkspec.html#formats-compatibility[section
-37.1.6 _Format Compatibility Classes_] of <<VULKAN11EXT>> otherwise
+37.1.6 _Format Compatibility Classes_] of <<VULKAN12EXT>> otherwise
 it is 16.
 
 [NOTE]
@@ -1558,7 +1587,7 @@ by a different tool.
 === KTXastcDecodeMode
 By default, ASTC decoders produce pixel values with half-float precision for HDR and
 linear LDR blocks. KTX file writers may indicate that the data is compatible with
-more compact decoding modes (as defined in <<VULKAN11EXT>>, `VK_EXT_astc_decode_mode`)
+more compact decoding modes (as defined in <<VULKAN12EXT>>, `VK_EXT_astc_decode_mode`)
 by using the key
 
 -   `KTXastcDecodeMode`
@@ -1825,11 +1854,11 @@ Bradner. IETF Network Working Group, March 1997.
 and the application/zstd Media Type.]. Y.
 Collet, M. Kucherawy, Ed. Internet Engineering Task Force (IETF), October 2018.
 
-- [[[VULKAN11]]] {url-khr-vulkan}/specs/1.1/html/vkspec.html[Vulkan^®^
+- [[[VULKAN12]]] {url-khr-vulkan}/specs/1.2/html/vkspec.html[Vulkan^®^
 1.1 - A Specification].
 The Khronos Group, December 2018.
 
-- [[[VULKAN11EXT]]] {url-khr-vulkan}/specs/1.1-extensions/html/vkspec.html[Vulkan^®^
+- [[[VULKAN12EXT]]] {url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html[Vulkan^®^
 1.1 - A Specification (with all registered Vulkan extensions)].
 The Khronos Group, December 2018.
 
@@ -1837,7 +1866,7 @@ The Khronos Group, December 2018.
 ====
 The Vulkan 1.1 references are living documents that are updated
 weekly with corrections, clarifications and, in the case of
-<<VULKAN11EXT>>, newly released extensions. References to the
+<<VULKAN12EXT>>, newly released extensions. References to the
 specifications do not imply that KTX header field values are limited
 solely to those in the referenced sections or tables. These values
 may be supplemented by extensions or new versions.  They also do
