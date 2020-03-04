@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL^®^ and Vulkan^®^ textures.
-:docrev: draft18
+:docrev: draft19
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -1992,8 +1992,12 @@ This appendix is informative only.
                                     flag from 2 to 4, a bug fix.
 |      draft17      |  2019-12-30 | Change `isLooped` to `loopCount` in
                                     ktxAnimData value.
-|      {docrev}     |  {revdate}  | Chamge mip level padding to match 3D
+|      draft18      |  2020-02-08 | Change mip level padding to match 3D
                                     API requirements enabling mmapping.
+|      {docrev}     |  {revdate}  | Precisely specify cubemap faces.
+                                    Remove Zlib & LZMA. Limit use of
+                                    VK_FORMAT_UNDEFINED to those in the
+                                    spec.
 |===
 
 [discrete]
