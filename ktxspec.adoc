@@ -290,13 +290,14 @@ Vulkan 1.1 and extensions can be found in
 37.1 _Format Definition_] of <<VULKAN12EXT>>.
 
 NOTE: The section number given for <<VULKAN12EXT>> is as of this
-writing (Vulkan 1.1.117). It is subject to change as future extensions
+writing (Vulkan 1.2.133). It is subject to change as future extensions
 are added to the document but the link should remain valid as it is to
 an internal anchor.
 
-`vkFormat` can be `VK_FORMAT_UNDEFINED` (0) if the format of the data
-is a not a recognized Vulkan format. The data layout is always given by
-the Data Format Descriptor.
+`vkFormat` can be `VK_FORMAT_UNDEFINED` (0) in various cases outlined
+within this specification, when the format of the data is a not a
+recognized Vulkan format. Information about the data is always given
+by the Data Format Descriptor.
 
 Values listed in <<prohibitedFormats>> must not be used nor any
 `\*_SCALED_*` formats added in future.  The table in <<formatMapping>>
@@ -565,10 +566,8 @@ of `0` indicates no supercompression.
 | Scheme Id            | Scheme Name     | Level Data Format  | Global Data Format
 | 0                    | None            |   n/a              | n/a
 | 1                    | Basis Universal |  <<BASISU>>        | <<basisu_gd,BasisU Global Data>>
-| 2                    | ZLIB            |  <<RFC1950>>       | T.B.D
-| 3                    | Zstandard       |  <<RFC8478>>       | T.B.D
-| 4                    | LZMA            |  <<LZMA>>          | T.B.D
-| 5･･･0xffff           | Reserved^1^     |                    |
+| 2                    | Zstandard       |  <<RFC8478>>       | T.B.D
+| 3･･･0xffff           | Reserved^1^     |                    |
 | 0x10000･･･0x1ffff    | Reserved^2^     |                    |
 | 0x20000･･･0xffffffff | Reserved^3^     |                    |
 |===
@@ -595,21 +594,18 @@ column of <<supercompressionSchemes>>.
 When a supercompression scheme is used, the image data must be
 inflated from the scheme prior to GPU sampling.
 
-IMPORTANT: Implementations are only required to support _None_ and
-_Basis Universal_. Support of other schemes is optional.
-
 [TIP]
 ====
-LZW-style lossless supercompression, e.g, schemes 2 and 3, is
+LZW-style lossless supercompression, e.g, scheme 2, is
 generally ineffective on the block-compressed data of GPU texture
 formats. It is best reserved for use with uncompressed texture
 formats or with block-compressed data that has been specially
 optimized such as by _Rate Distortion Optimization_ mode <<RDO>>.
 
 Basis Universal internally uses some block-compressed texture formats
-and includes rate distortion optimization. Normally encoding to the
-internal format is combined with supercompression. Therefore it is
-applicable only to uncompressed images.
+and includes Rate Distortion Optimization. Encoding to the internal
+format is combined with supercompression. Therefore it is applicable
+only to uncompressed images.
 ====
 
 ==== Scheme Notes (Normative)
@@ -634,17 +630,6 @@ formats. There is therefore no common pre- and post-supercompression
 format.
 ====
 
-===== ZLIB
-
-* With Deflate <<RFC1951>> compression scheme.
-
-* `<<_vkformat,vkFormat>>` must retain the pre-deflation value.
-  The <<_data_format_descriptor,_Data Format Descriptor_>> must
-  retain pre-deflation color space information.
-  retain pre-deflation color space information and indicated which
-  components are present.
-  See <<DFD for Supercompressed Data>>.
-
 ===== Zstandard
 * Only _Zstandard_ frames are required. Inflators may skip _Skippable_
   frames.
@@ -654,9 +639,8 @@ format.
 
 * `<<_vkformat,vkFormat>>` must retain the pre-deflation value.
   The <<_data_format_descriptor,_Data Format Descriptor_>> must
-  retain pre-deflation color space information and indicated which
-  components are present.
-  See <<DFD for Supercompressed Data>>.
+  retain pre-deflation color space information and indicate which
+  components are present. See <<DFD for Supercompressed Data>>.
 
 === Index
 An index giving the byte offsets from the start of the file and byte
@@ -864,10 +848,10 @@ Premultiplied Alpha::
 When `<<_supercompressionscheme,supercompressionScheme>> is not 0`
 the _dfDescriptorBlock_ must preserve the `colorModel`, `transferFunction`,
 `colorPrimaries`, and `flags` of the pre-deflation images - for
-Basis Universal (`supercompressionScheme` = 0) the pre-encoding and
+Basis Universal (`supercompressionScheme` = 1) the pre-encoding and
 deflation images - along with each sample's `channelType` and
 qualifiers in order to indicate which components are present in the
-deflated images.  `bytesPlane[0-7]` must be set to 0 to indicate
+deflated images. `bytesPlane[0-7]` must be set to 0 to indicate
 an _unsized format_, as described in Section 5.19 "Unsized Formats"
 of <<KDF13>>.
 
@@ -875,10 +859,9 @@ For Basis Universal,`texelBlockDimension[0-3]` and each sample's
 `bitlength`, `bitOffset`, `sampleLower` and `sampleUpper` must be
 0
 
-For the ZLIB, Zstandard and LZMA schemes (`supercompressionScheme`
-values 2 - 4) the pre-deflation values of `texelBlockDimension[0-3]`
-and each sample's `bitlength`, `bitOffset`, `sampleLower` and
-`sampleUpper` must be preserved.
+For Zstandard (`supercompressionScheme` = 2) the pre-deflation
+values of `texelBlockDimension[0-3]` and each sample's `bitlength`,
+`bitOffset`, `sampleLower` and `sampleUpper` must be preserved.
 
 [NOTE]
 ====
@@ -926,7 +909,7 @@ unsigned 8-bit components.
 before deflation, i.e. have 3 signed 8-bit components.
 
 [[example_rgb]]
-.Example Signed RGB descriptor for ZLIB/Zstandard/LZMA
+.Example Signed RGB descriptor for Zstandard
 [.dfdexample, width=75%]
 |================================
 32+^| *~++uint32_t++ bit~*
