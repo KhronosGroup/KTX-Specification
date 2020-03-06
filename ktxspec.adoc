@@ -1145,12 +1145,12 @@ for each level in max(levelCount, 1)
 `imageCount` may be calculated as follows:
 [source,c]
 ----
-int imageCount = max(levelCount, 1) * max(layerCount, 1) * faceCount * totalPixelDepth;
+int imageCount = max(layerCount, 1) * faceCount * layerPixelDepth;
 
-// where totalPixelDepth can be derived as
-int totalPixelDepth = max(pixelDepth, 1);
+// where layerPixelDepth can be derived as
+int layerPixelDepth = max(pixelDepth, 1);
 for(int i = 1; i < levelCount; i++)
-    totalPixelDepth += max(pixelDepth >> i, 1);
+    layerPixelDepth += max(pixelDepth >> i, 1);
 ----
 ====
 
