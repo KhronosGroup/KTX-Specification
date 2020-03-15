@@ -1552,8 +1552,8 @@ when available, e.g. for the first case  `GL_ALPHA8` (when using
 compatibility profile), `MTLPixelFormatA8Unorm` or `DXGI_FORMAT_A8_UNORM`.
 
 === KTXwriter
-KTX file writers must identify themselves by including a value with
-the key
+KTX file writers may, and are strongly encouraged to, identify
+themselves by including a value with the key
 
 -   `KTXwriter`
 
