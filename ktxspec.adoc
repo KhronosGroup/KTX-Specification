@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL^®^ and Vulkan^®^ textures.
-:docrev: draft19
+:docrev: draft20
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -805,7 +805,7 @@ _dfDescriptorBlock_.
 * `colorModel` must be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA`
   or one of the block compressed color models listed in <<KDF13>> Section
   5.6 or its successors, currently `KDF_DF_MODEL_BC1A` to
-  `KDF_DF_MODEL_PVRTC2`.
+  `KDF_DF_MODEL_UASTC`.
 * `colorPrimaries` may be any of the available values since
   conversion of the selected primaries and white point to a display's
   can be done simply with a 3x3 matrix multiply.
@@ -834,8 +834,8 @@ necessary.
 ====
 
 ==== Providing additional information
-There is one case where the _dfDescriptorBlock_ can be used to provide additional
-information beyond that given by <<_vkformat,vkFormat>>.
+There is one case where the _dfDescriptorBlock_ can be used to
+provide additional information beyond that given by <<_vkformat,vkFormat>>.
 
 Premultiplied Alpha::
   `KHR_DF_FLAG_ALPHA_PREMULTIPLIED` (= 1) can be set in the `flags`
@@ -843,6 +843,15 @@ Premultiplied Alpha::
   alpha components.
 
 ==== Special Cases
+
+===== Universal ASTC Format
+The Universal ASTC image format can be specified using `colorModel` =
+`KDF_DF_MODEL_UASTC` (value to be assigned) together with `vkFormat` =
+`VK_FORMAT_UNDEFINED` (0). Images in this format must be transcoded to a
+GPU-supported block-compressed format before being uploaded to and
+sampled by a GPU. UASTC images can be supercompressed with Zstandard
+(`supercompressionScheme` = 2) with or without first performing Rate
+Distortion Optimization.
 
 ===== DFD for Supercompressed Data
 When `<<_supercompressionscheme,supercompressionScheme>> is not 0`
@@ -1994,10 +2003,13 @@ This appendix is informative only.
                                     ktxAnimData value.
 |      draft18      |  2020-02-08 | Change mip level padding to match 3D
                                     API requirements enabling mmapping.
-|      {docrev}     |  {revdate}  | Precisely specify cubemap faces.
+|      draft19      |  2020-03-04 | specify cubemap faces.
                                     Remove Zlib & LZMA. Limit use of
                                     VK_FORMAT_UNDEFINED to those in the
                                     spec.
+|      {docrev}     |  {revdate}  | Relax requirement for KTXwriter.
+                                    Allow use of VK_FORMAT_UNDEFINED for
+                                    UASTC.
 |===
 
 [discrete]
