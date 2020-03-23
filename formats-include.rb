@@ -5,9 +5,11 @@ require 'json'
 
 Asciidoctor::Extensions.register do
   include_processor do
-    process do |doc, reader, target, attributes|
-      return reader unless target == 'formats.json'
+    def handles? target
+      target == 'formats.json'
+    end
 
+    process do |doc, reader, target, attributes|
       METAL_URL_BASE = 'https://developer.apple.com/documentation/metal/mtlpixelformat/'
       DXGI_URL = 'https://docs.microsoft.com/en-us/windows/desktop/api/dxgiformat/ne-dxgiformat-dxgi_format'
       WEBGL_EX_URL_BASE = 'https://www.khronos.org/registry/webgl/extensions/'
