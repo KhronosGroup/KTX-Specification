@@ -36,7 +36,8 @@
 ////
 // This part is the Preamble whose 1st 'graph is given [.lead] role
 // by default meaning it is rendered in a larger font.  Add [.lead]
-// to the other Preamble 'graphs so they match.
+// to the other Preamble 'graphs so they match. For all 'graphs in
+// preamble to be rendered normally add [.normal] to the first 'graph.
 ////
 *Format Version:* 2.0
 
@@ -715,7 +716,7 @@ mip level.
 
 The total size of the image data from
 stem:[levels[numLevels-1\].byteOffset] (i.e., after the first
-`mipPadding`), if any, until the end of the file is:
+`mipPadding`, if any) until the end of the file is:
 [stem]
 +++++
 levels[0].byteLength +
@@ -845,13 +846,16 @@ Premultiplied Alpha::
 ==== Special Cases
 
 ===== Universal ASTC Format
-The Universal ASTC image format can be specified using `colorModel` =
-`KDF_DF_MODEL_UASTC` (value to be assigned) together with `vkFormat` =
-`VK_FORMAT_UNDEFINED` (0). Images in this format must be transcoded to a
-GPU-supported block-compressed format before being uploaded to and
-sampled by a GPU. UASTC images can be supercompressed with Zstandard
-(`supercompressionScheme` = 2) with or without first performing Rate
-Distortion Optimization.
+The Universal ASTC image format (UASTC) can be specified using
+`colorModel` `KDF_DF_MODEL_UASTC` (= 166) together with `vkFormat`
+`VK_FORMAT_UNDEFINED` (= 0). The DFD must be as described in Section
+5.6.14 "KHR_DF_MODEL_UASTC" of <<KDF13>>. Images in this format
+must be transcoded to a GPU-supported block-compressed format before
+being uploaded to and sampled by a GPU. UASTC images can be
+supercompressed with Zstandard (`supercompressionScheme` = 2) with
+or without first performing Rate Distortion Optimization. If
+supercompression is used, the DFD's `bytesPlane[0-7]` must be set
+to 0 as described in the next subsection.
 
 ===== DFD for Supercompressed Data
 When `<<_supercompressionscheme,supercompressionScheme>> is not 0`
@@ -860,13 +864,23 @@ the _dfDescriptorBlock_ must preserve the `colorModel`, `transferFunction`,
 Basis Universal (`supercompressionScheme` = 1) the pre-encoding and
 deflation images - along with each sample's `channelType` and
 qualifiers in order to indicate which components are present in the
-deflated images. `bytesPlane[0-7]` must be set to 0 to indicate
-an _unsized format_, as described in Section 5.19 "Unsized Formats"
+deflated images. `bytesPlane[0-7]` must be set to 0 to indicate an
+_unsized format_, as described in Section 5.19 "Unsized Formats"
 of <<KDF13>>.
 
-For Basis Universal,`texelBlockDimension[0-3]` and each sample's
+For Basis Universal, `texelBlockDimension[0-3]` and each sample's
 `bitlength`, `bitOffset`, `sampleLower` and `sampleUpper` must be
 0
+
+[IMPORTANT]
+====
+The DFD must reflect the components provided as input to the
+ETC1S/LZ encoder not those of the source image. Therefore, for
+example, if the software checks for and removes from source image(s)
+alpha channel(s) that are all opaque (1.0) before submitting the
+data to the ETC1S/LZ encoder then the DFD must not have a sample
+with a channelType that indicates it is alpha.
+====
 
 For Zstandard (`supercompressionScheme` = 2) the pre-deflation
 values of `texelBlockDimension[0-3]` and each sample's `bitlength`,
@@ -1628,13 +1642,13 @@ seconds is stem:[duration / timescale].
 
 TBC
 
-== IANA Mime-Type Registration Information
+== IANA Media-Type Registration Information
 
 [.legal]
 _Permission is expressly granted to IANA to copy this section as
 necessary for managing the MIME types registry._
 
-TBC
+include::ktx-media-registration.txt[]
 
 == Issues
 [qanda]

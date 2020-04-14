@@ -1,0 +1,103 @@
+Type name: Image
+
+Subtype name: ktx2
+
+Required parameters: none
+
+Optional parameters: none
+
+Encoding considerations: binary
+
+Security considerations:
+
+The ktx2 type is a binary data stream which contains no executable
+code that could disrupt a client processor. There is no provision
+in the type specification that would allow authors to insert
+executable code that would present any security risk to a client
+machine. The only effect associated with this data is to cause an
+image to be rendered on the recipient's display.
+
+Because every item's length is available at its beginning, there
+is robust defense against corrupted or fraudulent data that might
+overflow a decoder's buffer. Also the signature bytes provide early
+detection of common file transmission errors.
+
+The image payload may be uncompressed or block-compressed. The
+payload may be supercompressed with variable-rate compression.
+
+Block compression schemes are designed so small blocks of data
+(typically 64 to 128 bits) can be decompressed in real time into a
+small block of pixels (typically 4x4) during texel fetch. In such
+schemes it is not possible for a small amount of data to expand
+enormously because the level of compression is limited; the compressed
+size is related directly to the number of pixels in the uncompressed
+image and not to the content of the data.
+
+When variable-rate compression is used, the format includes information
+as to the expected size of the uncompressed data. However applications
+must not rely on this and must guard against buffer overflow and
+ultra large memory allocation.
+
+The ktx type does not provide encryption of the data payload. Users
+or applications wishing or needing to keep their images confidential
+must overlay their own encryption on the ktx data during transmission.
+
+Interoperability considerations:
+
+The data payload may be compressed using a vendor-specific scheme.
+In this case, only devices or applications having a matching
+decompressor will be able to display the data. The compression
+scheme is identified in the ktx2 data so applications can quickly
+reject data using unsupported schemes.
+
+Published specification:
+
+The KTX file format specification can be found at
+
+    http://github.khronos.org/KTX-Specification/
+
+Applications that use this media type :
+
+Currently the tools in the KTX Software repo
+(https://github.com/KhronosGroup/KTX-Software) - ktx2check, ktx2ktx2,
+ktxinfo, ktxsc, toktx - and gltfpack. Prototype loaders are available
+in THREE.js and Babylon.js. It is anticipated it will incorporated
+within the glTF standard and be widely used by by applications using
+glTF content and by applications built on top of OpenGl, Vulkan,
+WebGL and other 3D API standards as the means of delivering texture
+data. Since image/ktx2 supports universal textures (textures that
+can be transcoded to any GPU block-compressed format) uptake is
+expected to be nearly, er, universal.
+
+Additional information:
+
+    Magic number(s): 12 octets
+				 { 0xAB,0x4B,0x54,0x58,0x20,0x32,0x30,0xBB,0x0D,0x0A,0x1A,0x0A }
+    File extension(s): .ktx2
+    Macintosh file type code(s):
+
+Person & email address to contact for further information:
+
+    Mark Callow (khronos at callow.im)
+
+Intended usage: COMMON
+
+Restrictions on usage: none
+
+Authors: Mark Callow, Alexey Knyazev
+
+Change controller:
+
+The Khronos Group (www.khronos.org), the industry consortium
+responsible for standards such as OpenGL, OpenGL ES, WebGL and
+Vulkan.
+
+Provisional registration? No
+
+Relationship to image/ktx:
+
+image/ktx shares the purpose of being a container for texture data
+for use with 3D APIs. image/ktx2 offers a significant increase in
+functionality, including universal textures and supercompression,
+that required incompatible changes to the container format hence
+this new registration request.
