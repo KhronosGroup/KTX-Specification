@@ -764,7 +764,7 @@ In versions of OpenGL < 4.5 and in OpenGL ES, faces of non-array
 cubemap textures (any texture where `faceCount` is 6 and
 `layerCount` is 0) must be uploaded individually. Loaders
 wishing to minimize the size of their intermediate buffers may want
-to read the faces individually rather then as a block of size
+to read the faces individually rather than as a block of size
 `level[n].uncompressedByteLength`.
 ====
 
@@ -870,7 +870,7 @@ of <<KDF13>>.
 
 For Basis Universal, `texelBlockDimension[0-3]` and each sample's
 `bitlength`, `bitOffset`, `sampleLower` and `sampleUpper` must be
-0
+0.
 
 [IMPORTANT]
 ====
@@ -1230,7 +1230,7 @@ frame. If the file is not an _animation sequence_ it must be unset. See
 ====== rgbSliceByteOffset, rgbSliceByteLength
 The offset of the start of the RGB slice within the
 <<_levelimages,levelImages>> of its mip level and its byte length.
-ahe offset of <<_levelimages,levelImages>> within the file is given
+The offset of <<_levelimages,levelImages>> within the file is given
 in the <<_level_index,Level Index>>.
 
 ====== alphaSliceByteOffset, alphaSliceByteLength
@@ -1478,7 +1478,7 @@ For OpenGL {,ES} the mapping is specified with the key
 
 - `KTXglFormat`
 
-The value is 12 bytes representing 3 Uint32 values:
+The value is 12 bytes representing 3 UInt32 values:
 
 [source,c]
 ----
@@ -1619,7 +1619,7 @@ short animation by using the key
 
 -   `KTXanimData`
 
-The value is 12 bytes representing 3 Uint32 values:
+The value is 12 bytes representing 3 UInt32 values:
 [source,c]
 ----
 UInt32 duration
