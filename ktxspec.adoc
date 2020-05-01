@@ -57,17 +57,16 @@ for OpenGL^®^, OpenGL ES^™️^, Vulkan^®^ and WebGL^™️^ applications.  I
 distinguished by the simplicity of the loader required to instantiate
 texture objects from the file contents.
 
-It extends the version 1 format with support for easier loading of Vulkan
-textures, easier use by non-OpenGL and non-Vulkan applications, support
-for streaming and supercompression.
+It extends the version 1 format with easier loading of Vulkan
+textures, easier use by non-OpenGL and non-Vulkan applications,
+universal textures, supercompression and the possibility of streaming.
 
 [discrete]
 === Status of this document
 
 Ready for trial implementation. Be aware that changes may be made
-if issues are discovered during trial. In particular changes may
-be made to the DFD support. KTX2 files to this specification should
-_NOT_ be distributed.
+if issues are discovered during trial. KTX2 files to this specification
+should _NOT_ be distributed.
 
 == Introduction
 
@@ -279,38 +278,40 @@ immediate detection of common file-transfer problems.
 
 === vkFormat
 `vkFormat` specifies the image format using Vulkan `VkFormat` enum
-values. It can be any value defined in core Vulkan 1.1 <<VULKAN12>>,
+values. It can be any value defined in core Vulkan 1.2 <<VULKAN12>>,
 future core versions or by a registered Vulkan extension. Values
-defined by core Vulkan 1.1 are given in
-{url-khr-vulkan}/specs/1.1/html/vkspec.html#formats-definition[section
+defined by core Vulkan 1.2 are given in
+{url-khr-vulkan}/specs/1.2/html/vkspec.html#formats-definition[section
 32.1 _Format Definition_] of <<VULKAN12>>.  The list of registered
 extensions is provided in the {url-khr-vulkan}/#repos[Khronos
 Vulkan Registry]. A complete list of values defined by both core
-Vulkan 1.1 and extensions can be found in
-{url-khr-vulkan}/specs/1.1-extensions/html/vkspec.html#formats-definition[section
-37.1 _Format Definition_] of <<VULKAN12EXT>>.
+Vulkan 1.2 and extensions can be found in
+{url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html#formats-definition[section
+39.1 _Format Definition_] of <<VULKAN12EXT>>.
 
 NOTE: The section number given for <<VULKAN12EXT>> is as of this
 writing (Vulkan 1.2.133). It is subject to change as future extensions
 are added to the document but the link should remain valid as it is to
 an internal anchor.
 
-`vkFormat` can be `VK_FORMAT_UNDEFINED` (0) in various cases outlined
-within this specification, when the format of the data is a not a
-recognized Vulkan format. Information about the data is always given
-by the Data Format Descriptor.
+When the format of the data is a not a recognized Vulkan format,
+such as in the case of the universal texture formats, `vkFormat`
+can be `VK_FORMAT_UNDEFINED` (0). Permissible cases are outlined
+within this specification.  Information about the format is always
+provided by the Data Format Descriptor.
 
 Values listed in <<prohibitedFormats>> must not be used nor any
-`\*_SCALED_*` formats added in future.  The table in <<formatMapping>>
-gives the mapping for all `VkFormat` enum values in Vulkan 1.1 core
-and the extensions known at the time of writing, to the equivalent
-OpenGL format (internal format, format and type values), DXGI_FORMAT
-and MTLPixelFormat. Applications must use these mappings. If
-<<formatMapping>> does not have an entry for the value of `vkFormat`,
-and a mapping for one or more of the other APIs exists the KTX2
-writer must provide that mapping using one or more of the metadata
-items described in <<formatMappingMetadata>>. This includes the
-case of `VK_FORMAT_UNDEFINED`.
+`\*_SCALED_*`, `\*422*`, `\*[2-9]PLANE*` or `\*[34]PACK16*` formats
+added in future.  The table in <<formatMapping>> gives the mapping
+for all `VkFormat` enum values in Vulkan 1.2 core and the extensions
+known at the time of writing, to the equivalent OpenGL format
+(internal format, format and type values), DXGI_FORMAT and
+MTLPixelFormat. Applications must use these mappings. If <<formatMapping>>
+does not have an entry for the value of `vkFormat`, and a mapping
+for one or more of the other APIs exists the KTX2 writer must provide
+that mapping using one or more of the metadata items described in
+<<formatMappingMetadata>>.  This may include cases of
+`VK_FORMAT_UNDEFINED`.
 
 [TIP]
 ====
@@ -366,6 +367,40 @@ device.
 | VK_FORMAT_R16G16B16_SSCALED          | 87
 | VK_FORMAT_R16G16B16A16_USCALED       | 93
 | VK_FORMAT_R16G16B16A16_SSCALED       | 94
+| VK_FORMAT_G8B8G8R8_422_UNORM | 1000156000
+| VK_FORMAT_B8G8R8G8_422_UNORM | 1000156001
+| VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM | 1000156002
+| VK_FORMAT_G8_B8R8_2PLANE_420_UNORM | 1000156003
+| VK_FORMAT_G8_B8_R8_3PLANE_422_UNORM | 1000156004
+| VK_FORMAT_G8_B8R8_2PLANE_422_UNORM | 1000156005
+| VK_FORMAT_G8_B8_R8_3PLANE_444_UNORM | 1000156006
+| VK_FORMAT_R10X6_UNORM_PACK16 | 1000156007
+| VK_FORMAT_R10X6G10X6_UNORM_2PACK16 | 1000156008
+| VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16 | 1000156009
+| VK_FORMAT_G10X6B10X6G10X6R10X6_422_UNORM_4PACK16 | 1000156010
+| VK_FORMAT_B10X6G10X6R10X6G10X6_422_UNORM_4PACK16 | 1000156011
+| VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_420_UNORM_3PACK16 | 1000156012
+| VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16 | 1000156013
+| VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_422_UNORM_3PACK16 | 1000156014
+| VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16 | 1000156015
+| VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_444_UNORM_3PACK16 | 1000156016
+| VK_FORMAT_R12X4_UNORM_PACK16 | 1000156017
+| VK_FORMAT_R12X4G12X4_UNORM_2PACK16 | 1000156018
+| VK_FORMAT_R12X4G12X4B12X4A12X4_UNORM_4PACK16 | 1000156019
+| VK_FORMAT_G12X4B12X4G12X4R12X4_422_UNORM_4PACK16 | 1000156020
+| VK_FORMAT_B12X4G12X4R12X4G12X4_422_UNORM_4PACK16 | 1000156021
+| VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_420_UNORM_3PACK16 | 1000156022
+| VK_FORMAT_G12X4_B12X4R12X4_2PLANE_420_UNORM_3PACK16 | 1000156023
+| VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_422_UNORM_3PACK16 | 1000156024
+| VK_FORMAT_G12X4_B12X4R12X4_2PLANE_422_UNORM_3PACK16 | 1000156025
+| VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_444_UNORM_3PACK16 | 1000156026
+| VK_FORMAT_G16B16G16R16_422_UNORM | 1000156027
+| VK_FORMAT_B16G16R16G16_422_UNORM | 1000156028
+| VK_FORMAT_G16_B16_R16_3PLANE_420_UNORM | 1000156029
+| VK_FORMAT_G16_B16R16_2PLANE_420_UNORM | 1000156030
+| VK_FORMAT_G16_B16_R16_3PLANE_422_UNORM | 1000156031
+| VK_FORMAT_G16_B16R16_2PLANE_422_UNORM | 1000156032
+| VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM | 1000156033
 |===
 
 [NOTE]
@@ -381,6 +416,9 @@ The \*SCALED* formats are prohibited because they are intended for
 vertex data, very few, if any, implementations support using them
 for texturing and a Data Format Descriptor cannot distinguish
 these from `int` values having the same bit pattern.
+
+The \*422*, \*[2-9]PLANE* and \*[34]PACK16* formats are prohibited
+because multiplanar and YUV formats are not supported.
 ====
 
 [CAUTION]
@@ -597,16 +635,16 @@ inflated from the scheme prior to GPU sampling.
 
 [TIP]
 ====
-LZW-style lossless supercompression, e.g, scheme 2, is
-generally ineffective on the block-compressed data of GPU texture
-formats. It is best reserved for use with uncompressed texture
-formats or with block-compressed data that has been specially
-optimized such as by _Rate Distortion Optimization_ mode <<RDO>>.
+LZW-style lossless supercompression, e.g, scheme 2, is generally
+ineffective on the block-compressed data of GPU texture formats.
+It is best reserved for use with uncompressed texture formats or
+with block-compressed data that has been specially conditioned for
+LZW compression such as by _Rate Distortion Optimization_ <<RDO>>.
 
-Basis Universal internally uses some block-compressed texture formats
-and includes Rate Distortion Optimization. Encoding to the internal
-format is combined with supercompression. Therefore it is applicable
-only to uncompressed images.
+Basis Universal internally uses ETC1S universal block-compressed
+texture format and Rate Distortion Optimization. Encoding to the
+RDO-conditioned internal format is combined with supercompression.
+Therefore it is applicable only to uncompressed images.
 ====
 
 ==== Scheme Notes (Normative)
@@ -623,12 +661,15 @@ only to uncompressed images.
 [NOTE]
 .Rationale
 ====
-The Basis Universal encoder combines encoding to a block-compressed
-format, chosen for ease of transcoding, with deflation. The transcoder
+The Basis Universal encoder combines encoding to ETC1S format,
+chosen for ease of transcoding, with deflation. The transcoder
 combines inflation back to the internal block-compressed format
-with transcoding to one of many possible other block compressed
-formats. There is therefore no common pre- and post-supercompression
-format.
+with transcoding to one of the many GPU-specific block compressed
+formats. There is therefore no visible common pre- and
+post-supercompression format.
+
+The uncompressed byte length is dependent on the which transcode
+target format is selected.
 ====
 
 ===== Zstandard
@@ -785,8 +826,13 @@ described below.
 ====
 A _dfDescriptor_ is useful in the following cases:
 
+* wise choice of transcode target format when the data is in one of
+  the universal formats by providing information about the components
+  present;
 * precise color management using the descriptor's color space
-  information,
+  information;
+* use of pre-multiplied alpha by providing indication of
+  pre-multiplication.
 * easier use of the images by non-OpenGL and non-Vulkan applications.
   There will be no need for large tables to interpret format enums.
 ====
@@ -796,16 +842,14 @@ The following restrictions must be obeyed when setting the fields of a
 _dfDescriptorBlock_.
 
 * The value of `<<_vkformat,vkFormat>>` and the image data must
-  never contradict the DFD and, vice-versa, the DFD must not contradict
-  `<<_vkformat,vkFormat>>`. Supercompression schemes > 1 are an
-  exception to this rule. In those cases the DFD will not be that for
-  the `<<_vkformat,vkFormat>>` value. Thus the value of `vkFormat` can
-  be used as a shortcut. Only when it is `VK_FORMAT_UNDEFINED`, does an
-  application need to utilize sample information from the DFD. (In this
-  case contradiction is impossible.)
-* `colorModel` must be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA`
-  or one of the block compressed color models listed in <<KDF13>> Section
-  5.6 or its successors, currently `KDF_DF_MODEL_BC1A` to
+  never contradict the DFD and, vice-versa, the DFD must not
+  contradict `<<_vkformat,vkFormat>>`. Thus the value of `vkFormat`
+  can be used as a shortcut. Only when it is `VK_FORMAT_UNDEFINED`,
+  does an application need to utilitize sample information from the
+  DFD.  (In this case contradiction is impossible.)
+* `colorModel` must be `KHR_DF_MODEL_RGBSDA`
+  or one of the block compressed color models listed in <<KDF13>>
+  Section 5.6 or its successors, currently `KDF_DF_MODEL_BC1A` to
   `KDF_DF_MODEL_UASTC`.
 * `colorPrimaries` may be any of the available values since
   conversion of the selected primaries and white point to a display's
@@ -821,27 +865,20 @@ standard gamut images.
   `KHR_DF_TRANSFER_SRGB` since these are the only ones supported by the
   vast majority of graphics hardware and correct filtering and blending
   without hardware support is difficult to impossible.
-* If `<<_vkformat,vkFormat>>` is one of the `+*_SRGB{,_*}+` formats then
-  `transferFunction` must be `KHR_DF_TRANSFER_SRGB` and vice-versa.
-  For all other non-YUV formats `transfer_function` must be
+* If `<<_vkformat,vkFormat>>` is one of the `+*_SRGB{,_*}+` formats
+  then `transferFunction` must be `KHR_DF_TRANSFER_SRGB` and
+  vice-versa.  For all other `vkFormat` values, except
+  `VK_FORMAT_UNDEFINED`, `transfer_function` must be
   `KHR_DF_TRANSFER_LINEAR`.
 
-[NOTE]
-.Editors Note
-====
-Whether KTX2 will support YUV images is not yet decided.
-`transfer_function` restrictions for YUV formats will be updated as
-necessary.
-====
-
 ==== Providing additional information
-There is one case where the _dfDescriptorBlock_ can be used to
-provide additional information beyond that given by <<_vkformat,vkFormat>>.
+There is one case where the _dfDescriptorBlock_ is used to
+provide information beyond that given by <<_vkformat,vkFormat>>.
 
 Premultiplied Alpha::
   `KHR_DF_FLAG_ALPHA_PREMULTIPLIED` (= 1) can be set in the `flags`
   field if the images' RGB components have been multiplied by their
-  alpha components.
+  alpha components, otherwise it must be 0.
 
 ==== Special Cases
 
@@ -853,16 +890,16 @@ The Universal ASTC image format (UASTC) can be specified using
 must be transcoded to a GPU-supported block-compressed format before
 being uploaded to and sampled by a GPU. UASTC images can be
 supercompressed with Zstandard (`supercompressionScheme` = 2) with
-or without first performing Rate Distortion Optimization. If
-supercompression is used, the DFD's `bytesPlane[0-7]` must be set
-to 0 as described in the next subsection.
+or without first conditioning the data with Rate Distortion
+Optimization. If supercompression is used, the DFD's `bytesPlane[0-7]`
+must be set to 0 as described in the next subsection.
 
 ===== DFD for Supercompressed Data
 When `<<_supercompressionscheme,supercompressionScheme>> is not 0`
 the _dfDescriptorBlock_ must preserve the `colorModel`, `transferFunction`,
 `colorPrimaries`, and `flags` of the pre-deflation images - for
 Basis Universal (`supercompressionScheme` = 1) the pre-encoding and
-deflation images - along with each sample's `channelType` and
+-deflation images - along with each sample's `channelType` and
 qualifiers in order to indicate which components are present in the
 deflated images. `bytesPlane[0-7]` must be set to 0 to indicate an
 _unsized format_, as described in Section 5.19 "Unsized Formats"
@@ -987,10 +1024,10 @@ descriptor as defined in <<KDF13>>.
 ====
 
 ==== dfdBlock
-A `Descriptor Block` as defined in <<KDF13>>, the high-order 16
+A `Descriptor Block` as defined in <<KDF13>>. The high-order 16
 bits of its first UInt32 are the `descriptor_type` and the high-order
 16 bits of the second UInt32 are the `descriptor_block_size`.
-`descriptor_block_sizes` are mandated to be multiples of 4
+`descriptor_block_size` is mandated to be a multiple of 4
 which guarantees that the following `keyAndValueByteLength`
 will be aligned in a 32-bit word.
 
@@ -1070,33 +1107,28 @@ schemes, the specification for this data block is given below.
 [#basisu_gd]
 ==== Basis Universal Global Data
 
-Basis Universal combines encoding to a block-compressed format with
-lossless supercompression.  The block-compressed format is chosen
-such that it can be easily transcoded to various GPU-native
-block-compressed formats. Typically it is a subset of one of those
-formats.  Supercompression is accomplished by processing the
-block-compressed representation in preparation for entropy encoding
-then Huffman encoding the result.  Basis Universal creates a global
-codebook referenced by each supercompressed image that contains
-processed endpoint and selector data from the block-compression and
-the Huffman tables. The global data block contains this codebook.
+Basis Universal combines encoding to ETC1S block-compressed format
+(a subset of ETC1, see <<KDF13>>) with lossless supercompression.
+ETC1S was designed so that it can be easily transcoded to various
+GPU-native block-compressed formats. It is a common subset of those
+formats.  Supercompression is accomplished by conditioning the
+block-compressed representation for entropy encoding then Huffman
+encoding the result.  Basis Universal creates a global codebook
+referenced by each supercompressed image that contains processed
+endpoint and selector data from the block-compression and the Huffman
+tables. The global data block contains this codebook.
 
 It also contains an array of _image descriptors_ with flags for each image
 and the offset and length within the image's mip level of the data for
 that image.
 
-Basis Universal currently uses ETC1S (a subset of ETC1, see <<KDF13>>)
-as its base. Plans are for at least one additional base format to
-support higher quality, likely a subset of ASTC (see <<KDF13>>).
-
 The bitstreams for endpoints, selectors, Huffman tables and the image
 data are defined in <<BASISU>>. These bitstreams have to be decoded to
 reconstruct the base images.
 
-Because ETC1 does not support an alpha component, when ETC1S is the
-base, i.e. when `isETC1S` is set in <<_globalflags,globalFlags>>,
-images may consist of 1 or 2 _slices_ depending on the pre-deflation
-components as detailed below.
+Because ETC1 does not support an alpha component, images may consist
+of 1 or 2 _slices_ depending on the pre-deflation components as
+detailed below.
 
 _One-component images_ must have the component value replicated in all 3
 components of the _rgb_ slice of the compressed data and have no _alpha_
@@ -1113,10 +1145,10 @@ _Four-component images_ must have their RGB components in the rgb slice
 and the alpha component replicated in all 3 components of the alpha
 slice.
 
-TIP: KTX writers may map components of their original input images into
-the RGB and A components of the supercompressed image in any way choose.
-They may also offer an option to apply KTXswizzle metadata prior to
-supercompressing an uncompressed KTX2 file.
+TIP: KTX writers may map components of their original input images
+into the RGB and A components of the supercompressed image in any
+way they choose.  They may also offer an option to apply KTXswizzle
+metadata prior to supercompressing an uncompressed KTX2 file.
 
 The structure of the global data is shown below.
 
@@ -1187,8 +1219,7 @@ hasAlphaSlices = 0x04
 ----
 
 For current Basis Universal, `isETC1S` must be set. The flag is provided
-together with `extendedData` to enable future enhancements such as HDR
-support.
+together with `extendedData` to enable future enhancements.
 
 `hasAlphaSlices` indicates the Basis data contains alpha slices.
 
@@ -1284,8 +1315,8 @@ This is only required when
 `<<_supercompressionscheme,supercompressionScheme>> == 0`. When
 `<<_vkformat,vkFormat>>` is not `VK_FORMAT_UNDEFINED`, _texel block
 size_ is as given for the `vkFormat` value in
-{url-khr-vulkan}/specs/1.1-extensions/html/vkspec.html#formats-compatibility[section
-37.1.6 _Format Compatibility Classes_] of <<VULKAN12EXT>> otherwise
+{url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html#formats-compatibility[section
+39.1.6 _Format Compatibility Classes_] of <<VULKAN12EXT>> otherwise
 it is 16.
 
 [NOTE]
@@ -1861,12 +1892,12 @@ and the application/zstd Media Type.]. Y.
 Collet, M. Kucherawy, Ed. Internet Engineering Task Force (IETF), October 2018.
 
 - [[[VULKAN12]]] {url-khr-vulkan}/specs/1.2/html/vkspec.html[Vulkan^®^
-1.1 - A Specification].
-The Khronos Group, December 2018.
+1.2 - A Specification].
+The Khronos Group, April 2020.
 
 - [[[VULKAN12EXT]]] {url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html[Vulkan^®^
-1.1 - A Specification (with all registered Vulkan extensions)].
-The Khronos Group, December 2018.
+1.2 - A Specification (with all registered Vulkan extensions)].
+The Khronos Group, April 2020.
 
 [NOTE]
 ====
