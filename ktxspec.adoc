@@ -287,10 +287,10 @@ extensions is provided in the {url-khr-vulkan}/#repos[Khronos
 Vulkan Registry]. A complete list of values defined by both core
 Vulkan 1.2 and extensions can be found in
 {url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html#formats-definition[section
-39.1 _Format Definition_] of <<VULKAN12EXT>>.
+40.1 _Format Definition_] of <<VULKAN12EXT>>.
 
 NOTE: The section number given for <<VULKAN12EXT>> is as of this
-writing (Vulkan 1.2.133). It is subject to change as future extensions
+writing (Vulkan 1.2.140). It is subject to change as future extensions
 are added to the document but the link should remain valid as it is to
 an internal anchor.
 
@@ -813,8 +813,8 @@ to read the faces individually rather than as a block of size
 === Data Format Descriptor
 The Data Format Descriptor (_dfDescriptor_) describes the layout
 of the texel blocks in `data`.  The full specification for this is
-found in the _Khronos Data Format Specification_ version 1.3
-<<KDF13>>.
+found in Chapters 3 to 8 of the _Khronos Data Format Specification_
+version 1.3 <<KDF13>>.
 
 The dfDescriptor is partially expanded in this specification in
 order to provide sufficient information for a KTX2 file to be parsed
@@ -894,6 +894,9 @@ supercompressed with Zstandard (`supercompressionScheme` = 2) with
 or without first conditioning the data with Rate Distortion
 Optimization. If supercompression is used, the DFD's `bytesPlane[0-7]`
 must be set to 0 as described in the next subsection.
+
+The format of the UASTC data is described in Chapter 25 "UASTC
+Compressed Texture Image Format" of <<KDF13>>.
 
 ===== DFD for Supercompressed Data
 When `<<_supercompressionscheme,supercompressionScheme>> is not 0`
@@ -1021,16 +1024,17 @@ the file is invalid.
 [NOTE]
 ====
 `dfdTotalSize` is included so that the KTX file contains a complete
-descriptor as defined in <<KDF13>>.
+descriptor as defined in Chapter 4 "Khronos Data Format Descriptor"
+of <<KDF13>>.
 ====
 
 ==== dfdBlock
-A `Descriptor Block` as defined in <<KDF13>>. The high-order 16
-bits of its first UInt32 are the `descriptor_type` and the high-order
-16 bits of the second UInt32 are the `descriptor_block_size`.
-`descriptor_block_size` is mandated to be a multiple of 4
-which guarantees that the following `keyAndValueByteLength`
-will be aligned in a 32-bit word.
+A `Descriptor Block` as defined in Section 4.1 of <<KDF13>>. The
+high-order 16 bits of its first UInt32 are the `descriptor_type`
+and the high-order 16 bits of the second UInt32 are the
+`descriptor_block_size`.  `descriptor_block_size` is mandated to
+be a multiple of 4 which guarantees that the following
+`keyAndValueByteLength` will be aligned in a 32-bit word.
 
 === Key/Value Data
 Key/Value data consists of a set of key/value pairs. The number of
@@ -1109,15 +1113,15 @@ schemes, the specification for this data block is given below.
 ==== Basis Universal Global Data
 
 Basis Universal combines encoding to ETC1S block-compressed format
-(a subset of ETC1, see <<KDF13>>) with lossless supercompression.
-ETC1S was designed so that it can be easily transcoded to various
-GPU-native block-compressed formats. It is a common subset of those
-formats.  Supercompression is accomplished by conditioning the
-block-compressed representation for entropy encoding then Huffman
-encoding the result.  Basis Universal creates a global codebook
-referenced by each supercompressed image that contains processed
-endpoint and selector data from the block-compression and the Huffman
-tables. The global data block contains this codebook.
+(a subset of ETC1, see Section 21.1 of <<KDF13>>) with lossless
+supercompression.  ETC1S was designed so that it can be easily
+transcoded to various GPU-native block-compressed formats. It is a
+common subset of those formats.  Supercompression is accomplished
+by conditioning the block-compressed representation for entropy
+encoding then Huffman encoding the result.  Basis Universal creates
+a global codebook referenced by each supercompressed image that
+contains processed endpoint and selector data from the block-compression
+and the Huffman tables. The global data block contains this codebook.
 
 It also contains an array of _image descriptors_ with flags for each image
 and the offset and length within the image's mip level of the data for
@@ -1317,7 +1321,7 @@ This is only required when
 `<<_vkformat,vkFormat>>` is not `VK_FORMAT_UNDEFINED`, _texel block
 size_ is as given for the `vkFormat` value in
 {url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html#formats-compatibility[section
-39.1.6 _Format Compatibility Classes_] of <<VULKAN12EXT>> otherwise
+40.1.6 _Format Compatibility Classes_] of <<VULKAN12EXT>> otherwise
 it is 16.
 
 [NOTE]
@@ -1362,12 +1366,13 @@ other combination of parameters makes the KTX file invalid.
 
 * For Basis Universal supercompressed data.
 * For compressed color models in <<KDF13>> or successors that do
-  not have Vulkan formats provided the format is either transcodable
-  or corresponds to a format in DirectX or Metal. In the latter
-  case at least one format metadata item is required. The only such
-  format currently is the transcodable format with `colorModel`
-  `KDF_DF_MODEL_UASTC` (= 166). `colorModel` 167 is reserved for
-  an expected high dynamic range transcodable format.
+  not have corresponding Vulkan formats provided the format is
+  either transcodable or corresponds to a format in DirectX or
+  Metal. In the latter case at least one format metadata item is
+  required. The only such format currently is the transcodable
+  format with `colorModel` `KDF_DF_MODEL_UASTC` (= 166). `colorModel`
+  167 is reserved for an expected high dynamic range transcodable
+  format.
 * For Basis Universal supercompressed data.
 * For formats from Metal or DirectX that do not have Vulkan
   equivalents. In this case at least one API's format must be
@@ -1973,15 +1978,15 @@ Collet, M. Kucherawy, Ed. Internet Engineering Task Force (IETF), October 2018.
 
 - [[[VULKAN12]]] {url-khr-vulkan}/specs/1.2/html/vkspec.html[Vulkan^®^
 1.2 - A Specification].
-The Khronos Group, April 2020.
+The Khronos Group, May 2020.
 
 - [[[VULKAN12EXT]]] {url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html[Vulkan^®^
 1.2 - A Specification (with all registered Vulkan extensions)].
-The Khronos Group, April 2020.
+The Khronos Group, May 2020.
 
 [NOTE]
 ====
-The Vulkan 1.1 references are living documents that are updated
+The Vulkan 1.2 references are living documents that are updated
 weekly with corrections, clarifications and, in the case of
 <<VULKAN12EXT>>, newly released extensions. References to the
 specifications do not imply that KTX header field values are limited
