@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL^®^ and Vulkan^®^ textures.
-:docrev: draft20
+:docrev: draft21
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -911,7 +911,7 @@ of <<KDF13>>.
 
 For Basis Universal, `texelBlockDimension[0-3]` and each sample's
 `bitlength`, `bitOffset`, `sampleLower` and `sampleUpper` must be
-0.
+0
 
 [IMPORTANT]
 ====
@@ -1266,7 +1266,7 @@ frame. If the file is not an _animation sequence_ it must be unset. See
 ====== rgbSliceByteOffset, rgbSliceByteLength
 The offset of the start of the RGB slice within the
 <<_levelimages,levelImages>> of its mip level and its byte length.
-The offset of <<_levelimages,levelImages>> within the file is given
+ahe offset of <<_levelimages,levelImages>> within the file is given
 in the <<_level_index,Level Index>>.
 
 ====== alphaSliceByteOffset, alphaSliceByteLength
@@ -1594,7 +1594,7 @@ For OpenGL {,ES} the mapping is specified with the key
 
 - `KTXglFormat`
 
-The value is 12 bytes representing 3 UInt32 values:
+The value is 12 bytes representing 3 Uint32 values:
 
 [source,c]
 ----
@@ -1735,7 +1735,7 @@ short animation by using the key
 
 -   `KTXanimData`
 
-The value is 12 bytes representing 3 UInt32 values:
+The value is 12 bytes representing 3 Uint32 values:
 [source,c]
 ----
 UInt32 duration
@@ -2137,9 +2137,17 @@ This appendix is informative only.
                                     Remove Zlib & LZMA. Limit use of
                                     VK_FORMAT_UNDEFINED to those in the
                                     spec.
-|      {docrev}     |  {revdate}  | Relax requirement for KTXwriter.
+|      draft20      |  2020-03-20 | Relax requirement for KTXwriter.
                                     Allow use of VK_FORMAT_UNDEFINED for
                                     UASTC.
+|      {docrev}     |  {revdate}  | Add draft Media-Type registration.
+                                    Update Vulkan references to 1.2 and
+                                    give more precise KDFS references.
+                                    Add YUV/multiplane to list of
+                                    prohibited formats. Rewrite Basis
+                                    descriptions to account for UASTC.
+                                    Describe use of VK_FORMAT_UNDEFINED.
+                                    Generally polish the language.
 |===
 
 [discrete]
