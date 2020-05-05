@@ -297,8 +297,9 @@ an internal anchor.
 When the format of the data is a not a recognized Vulkan format,
 such as in the case of the universal texture formats, `vkFormat`
 can be `VK_FORMAT_UNDEFINED` (0). Permissible cases are outlined
-within this specification.  Information about the format is always
-provided by the Data Format Descriptor.
+within this specification and summarized in
+<<Use of `VK_FORMAT_UNDEFINED`>>.  Information about the format
+is always provided by the Data Format Descriptor.
 
 Values listed in <<prohibitedFormats>> must not be used nor any
 `\*_SCALED_*`, `\*422*`, `\*[2-9]PLANE*` or `\*[34]PACK16*` formats
@@ -1339,6 +1340,115 @@ bytes between levels to meet the alignment requirement.
 ====
 
 == General comments
+=== Texture Type
+The type of texture can be determined from the following table. Any
+other combination of parameters makes the KTX file invalid.
+
+[options="header"]
+|====
+|Type|<<dimensions,pixelWidth>>|<<dimensions,pixelHeight>>|<<dimensions,pixelDepth>>|<<_layercount,layerCount>>|<<_facecount,faceCount>>
+|1D           |> 0       |0          |0         |0                    |1
+|2D           |> 0       |> 0        |0         |0                    |1
+|3D           |> 0       |> 0        |> 0       |0                    |1
+|Cubemap      |> 0       |> 0        |0         |0                    |6
+|1D Array     |> 0       |0          |0         |> 0                  |1
+|2D Array     |> 0       |> 0        |0         |> 0                  |1
+|3D Array     |> 0       |> 0        |> 0       |> 0                  |1
+|Cubemap Array|> 0       |> 0        |0         |> 0                  |6
+|====
+
+=== Use of `VK_FORMAT_UNDEFINED`
+`VK_FORMAT_UNDEFINED` can be used
+
+* For Basis Universal supercompressed data.
+* For compressed color models in <<KDF13>> or successors that do
+  not have Vulkan formats provided the format is either transcodable
+  or corresponds to a format in DirectX or Metal. In the latter
+  case at least one format metadata item is required. The only such
+  format currently is the transcodable format with `colorModel`
+  `KDF_DF_MODEL_UASTC` (= 166). `colorModel` 167 is reserved for
+  an expected high dynamic range transcodable format.
+* For Basis Universal supercompressed data.
+* For formats from Metal or DirectX that do not have Vulkan
+  equivalents. In this case at least one API's format must be
+  recorded in a format metadata item.
+
+Consumers of KTX files must fail gracefully when encountering a
+VK_FORMAT_UNDEFINED format they are not prepared to deal with.
+
+=== Future Additional Functionality
+[NOTE]
+.Editor's Note
+====
+I am far from happy with this section and seek advice. I am considering
+the types of additions in the following list. The specification
+needs to support them while allowing software unaware of the new
+features to gracefully reject handling them and, preferably, not
+requiring a new Media Type.
+
+* Formats subsequently added to Vulkan.
+* One or more new transcodable formats, in particular one for HDR
+  images.
+* New official metadata (i.e, KTX prefixed) hopefully in a way that will
+  not trigger validation failures in ktx2check. For example an item to
+  say that unnormalized texture coordinates should be used with the
+  texture.
+* New block compressed formats not supported by Vulkan but by either
+  DirectX or Metal.
+
+Feedback is welcome on the importance or otherwise of these additions
+and on any types of additions that have been omitted.
+
+One concern with changing the minor version number, as suggested
+for some of the cases, is that tools may create files that do not
+use any of the new features yet are flagged with the new version
+number possibly making earlier versions of software to refuse to
+load them.
+
+The idea is that the magic number string will be defined to include
+`KTX2[0-9]` (read as a classic RE) instead of `KTX20`. I have not
+modified the magic number yet pending resolution of whether this
+is a good way to handle the issues and also whether such a thing
+would be acceptable in the Media Type registration. My contact on
+the IETF says they are "flexible".
+
+Bumping the minor version has the benefit that applications can
+advertise support for, e.g. version 2.1.
+====
+
+Adding support for a new transcodable format will require bumping the
+file minor version as consumers will need to understand how to transcode
+the data. A check of the minor version will be simpler than testing if
+the `colorModel` is not in an already long list plus it identifies that
+the addition is more than a new block-compressed format for DirectX or
+Metal.
+
+Support for new Vulkan formats does not require bumping as those
+are passed to Vulkan for interpretation. Support for a new compressed
+`colorModel` also does not as metadata is required to give the
+mapping to at least one API.
+
+Additions of metadata such as one instructing to use unnormalized
+texel coordinates will require bumping the minor version number
+otherwise the validator has no way to tell that the new metadata
+item is a valid key.
+
+If writing a file that does not use any of the features of a new
+version, writers must use the old version number.
+
+=== Animation Sequence
+The images of a 2D array texture can be indicated to be the frames
+of a short animation sequence by including <<_ktxanimdata,KTXanimData>>
+metadata. Valid _animation_ files must have the combination of
+parameters outlined in <<Texture Type>> for 2D Array textures in
+addition to KTXanimData metadata. <<_layercount,`layerCount`>> is
+the number of frames in the video, i.e. layers become the temporal
+axis.
+
+TIP: Use of uncompressed images for an animation sequence will not be
+memory efficient. Animation sequences should be limited to
+block-compressed or, preferably, Basis Universal compressed textures.
+
 === Endianness
 KTX {ktxver} files are little endian. All header fields and the
 data for all uncompressed texture formats are stored in little
@@ -1362,36 +1472,6 @@ memory immediately follows the end of the preceding row. I.e the
 data must be packed according to the rules described in section
 8.4.4.1 _Unpacking_ of the OpenGL 4.6 specification <<OPENGL46>>
 with `GL_UNPACK_ROW_LENGTH` = 0 and `GL_UNPACK_ALIGNMENT` = 1.
-
-=== Texture Type
-The type of texture can be determined from the following table. Any
-other combination of parameters makes the KTX file invalid.
-
-[options="header"]
-|====
-|Type|<<dimensions,pixelWidth>>|<<dimensions,pixelHeight>>|<<dimensions,pixelDepth>>|<<_layercount,layerCount>>|<<_facecount,faceCount>>
-|1D           |> 0       |0          |0         |0                    |1
-|2D           |> 0       |> 0        |0         |0                    |1
-|3D           |> 0       |> 0        |> 0       |0                    |1
-|Cubemap      |> 0       |> 0        |0         |0                    |6
-|1D Array     |> 0       |0          |0         |> 0                  |1
-|2D Array     |> 0       |> 0        |0         |> 0                  |1
-|3D Array     |> 0       |> 0        |> 0       |> 0                  |1
-|Cubemap Array|> 0       |> 0        |0         |> 0                  |6
-|====
-
-=== Animation Sequence
-The images of a 2D array texture can be indicated to be the frames
-of a short animation sequence by including <<_ktxanimdata,KTXanimData>>
-metadata. Valid _animation_ files must have the combination of
-parameters outlined in <<Texture Type>> for 2D Array textures in
-addition to KTXanimData metadata. <<_layercount,`layerCount`>> is
-the number of frames in the video, i.e. layers become the temporal
-axis.
-
-TIP: Use of uncompressed images for an animation sequence will not be
-memory efficient. Animation sequences should be limited to
-block-compressed or, preferably, Basis Universal compressed textures.
 
 == Predefined Key/Value Pairs
 
@@ -2090,6 +2170,8 @@ extent, if any, that sections of it are normatively referenced in ratified
 Khronos specifications. Such references incorporate the referenced sections
 into the ratified specifications, and bring those sections into the scope
 of the policy for those specifications.
+
+//Where this Specification includes normative references to external documents, only the specifically identified sections of those external documents are INCLUDED in the Scope of this Specification. If not created by Khronos, those external documents may contain contributions from non-members of Khronos not covered by the Khronos Intellectual Property Rights Policy.
 
 Khronos Group grants express permission to any current Promoter, Contributor
 or Adopter member of Khronos to copy and redistribute UNMODIFIED versions of
