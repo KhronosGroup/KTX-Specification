@@ -64,9 +64,9 @@ universal textures, supercompression and the possibility of streaming.
 [discrete]
 === Status of this document
 
-Ready for trial implementation. Be aware that changes may be made
-if issues are discovered during trial. KTX2 files to this specification
-should _NOT_ be distributed.
+Undergoing ratification-readiness review. Trial implementations
+completed. KTX2 files to this specification should _NOT_ be
+distributed.
 
 == Introduction
 
@@ -279,13 +279,15 @@ immediate detection of common file-transfer problems.
 === vkFormat
 `vkFormat` specifies the image format using Vulkan `VkFormat` enum
 values. It can be any value defined in core Vulkan 1.2 <<VULKAN12>>,
-future core versions or by a registered Vulkan extension. Values
-defined by core Vulkan 1.2 are given in
-{url-khr-vulkan}/specs/1.2/html/vkspec.html#formats-definition[section
-32.1 _Format Definition_] of <<VULKAN12>>.  The list of registered
-extensions is provided in the {url-khr-vulkan}/#repos[Khronos
-Vulkan Registry]. A complete list of values defined by both core
-Vulkan 1.2 and extensions can be found in
+future core versions or registered Vulkan extensions, except for
+values listed in <<prohibitedFormats>> and any `\*_SCALED_*`,
+`\*422*`, `\*[2-9]PLANE*` or `\*[34]PACK16*` formats added in future.
+Values defined by core Vulkan 1.2 are given in
+{url-khr-vulkan}/specs/1.2/html/vkspec.html#formats-definition[section 32.1
+_Format Definition_] of <<VULKAN12>>.  The list of registered
+extensions is provided in the {url-khr-vulkan}/#repos[Khronos Vulkan
+Registry]. A complete list of values defined by both core Vulkan
+1.2 and extensions can be found in
 {url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html#formats-definition[section
 40.1 _Format Definition_] of <<VULKAN12EXT>>.
 
@@ -294,25 +296,25 @@ writing (Vulkan 1.2.140). It is subject to change as future extensions
 are added to the document but the link should remain valid as it is to
 an internal anchor.
 
-When the format of the data is a not a recognized Vulkan format,
-such as in the case of the universal texture formats, `vkFormat`
-can be `VK_FORMAT_UNDEFINED` (0). Permissible cases are outlined
-within this specification and summarized in
-<<Use of `VK_FORMAT_UNDEFINED`>>.  Information about the format
-is always provided by the Data Format Descriptor.
+Use of the value `VK_FORMAT_UNDEFINED` (0) is only permissible when
+the format of the data is a not a recognized Vulkan format, such
+as in the case of the universal texture formats. In this case
+information about the format must be provided by the Data Format
+Descriptor and, in cases where the format is known to another GPU
+API, the KTX2 writer must include one or more of the metadata items
+described in <<formatMappingMetadata>>.  Some permissible uses are
+outlined within this specification and summarized in
+<<Use of `VK_FORMAT_UNDEFINED`>>.
 
-Values listed in <<prohibitedFormats>> must not be used nor any
-`\*_SCALED_*`, `\*422*`, `\*[2-9]PLANE*` or `\*[34]PACK16*` formats
-added in future.  The table in <<formatMapping>> gives the mapping
-for all `VkFormat` enum values in Vulkan 1.2 core and the extensions
-known at the time of writing, to the equivalent OpenGL format
-(internal format, format and type values), DXGI_FORMAT and
-MTLPixelFormat. Applications must use these mappings. If <<formatMapping>>
-does not have an entry for the value of `vkFormat`, and a mapping
-for one or more of the other APIs exists the KTX2 writer must provide
-that mapping using one or more of the metadata items described in
-<<formatMappingMetadata>>.  This may include cases of
-`VK_FORMAT_UNDEFINED`.
+The table in <<formatMapping>> gives the mapping for all `VkFormat`
+enum values in Vulkan 1.2 core and the extensions known at the time
+of writing, to the equivalent OpenGL format (internal format, format
+and type values), DXGI_FORMAT and MTLPixelFormat. Applications must
+use these mappings. If <<formatMapping>> does not have an entry for
+the value of `vkFormat` and a mapping to one or more of the other
+APIs exists then, even if the value is not `VK_FORMAT_UNDEFINED`,
+the KTX2 writer must provide that mapping using one or more of the
+metadata items described in <<formatMappingMetadata>>.
 
 [TIP]
 ====
@@ -605,7 +607,7 @@ of `0` indicates no supercompression.
 |===
 | Scheme Id            | Scheme Name     | Level Data Format  | Global Data Format
 | 0                    | None            |   n/a              | n/a
-| 1                    | Basis Universal |  <<BASISU>>        | <<basisu_gd,BasisU Global Data>>
+| 1                    | BasisLZ         |  <<BASISLZ>>        | <<basislz_gd,BasisU Global Data>>
 | 2                    | Zstandard       |  <<RFC8478>>       | T.B.D
 | 3･･･0xffff           | Reserved^1^     |                    |
 | 0x10000･･･0x1ffff    | Reserved^2^     |                    |
@@ -626,8 +628,8 @@ is specified in the reference given in the _Level Data Format_
 column of <<supercompressionSchemes>>.
 
 Schemes that require data global to all levels can store it as
-described in `<<supercompressionGlobalData>>`. Currently only Basis
-Universal uses global data. The format of the global data for a scheme
+described in `<<supercompressionGlobalData>>`. Currently only BasisLZ
+uses global data. The format of the global data for a scheme
 is specified in the reference given in the _Global Data Format_
 column of <<supercompressionSchemes>>.
 
@@ -642,14 +644,14 @@ It is best reserved for use with uncompressed texture formats or
 with block-compressed data that has been specially conditioned for
 LZW compression such as by _Rate Distortion Optimization_ <<RDO>>.
 
-Basis Universal internally uses ETC1S universal block-compressed
+BasisLZ internally uses a universal block-compressed
 texture format and Rate Distortion Optimization. Encoding to the
 RDO-conditioned internal format is combined with supercompression.
 Therefore it is applicable only to uncompressed images.
 ====
 
 ==== Scheme Notes (Normative)
-===== Basis Universal
+===== BasisLZ
 * `<<_vkformat,vkFormat>>` must be `VK_FORMAT_UNDEFINED` (0x00).
   The <<_data_format_descriptor,_Data Format Descriptor_>> must
   retain the pre-deflation color space information and indicate
@@ -662,11 +664,10 @@ Therefore it is applicable only to uncompressed images.
 [NOTE]
 .Rationale
 ====
-The Basis Universal encoder combines encoding to ETC1S format,
-chosen for ease of transcoding, with deflation. The transcoder
-combines inflation back to the internal block-compressed format
-with transcoding to one of the many GPU-specific block compressed
-formats. There is therefore no visible common pre- and
+The BasisLZ encoder combines encoding to a universal format with
+deflation. The transcoder combines inflation back to the universal
+format with transcoding to one of the many GPU-specific block
+compressed formats. There is therefore no visible common pre- and
 post-supercompression format.
 
 The uncompressed byte length is dependent on the which transcode
@@ -790,7 +791,7 @@ This includes all z slices, all faces, all rows (or rows of blocks)
 and all pixels (or blocks) in each row for the mipmap level. When
 `supercompressionScheme == 0`,
 `<<_levelsp_bytelength,levels[p].byteLength>>` must have the same
-value as this.   When `supercompressionScheme == 1`, Basis Universal,
+value as this.   When `supercompressionScheme == 1`, BasisLZ,
 the value must be 0.
 
 The value of a level's `uncompressedByteLength` must satisfy the
@@ -902,24 +903,24 @@ Compressed Texture Image Format" of <<KDF13>>.
 When `<<_supercompressionscheme,supercompressionScheme>> is not 0`
 the _dfDescriptorBlock_ must preserve the `colorModel`, `transferFunction`,
 `colorPrimaries`, and `flags` of the pre-deflation images - for
-Basis Universal (`supercompressionScheme` = 1) the pre-encoding and
+BasisLZ (`supercompressionScheme` = 1) the pre-encoding and
 -deflation images - along with each sample's `channelType` and
 qualifiers in order to indicate which components are present in the
 deflated images. `bytesPlane[0-7]` must be set to 0 to indicate an
 _unsized format_, as described in Section 5.19 "Unsized Formats"
 of <<KDF13>>.
 
-For Basis Universal, `texelBlockDimension[0-3]` and each sample's
+For BasisLZ, `texelBlockDimension[0-3]` and each sample's
 `bitlength`, `bitOffset`, `sampleLower` and `sampleUpper` must be
 0
 
 [IMPORTANT]
 ====
 The DFD must reflect the components provided as input to the
-ETC1S/LZ encoder not those of the source image. Therefore, for
+BasisLZ encoder not those of the source image. Therefore, for
 example, if the software checks for and removes from source image(s)
 alpha channel(s) that are all opaque (1.0) before submitting the
-data to the ETC1S/LZ encoder then the DFD must not have a sample
+data to the BasisLZ encoder then the DFD must not have a sample
 with a channelType that indicates it is alpha.
 ====
 
@@ -929,10 +930,9 @@ values of `texelBlockDimension[0-3]` and each sample's `bitlength`,
 
 [NOTE]
 ====
-In the event that a block-compressed format is supercompressed, which is
-forbidden for Basis Universal, the DFD will reflect the color model of
-the block-compressed format most of which have only one or two
-components.
+In the event that a block-compressed format is supercompressed the
+DFD will reflect the color model of the block-compressed format
+most of which have only one or two components.
 ====
 
 <<example_rg>> shows a DFD for images that were `VK_FORMAT_R8G8_UNORM`,
@@ -940,7 +940,7 @@ before encoding and deflation, i.e. they have two
 unsigned 8-bit components.
 
 [[example_rg]]
-.Example Unsigned RG descriptor for Basis Universal
+.Example Unsigned RG descriptor for BasisLZ
 [.dfdexample, width=75%]
 |================================
 32+^| *~++uint32_t++ bit~*
@@ -1109,26 +1109,30 @@ be available before any mip level can be inflated. Must start on
 the next 8-byte boundary following the key/value data. For some
 schemes, the specification for this data block is given below.
 
-[#basisu_gd]
-==== Basis Universal Global Data
+[#basislz_gd]
+==== BasisLZ Global Data
 
-Basis Universal combines encoding to ETC1S block-compressed format
-(a subset of ETC1, see Section 21.1 of <<KDF13>>) with lossless
-supercompression.  ETC1S was designed so that it can be easily
-transcoded to various GPU-native block-compressed formats. It is a
-common subset of those formats.  Supercompression is accomplished
+BasisLZ combines encoding to a block-compressed format, that can
+be easily transcoded to various GPU-native block-compressed formats,
+with lossless supercompression.  Supercompression is accomplished
 by conditioning the block-compressed representation for entropy
-encoding then Huffman encoding the result.  Basis Universal creates
-a global codebook referenced by each supercompressed image that
-contains processed endpoint and selector data from the block-compression
-and the Huffman tables. The global data block contains this codebook.
+encoding then Huffman encoding the result. BasisLZ creates a global
+codebook referenced by each supercompressed image that contains the
+processed endpoint and selector data from the block-compression and
+the Huffman tables. The global data block contains this codebook.
 
-It also contains an array of _image descriptors_ with flags for each image
-and the offset and length within the image's mip level of the data for
-that image.
+It also contains an array of _image descriptors_ with flags for
+each image and the offset and length within the image's mip level
+of the data for that image.
+
+The global data structure is designed to accommodate various
+transcodable block-compressed formats. Currently only one, ETC1S (a
+subset of ETC1, see Section 21.1 of <<KDF13>>), is defined.  ETC1S
+is a common subset of many GPU-native formats.
 
 The bitstreams for endpoints, selectors, Huffman tables and the image
-data are defined in <<BASISU>>. These bitstreams have to be decoded to
+data are specific to the transcodable format in use. Those for ETC1S
+are defined in <<BASISLZ>>. These bitstreams have to be decoded to
 reconstruct the base images.
 
 Because ETC1 does not support an alpha component, images may consist
@@ -1157,7 +1161,7 @@ metadata prior to supercompressing an uncompressed KTX2 file.
 
 The structure of the global data is shown below.
 
-.Basis Universal Global Data Structure
+.BasisLZ Global Data Structure
 [source,c,subs="+quotes,+attributes,+replacements"]
 ----
 UInt32 globalFlags;
@@ -1188,8 +1192,8 @@ UInt32 alphaSliceByteOffset
 UInt32 alphaSliceByteLength
 ----
 
-Descriptions in the `imageDescs` array are in the order layer, face and z_slice as if
-arranged by the following pseudo code.
+Descriptions in the `imageDescs` array are in the order layer, face
+and z_slice as if arranged by the following pseudo code.
 [source,c]
 ----
 for each level in max(levelCount, 1)
@@ -1223,12 +1227,17 @@ isETC1S = 0x01
 hasAlphaSlices = 0x04
 ----
 
-For current Basis Universal, `isETC1S` must be set. The flag is provided
-together with `extendedData` to enable future enhancements.
+For current BasisLZ, `isETC1S` must be set. The flag is provided
+together with `extendedData` to enable use of additional transcodable
+formats in future.
 
-`hasAlphaSlices` indicates the Basis data contains alpha slices.
+`hasAlphaSlices` indicates the data contains alpha slices. With future
+transcodable formats that do not need slices, it will simply mean the
+data carries an alpha component.
 
-NOTE: This does not necessarily mean the texture has an alpha component.
+NOTE: This does not necessarily mean the texture has an alpha component
+as the alpha channel may be used, e.g., to carry one component of a
+2-component normal map.
 
 ===== endpointCount
 The number of endpoints in <<_endpointsdata,endpointsData>>.
@@ -1246,7 +1255,8 @@ The length of <<_selectorsdata,selectorsData>>.
 The length of <<_tablesdata,tablesData>>.
 
 ===== extendedByteLength
-The length of <<_extendeddata,extendedData>>. Must be 0 if `isETC1S` is set in flags.
+The length of <<_extendeddata,extendedData>>. Must be 0 if `isETC1S`
+is set in flags.
 
 ===== ImageDesc
 ====== imageFlags
@@ -1257,7 +1267,7 @@ is valid:
 isIFrame = 0x02
 ----
 
-Basis Universal supports inter-frame (video) encoding for 2D slices.
+BasisLZ  supports inter-frame (video) encoding for 2D slices.
 If `isIFrame` is set the image (frame) is an I frame. That is, it
 does not refer to the previous image. If unset, the image is a P
 frame. If the file is not an _animation sequence_ it must be unset. See
@@ -1266,14 +1276,15 @@ frame. If the file is not an _animation sequence_ it must be unset. See
 ====== rgbSliceByteOffset, rgbSliceByteLength
 The offset of the start of the RGB slice within the
 <<_levelimages,levelImages>> of its mip level and its byte length.
-ahe offset of <<_levelimages,levelImages>> within the file is given
+The offset of <<_levelimages,levelImages>> within the file is given
 in the <<_level_index,Level Index>>.
 
 ====== alphaSliceByteOffset, alphaSliceByteLength
 The offset of the start of the alpha slice within the
 <<_levelimages,levelImages>> of its mip level and its byte length.
 
-If `hasAlpha` is unset these values must be 0.
+If `hasAlphaSlices` is unset these values must be 0. If `isETC1s` and
+`hasAlphaSlices` are set these values must be non-zero.
 
 ===== endpointsData
 Compressed endpoints data. The format of this data is described in
@@ -1364,82 +1375,70 @@ other combination of parameters makes the KTX file invalid.
 === Use of `VK_FORMAT_UNDEFINED`
 `VK_FORMAT_UNDEFINED` can be used
 
-* For Basis Universal supercompressed data.
+* For BasisLZ  supercompressed data.
 * For compressed color models in <<KDF13>> or successors that do
-  not have corresponding Vulkan formats provided the format is
-  either transcodable or corresponds to a format in DirectX or
-  Metal. In the latter case at least one format metadata item is
-  required. The only such format currently is the transcodable
-  format with `colorModel` `KDF_DF_MODEL_UASTC` (= 166). `colorModel`
-  167 is reserved for an expected high dynamic range transcodable
-  format.
-* For Basis Universal supercompressed data.
+  not have corresponding Vulkan formats. If the format corresponds
+  to a format in DirectX or Metal then at least one format mapping
+  metadata item is required. One such format exists now, the
+  transcodable format with `colorModel` `KDF_DF_MODEL_UASTC` (=
+  166). This does not correspond to a DirectX or Metal format.
 * For formats from Metal or DirectX that do not have Vulkan
   equivalents. In this case at least one API's format must be
   recorded in a format metadata item.
 
-Consumers of KTX files must fail gracefully when encountering a
-VK_FORMAT_UNDEFINED format they are not prepared to deal with.
+=== Extending KTX2
+The following sections describe ways to extend what can be contained
+in a KTX2 file. It covers three categories: formats, supercompression
+schemes and metadata. This specification can be periodically updated
+to incorporate officially recognized additions and the document
+revision incremented. Since the KTX2 format itself would not change
+the KTX version and file identifier would not change. Khronos will
+establish a KTX registry to register both official and vendor
+extensions.
 
-=== Future Additional Functionality
-[NOTE]
-.Editor's Note
-====
-I am far from happy with this section and seek advice. I am considering
-the types of additions in the following list. The specification
-needs to support them while allowing software unaware of the new
-features to gracefully reject handling them and, preferably, not
-requiring a new Media Type.
+TIP: The document revision can be used as a parameter for validators to
+guide the validation.
 
-* Formats subsequently added to Vulkan.
-* One or more new transcodable formats, in particular one for HDR
-  images.
-* New official metadata (i.e, KTX prefixed) hopefully in a way that will
-  not trigger validation failures in ktx2check. For example an item to
-  say that unnormalized texture coordinates should be used with the
-  texture.
-* New block compressed formats not supported by Vulkan but by either
-  DirectX or Metal.
+Consumers of KTX files must fail gracefully when encountering formats or
+supercompression schemes they are not prepared to handle. They must
+ignore or report metadata items they are not prepared to handle.
 
-Feedback is welcome on the importance or otherwise of these additions
-and on any types of additions that have been omitted.
+==== Carrying New Formats
+Formats are identified by one or more of the following:
 
-One concern with changing the minor version number, as suggested
-for some of the cases, is that tools may create files that do not
-use any of the new features yet are flagged with the new version
-number possibly making earlier versions of software to refuse to
-load them.
+* A Vulkan VkFormat enum value.
+* A color model value from the Khronos Data format specification.
+* A flag in the header of the BasisLZ global data header.
 
-The idea is that the magic number string will be defined to include
-`KTX2[0-9]` (read as a classic RE) instead of `KTX20`. I have not
-modified the magic number yet pending resolution of whether this
-is a good way to handle the issues and also whether such a thing
-would be acceptable in the Media Type registration. My contact on
-the IETF says they are "flexible".
+New transcodable formats can be added by:
 
-Bumping the minor version has the benefit that applications can
-advertise support for, e.g. version 2.1.
-====
+* Creating a new color model in the Khronos Data format specification
+  <<KDF13>> (as was done with UASTC).
+* Adding a flag to the BasisLZ global header (which currently identifies
+  ETC1S) accompanied by a spec. or new color model in <<KDF13>>.
+* Creating and providing a specification for a new supercompression
+  scheme that incorporates a transcodable format (à la BasisLZ).
 
-Adding support for a new transcodable format will require bumping the
-file minor version as consumers will need to understand how to transcode
-the data. A check of the minor version will be simpler than testing if
-the `colorModel` is not in an already long list plus it identifies that
-the addition is more than a new block-compressed format for DirectX or
-Metal.
+New Vulkan formats are created via Vulkan extensions.
 
-Support for new Vulkan formats does not require bumping as those
-are passed to Vulkan for interpretation. Support for a new compressed
-`colorModel` also does not as metadata is required to give the
-mapping to at least one API.
+New DXGI or Metal formats can be carried by using `VK_FORMAT_UNDEFINED`
+together with a data format descriptor, which may or may not need
+a new color model, and format mapping metadata giving the DXGI or Metal
+format value.
 
-Additions of metadata such as one instructing to use unnormalized
-texel coordinates will require bumping the minor version number
-otherwise the validator has no way to tell that the new metadata
-item is a valid key.
+==== Supercompression Schemes
+Supercompression schemes are identified by `supercompressionScheme` in the
+KTX2 header. New official schemes can be documented in updates to this
+specification and in the registry.
 
-If writing a file that does not use any of the features of a new
-version, writers must use the old version number.
+Vendors can register new schemes in the registry.
+
+==== Adding Metadata
+
+New official metadata (i.e, KTX prefixed) can be documented in updates
+to this specification and in the KTX registry.
+
+Vendors can register metadata items in KTX registry.
 
 === Animation Sequence
 The images of a 2D array texture can be indicated to be the frames
@@ -1810,7 +1809,8 @@ Should KTX2 provide a way to distinguish between rectangle and regular 2D textur
   needed this could be supported by a metadata item instructing to use
   unnormalized texel coordinates.
 +
-_Unresolved:_
+_Resolved:_ Not at this time. Should the need emerge, a metadata item
+can be added.
 
 Should KTX2 provide a way to distinguish between 1D textures and buffer textures?::
   _Discussion:_ The difference is how you use the data in OpenGL.
@@ -1820,7 +1820,8 @@ Should KTX2 provide a way to distinguish between 1D textures and buffer textures
   indicate a preferred view as well as metadata to indicate
   the data should be loaded in a buffer.
 +
-_Unresolved:_
+_Resolved:_ Not at this time. Should the need emerge, metadata items
+can be added.
 
 Should KTX2 drop the `gl*` fields?::
   _Discussion:_ Narrowing down and enforcing the valid combinations
@@ -1849,7 +1850,7 @@ Is anything needed to support sparse textures?::
   `GL_ARB_sparse_textures` extension and are a standard feature of
   Vulkan. Are any additional KTX features needed to support them?
 +
-_Unresolved:_
+_Resolved:_ No. Nothing is seen to be required.
 
 Should KTX2 support metadata for effective use of Vulkan SCALED formats?::
   _Discussion:_ Vulkan SCALED formats convert int (or uint) values
@@ -1915,7 +1916,7 @@ query this information.
 [bibliography]
 === Normative References
 
-- [[[BASISU]]]
+- [[[BASISLZ]]]
   https://somewhere/soon/we/hope
 
 - [[[OES_ASTC]]]
