@@ -7,7 +7,7 @@ Like DDS but with more features and more formal specification. glTF Compressed T
 uses a subset of KTX Version 2 that restricts some fields in the KTX2 header to make such files suitable for real-time
 transcoding.
 
-Click to see the [latest published version](http://github.khronos.org/KTX-Specification/)
+Click to see the [latest published version](https://github.khronos.org/KTX-Specification/)
 (it looks much better than the ersatz view provided by GitHub) or run
 
 ```.bash
