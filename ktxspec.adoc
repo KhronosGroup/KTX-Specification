@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification for container format for OpenGL^®^ and Vulkan^®^ textures.
-:docrev: draft21
+:docrev: rc0
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -66,7 +66,7 @@ universal textures, supercompression and the possibility of streaming.
 
 Undergoing ratification-readiness review. Trial implementations
 completed. KTX2 files to this specification should _NOT_ be
-distributed.
+distributed until ratification.
 
 == Introduction
 
@@ -1464,8 +1464,7 @@ formats, those ending in `*_BLOCK`, does not need endian converting.
 If an application on a big-endian machine intends to use the sample
 information in the Data Format Descriptor, the DFD must be rewritten
 for the endian-converted `data` as the samples describe the data as
-laid out in memory. Sample code for rewriting DFDs is given in
-<<Data Format Descriptor Endian Conversion>>.
+laid out in memory.
 
 Writers must endian convert these items to little endian on writing
 the file.
@@ -2161,17 +2160,6 @@ include::formats.json[]
 - Swizzle and writer id metadata added.
 - Row and cube padding removed.
 
-[appendix]
-== Data Format Descriptor Endian Conversion
-
-This appendix is informative only.
-
-[source,c]
-.Endian converting sample information
-----
-// To be written.
-----
-
 [discrete]
 == Revision History
 ////
@@ -2271,7 +2259,7 @@ This appendix is informative only.
 |      draft20      |  2020-03-20 | Relax requirement for KTXwriter.
                                     Allow use of VK_FORMAT_UNDEFINED for
                                     UASTC.
-|      {docrev}     |  {revdate}  | Add draft Media-Type registration.
+|      draft21      |  2020-05-05 | Add draft Media-Type registration.
                                     Update Vulkan references to 1.2 and
                                     give more precise KDFS references.
                                     Add YUV/multiplane to list of
@@ -2279,6 +2267,11 @@ This appendix is informative only.
                                     descriptions to account for UASTC.
                                     Describe use of VK_FORMAT_UNDEFINED.
                                     Generally polish the language.
+|      {docrev}     |  {revdate}  | Update Basis naming. Describe how to
+                                    extend capabilities. Resolve
+                                    remaining issues. Add example KTX2
+                                    file. Remove unwritten DFD
+                                    endian-conversion section.
 |===
 
 [discrete]
