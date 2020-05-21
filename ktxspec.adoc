@@ -1,7 +1,7 @@
 = KTX^™️^ File Format Specification
 :author: Mark Callow
 :author_org: Edgewise Consulting
-:description: Specification for container format for OpenGL^®^ and Vulkan^®^ textures.
+:description: Specification of a container format for GPU textures.
 :docrev: rc0
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
@@ -48,14 +48,13 @@
 *Editor:* {author} ({author_org})
 
 [.legal]
-© 2018 The Khronos Group Inc. All Rights Reserved. See <<License>>.
+© 2020 The Khronos Group Inc. All Rights Reserved. See <<License>>.
 
 [abstract]
 == Abstract
-The KTX file format, version 2 is a format for storing textures
-for OpenGL^®^, OpenGL ES^™️^, Vulkan^®^ and WebGL^™️^ applications.  It is
-distinguished by the simplicity of the loader required to instantiate
-texture objects from the file contents.
+The KTX file format, version 2 is a format for storing textures for
+GPU applications. It is distinguished by the simplicity of the
+loader required to instantiate texture objects from the file contents.
 
 It extends the version 1 format with easier loading of Vulkan
 textures, easier use by non-OpenGL and non-Vulkan applications,
@@ -72,7 +71,8 @@ distributed until ratification.
 
 This document describes the KTX file format version 2.0, hereafter
 referred to as _KTX2_^™️^. KTX2 files are used for storing textures for
-use with 3D APIs such as OpenGL, OpenGL ES and Vulkan.
+use with GPU APIs such as OpenGL^®^, OpenGL ES^™️^, Vulkan^®^ and
+WebGL^™️^.
 
 The canonical version of the specification is available in the
 Khronos Registry ({url-khr-reg}). The source files used to generate
@@ -163,7 +163,8 @@ continue
     align(4) valuePadding <.>
                     [.optional]#&#xFE19;#
 until kvdByteLength read
-sgdByteLength > 0 ? align(8)
+if (sgdByteLength > 0)
+    align(8) sgdPadding
 
 // Supercompression Global Data <.>
 Byte supercompressionGlobalData[sgdByteLength]
@@ -192,13 +193,13 @@ After inflation from supercompression or when `supercompressionScheme ==
 .levelImages Structure
 [source, c]
 ----
-align( lcm(texel block size, 4) ) mipPadding <1>
+align( lcm(texel_block_size, 4) ) mipPadding <1>
 for each layer in max(1,layerCount)
    for each face in faceCount
        for each z_slice_of_blocks in num_blocks_z <2>
            for each row_of_blocks in num_blocks_y <2>
                for each block in num_blocks_x <2>
-                   Byte data[format-specific-number-of-bytes] <3>
+                   Byte data[format_specific_number_of_bytes] <3>
                end
            end
        end
@@ -608,7 +609,7 @@ of `0` indicates no supercompression.
 | Scheme Id            | Scheme Name     | Level Data Format  | Global Data Format
 | 0                    | None            |   n/a              | n/a
 | 1                    | BasisLZ         |  <<BASISLZ>>        | <<basislz_gd,BasisU Global Data>>
-| 2                    | Zstandard       |  <<RFC8478>>       | T.B.D
+| 2                    | Zstandard       |  <<RFC8478>>       | n/a
 | 3･･･0xffff           | Reserved^1^     |                    |
 | 0x10000･･･0x1ffff    | Reserved^2^     |                    |
 | 0x20000･･･0xffffffff | Reserved^3^     |                    |
@@ -670,8 +671,8 @@ format with transcoding to one of the many GPU-specific block
 compressed formats. There is therefore no visible common pre- and
 post-supercompression format.
 
-The uncompressed byte length is dependent on the which transcode
-target format is selected.
+The effective uncompressed byte length is dependent on the which
+transcode target format is selected.
 ====
 
 ===== Zstandard
@@ -777,11 +778,11 @@ and
 +++++
 requiredAlignment =
   \begin{cases}
-    lcm(texel\ block\ size, 4)      & (\text{supercompressionScheme} = 0) \\
+    lcm(texel\_block\_size, 4)      & (\text{supercompressionScheme} = 0) \\
     1                               & (\text{supercompressionScheme} \neq 0)
   \end{cases}
 +++++
-_texel block size_ is defined in <<mipPadding>>.
+_texel_block_size_ is defined in <<mipPadding>>.
 
 ===== levels[p].uncompressedByteLength
 
@@ -1325,7 +1326,7 @@ When `<<_supercompressionscheme,supercompressionScheme>> != 0` these
 bytes are formatted as specified in the scheme documentation.
 
 ==== mipPadding
-`mipPadding` is between 0 and stem:[lcm(texel\ block\ size, 4) -
+`mipPadding` is between 0 and stem:[lcm(texel\_block\_size, 4) -
 1] bytes of value `0x00`. stem:[lcm] is _least common multiple_.
 This is only required when
 `<<_supercompressionscheme,supercompressionScheme>> == 0`. When
@@ -1407,7 +1408,7 @@ ignore or report metadata items they are not prepared to handle.
 Formats are identified by one or more of the following:
 
 * A Vulkan VkFormat enum value.
-* A color model value from the Khronos Data format specification.
+* A color model value from the Khronos Data Format Specification.
 * A flag in the header of the BasisLZ global data header.
 
 New transcodable formats can be added by:
