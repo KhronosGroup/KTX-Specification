@@ -819,7 +819,7 @@ to read the faces individually rather than as a block of size
 === Data Format Descriptor
 The Data Format Descriptor (_dfDescriptor_) describes the layout
 of the texel blocks in `data`.  The full specification for this is
-found in Chapters 3 to 8 of the _Khronos Data Format Specification_
+is Part 2, Chapters 2 to 11, of the _Khronos Data Format Specification_
 version 1.3 <<KDF13>>.
 
 The dfDescriptor is partially expanded in this specification in
