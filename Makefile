@@ -10,7 +10,14 @@ inlined_images := icons/masters/ktx_document.svg \
                   icons/win/ktx_document.ico \
                   images/khronos.svg
 
-$(out)/index.html: ktxspec.adoc ktx-media-registration.txt $(out) $(inlined_images) docinfo.html
+sources := ktxspec.adoc \
+           ktx-media-registration.txt \
+           license.adoc \
+           $(out) \
+           $(inlined_images) \
+           docinfo.html
+
+$(out)/index.html: $(sources)
 	asciidoctor --trace -v --failure-level INFO -r ./inline-images.rb -r ./formats-include.rb -D $(dir $@) -o $(notdir $@) $<
 
 $(out)/ktx.pdf:
