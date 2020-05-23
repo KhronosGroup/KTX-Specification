@@ -2135,7 +2135,7 @@ CAUTION: This section is non-normative.
 
 CAUTION: Provided mappings for BGR(A) formats are based on non-ES OpenGL specifications. See the relevant OpenGL ES extensions for more options.
 
-CAUTION: Half-Float data type uses different enum values on different OpenGL ES and WebGL versions.
+CAUTION: On OpenGL ES 2.0 and WebGL 1.0, half-float data type is provided via `GL_OES_texture_half_float` extension that defines different enum name (`GL_HALF_FLOAT_OES`) and value (`0x8D61`) than other GL APIs.
 
 CAUTION: Some vendor-specific extensions (e.g. `GL_NV_depth_buffer_float`) define custom enum values for symbols used in the ratified specifications.
 
