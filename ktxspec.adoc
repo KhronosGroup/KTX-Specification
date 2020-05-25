@@ -1017,7 +1017,7 @@ unsigned 8-bit components.
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^|
 ~Green sample information~
 ^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GGG++* 8+^| *_bitLength:_* 63 (= ``64'')
-16+^| *_bitOffset:_* 63
+16+^| *_bitOffset:_* 64
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
