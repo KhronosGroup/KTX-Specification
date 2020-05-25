@@ -62,7 +62,7 @@ The KTX icon is a trademark of and © 2018, the Khronos Group, Inc.
 and may not be used without the prior written permission of the
 Khronos Group.
 
-Khronos^®^ and Vulkan^®^ are registered trademarks and WebGLi^™️^,
+Khronos^®^ and Vulkan^®^ are registered trademarks and WebGL^™️^,
 glTF^™️^ and 3D Commerce^™️^ are trademarks of The Khronos Group
 Inc. ASTC^™️^ is a trademark of ARM Holdings PLC, OpenGL^®^ is a
 registered trademark and the OpenGL ES^™️^ and OpenGL SC^™️^ logos
