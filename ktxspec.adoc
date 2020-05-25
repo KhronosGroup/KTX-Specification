@@ -892,8 +892,9 @@ The Universal ASTC image format (UASTC) is indicated by `colorModel`
 `KDF_DF_MODEL_UASTC` (= 166) together with `vkFormat` `VK_FORMAT_UNDEFINED`
 (= 0). The DFD must be as described in Section 5.6.14 "KHR_DF_MODEL_UASTC"
 of <<KDF13>>. Images in this format must be transcoded to a
-GPU-supported block-compressed format before being uploaded to and
-sampled by a GPU. UASTC images can be supercompressed with Zstandard
+GPU-supported block-compressed format or decoded to a GPU-supported
+uncompressed format before being uploaded to and sampled by a GPU.
+UASTC images can be supercompressed with Zstandard
 (`supercompressionScheme` = 2) with or without first conditioning
 the data with Rate Distortion Optimization. If supercompression is
 used, the DFD's `bytesPlane[0-7]` must be set to 0 as described in
@@ -959,11 +960,15 @@ into the RGB and A components of the supercompressed image in any
 way they choose.  They may also offer an option to apply KTXswizzle
 metadata prior to supercompressing an uncompressed KTX2 file.
 +
-Images in this format are always are always supercompressed with
-BasisLZ and must be inflated and transcoded to a GPU-supported
-block-compressed format before being uploaded to and sampled by a
-GPU. Because ETC1S images are supercompressed, the DFD's `bytesPlane[0-7]`
-must be set to 0 as described in the next subsection.
+Images in this format are always supercompressed with BasisLZ and
+must be inflated and transcoded to a GPU-supported block-compressed
+format  or decoded to a GPU-supported uncompressed format before
+being uploaded to and sampled by a GPU. Because ETC1S images are
+supercompressed, the DFD's `bytesPlane[0-7]` must be set to 0 as
+described in the next subsection.
+
+TIP: Whether the image has 1 or 2 slices
+can be determined from the DFD's sample count.
 
 [IMPORTANT]
 ====
@@ -1296,8 +1301,10 @@ in the <<_level_index,Level Index>>.
 The offset of the start of the alpha slice within the
 <<_levelimages,levelImages>> of its mip level and its byte length.
 
-If the data format descriptor's colorModel is `KHR_DF_MODEL_ETC1S`
-and it has only one sample these values must be 0.
+If there is only one slice these values must be 0. For ETC1S with the data
+format descriptor colorModel of `KHR_DF_MODEL_ETC1S` this corresponds to
+the DFD having only one sample. (As the format is supercompressed
+`bytesPlane` fields can't be used to determine the number of planes.)
 
 ===== endpointsData
 Compressed endpoints data. The format of this data is described in
