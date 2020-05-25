@@ -899,10 +899,11 @@ the data with Rate Distortion Optimization. If supercompression is
 used, the DFD's `bytesPlane[0-7]` must be set to 0 as described in
 the next subsection.
 +
-This color model provides channel Ids, e.g. `KHR_DF_CHANNEL_RGB` that
-must be used to indicate the effective number of components in the data.
-Consumers use this information to help select a transcode target. The id
-to use depends on the pre-deflation components as detailed below.
+This color model provides channel Ids, e.g. `KHR_DF_CHANNEL_UASTC_RGB`
+that must be used to indicate the effective number of components
+in the data.  Consumers use this information to help select a
+transcode target. The id to use depends on the pre-deflation
+components as detailed below.
 +
 _One-component images_ have the component value replicated in all 3
 channels of the rgb portion of the compressed data.
@@ -950,7 +951,8 @@ _Four-component images_ must have their RGB components in the rgb slice
 and the alpha component replicated in all 3 components of the alpha
 slice. `KHR_DF_CHANNEL_ETC1S_RGB` + `KHR_DF_CHANNEL_ETC1S_AAA`
 +
-The only valid combinations are `RGB` + `AAA` or `RRR` + `GGG`.
+The only valid combinations of more than one slice are `RGB` + `AAA`
+or `RRR` + `GGG` with `RGB` or `RRR` being the first slice.
 +
 TIP: KTX writers may map components of their original input images
 into the RGB and A components of the supercompressed image in any
@@ -1005,7 +1007,7 @@ unsigned 8-bit components.
 8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++ETC1S++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
 8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
-8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 8 8+^| *_bytesPlane0:_* 8
+8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 0
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
 ^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^|
 ~Red sample information~
