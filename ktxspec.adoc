@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification of a container format for GPU textures.
-:docrev: rc0
+:docrev: rc1
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -879,7 +879,7 @@ standard gamut images.
   `KHR_DF_TRANSFER_LINEAR`.
 
 ==== Providing additional information
-There is one case where the _dfDescriptorBlock_ is used to
+There are several cases where the _dfDescriptorBlock_ is used to
 provide information beyond that given by <<_vkformat,vkFormat>>.
 
 Premultiplied Alpha::
@@ -887,51 +887,107 @@ Premultiplied Alpha::
   field if the images' RGB components have been multiplied by their
   alpha components, otherwise it must be 0.
 
-==== Special Cases
-
-===== Universal ASTC Format
-The Universal ASTC image format (UASTC) can be specified using
-`colorModel` `KDF_DF_MODEL_UASTC` (= 166) together with `vkFormat`
-`VK_FORMAT_UNDEFINED` (= 0). The DFD must be as described in Section
-5.6.14 "KHR_DF_MODEL_UASTC" of <<KDF13>>. Images in this format
-must be transcoded to a GPU-supported block-compressed format before
-being uploaded to and sampled by a GPU. UASTC images can be
-supercompressed with Zstandard (`supercompressionScheme` = 2) with
-or without first conditioning the data with Rate Distortion
-Optimization. If supercompression is used, the DFD's `bytesPlane[0-7]`
-must be set to 0 as described in the next subsection.
-
+Basis Universal UASTC Format::
+The Universal ASTC image format (UASTC) is indicated by `colorModel`
+`KDF_DF_MODEL_UASTC` (= 166) together with `vkFormat` `VK_FORMAT_UNDEFINED`
+(= 0). The DFD must be as described in Section 5.6.14 "KHR_DF_MODEL_UASTC"
+of <<KDF13>>. Images in this format must be transcoded to a
+GPU-supported block-compressed format or decoded to a GPU-supported
+uncompressed format before being uploaded to and sampled by a GPU.
+UASTC images can be supercompressed with Zstandard
+(`supercompressionScheme` = 2) with or without first conditioning
+the data with Rate Distortion Optimization. If supercompression is
+used, the DFD's `bytesPlane[0-7]` must be set to 0 as described in
+the next subsection.
++
+This color model provides channel Ids, e.g. `KHR_DF_CHANNEL_UASTC_RGB`
+that must be used to indicate the effective number of components
+in the data.  Consumers use this information to help select a
+transcode target. The id to use depends on the pre-deflation
+components as detailed below.
++
+_One-component images_ have the component value replicated in all 3
+channels of the rgb portion of the compressed data.
+`KHR_DF_CHANNEL_UASTC_RRR`.
++
+_Two-component images_ must have the R component replicated in all 3
+channels of the rgb portion and the G component in the alpha channel.
+`KHR_DF_CHANNEL_UASTC_RRRG`.
++
+_Three-component images_ must have their RGB components in the rgb
+channels. `KHR_DF_CHANNEL_UASTC_RGB`.
++
+_Four-component images_ must have their RGB components in the rgb
+channels and the alpha component in the alpha channel.
+`KHR_DF_CHANNEL_UASTC_RGBA`.
++
 The format of the UASTC data is described in Chapter 25 "UASTC
 Compressed Texture Image Format" of <<KDF13>>.
+
+[[etc1s]]
+Basis Universal ETC1S Format::
+The ETC1S image format is indicated by `colorModel` `KDF_DF_MODEL_ETC1S`
+(= 163) together with `vkFormat` `VK_FORMAT_UNDEFINED` (= 0). The
+DFD must be as described in Section 5.6.11 "KHR_DF_MODEL_ETC1S" of
+<<KDF13>>. Because ETC1S does not support an alpha component, Basis
+Universal uses 2 _slices_, (_planes_ in DFD-speak).
+This color model provides channel Ids, e.g `KHR_DF_CHANNEL_ETC1S_RGB` that
+must be used to indicate the use of a slice. Whether there
+are 1 or 2 slices depends on the pre-deflation components as detailed
+below along with the channel Ids to use.
++
+_One-component images_ must have the component value replicated in all 3
+components of the _rgb_ slice of the compressed data and have no _alpha_
+slice. `KHR_DF_CHANNEL_ETC1S_RRR`.
++
+_Two-component images_ must have the R component replicated in all 3
+components of the rgb slice and the G component replicated in all 3
+components of the alpha slice. `KHR_DF_CHANNEL_ETC1S_RRR`
++ `KHR_DF_CHANNEL_ETC1S_GGG`
++
+_Three-component images_ must have their RGB components in the rgb
+slice and no alpha slice. `KHR_DF_CHANNEL_ETC1S_RGB`
++
+_Four-component images_ must have their RGB components in the rgb slice
+and the alpha component replicated in all 3 components of the alpha
+slice. `KHR_DF_CHANNEL_ETC1S_RGB` + `KHR_DF_CHANNEL_ETC1S_AAA`
++
+The only valid combinations of more than one slice are `RGB` + `AAA`
+or `RRR` + `GGG` with `RGB` or `RRR` being the first slice.
++
+TIP: KTX writers may map components of their original input images
+into the RGB and A components of the supercompressed image in any
+way they choose.  They may also offer an option to apply KTXswizzle
+metadata prior to supercompressing an uncompressed KTX2 file.
++
+Images in this format are always supercompressed with BasisLZ and
+must be inflated and transcoded to a GPU-supported block-compressed
+format  or decoded to a GPU-supported uncompressed format before
+being uploaded to and sampled by a GPU. Because ETC1S images are
+supercompressed, the DFD's `bytesPlane[0-7]` must be set to 0 as
+described in the next subsection.
+
+TIP: Whether the image has 1 or 2 slices
+can be determined from the DFD's sample count.
+
+[IMPORTANT]
+====
+The DFD for UASTC and ETC1S must reflect the components provided
+as input to the Basis encoders not those of the source image.
+Therefore, for example, if the software checks for and removes from
+source image(s) alpha channel(s) that are all opaque (1.0) before
+submitting the data to a Basis encoder then the DFD must not
+have a sample with a channelType that indicates it is alpha.
+====
 
 ===== DFD for Supercompressed Data
 When `<<_supercompressionscheme,supercompressionScheme>> is not 0`
 the _dfDescriptorBlock_ must preserve the `colorModel`, `transferFunction`,
-`colorPrimaries`, and `flags` of the pre-deflation images - for
-BasisLZ (`supercompressionScheme` = 1) the pre-encoding and
--deflation images - along with each sample's `channelType` and
-qualifiers in order to indicate which components are present in the
-deflated images. `bytesPlane[0-7]` must be set to 0 to indicate an
-_unsized format_, as described in Section 5.19 "Unsized Formats"
-of <<KDF13>>.
-
-For BasisLZ, `texelBlockDimension[0-3]` and each sample's
-`bitlength`, `bitOffset`, `sampleLower` and `sampleUpper` must be
-0
-
-[IMPORTANT]
-====
-The DFD must reflect the components provided as input to the
-BasisLZ encoder not those of the source image. Therefore, for
-example, if the software checks for and removes from source image(s)
-alpha channel(s) that are all opaque (1.0) before submitting the
-data to the BasisLZ encoder then the DFD must not have a sample
-with a channelType that indicates it is alpha.
-====
-
-For Zstandard (`supercompressionScheme` = 2) the pre-deflation
-values of `texelBlockDimension[0-3]` and each sample's `bitlength`,
-`bitOffset`, `sampleLower` and `sampleUpper` must be preserved.
+`colorPrimaries`, `flags` and `texelBlockDimension[0-3]` of the
+pre-deflation images along with each sample's `channelType`,
+`qualifiers`, `bitlength`, `bitOffset`, `sampleLower` and `sampleUpper`.
+`bytesPlane[0-7]` must be set to 0 to indicate an _unsized format_,
+as described in Section 5.19 "Unsized Formats" of <<KDF13>>.
 
 [NOTE]
 ====
@@ -945,33 +1001,34 @@ before encoding and deflation, i.e. they have two
 unsigned 8-bit components.
 
 [[example_rg]]
-.Example Unsigned RG descriptor for BasisLZ
+.Example Unsigned R + G descriptor for BasisLZ/ETC1S
 [.dfdexample, width=75%]
 |================================
 32+^| *~++uint32_t++ bit~*
 ^| ~31~ ^| ~30~ ^| ~29~ ^| ~28~ ^| ~27~ ^| ~26~ ^| ~25~ ^| ~24~ ^| ~23~ ^| ~22~ ^| ~21~ ^| ~20~ ^| ~19~ ^| ~18~ ^| ~17~ ^| ~16~ ^| ~15~ ^| ~14~ ^| ~13~ ^| ~12~ ^| ~11~ ^| ~10~ ^| ~9~ ^| ~8~ ^| ~7~ ^| ~6~ ^| ~5~ ^| ~4~ ^| ~3~ ^| ~2~ ^| ~1~ ^| ~0~
 32+^| *_totalSize:_* 60
 15+^| *_descriptorType:_* 0 17+^| *_vendorId:_* 0
-16+^| *_descriptorBlockSize:_* stem:[24 + (16 \times 2) = 56] 16+^| *_versionNumber:_* 2
-8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_*
-*++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_*
-*++RGBSDA++*
+16+^| *_descriptorBlockSize:_* 24 + (16 {times} 2) = 56 16+^| *_versionNumber:_* 2
+8+^| *_flags:_* *++ALPHA_STRAIGHT++* 8+^| *_transferFunction:_* *++LINEAR++* 8+^| *_colorPrimaries:_* *++BT709++* 8+^| *_colorModel:_* *++ETC1S++*
 8+^| *_~texelBlockDimension3~_* 8+^| *_~texelBlockDimension2~_* 8+^| *_~texelBlockDimension1~_* 8+^| *_~texelBlockDimension0~_*
-8+^| 0 8+^| 0 8+^| 0 8+^| 0
+8+^| 0 8+^| 0 8+^| 3 (= ``4'') 8+^| 3 (= ``4'')
 8+^| *_bytesPlane3:_* 0 8+^| *_bytesPlane2:_* 0 8+^| *_bytesPlane1:_* 0 8+^| *_bytesPlane0:_* 0
 8+^| *_bytesPlane7:_* 0 8+^| *_bytesPlane6:_* 0 8+^| *_bytesPlane5:_* 0 8+^| *_bytesPlane4:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Red sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RED++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^|
+~Red sample information~
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++RRR++* 8+^| *_bitLength:_* 63 (= ``64'') 16+^| *_bitOffset:_* 0
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
-32+^| *_sampleUpper:_* 0
-^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^| ~Green sample information~
-^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GREEN++* 8+^| *_bitLength:_* 0 16+^| *_bitOffset:_* 0
+32+^| *_sampleUpper:_* *++UINT32_MAX++*
+^| *_~F~_* ^| *_~S~_* ^| *_~E~_* ^| *_~L~_* 4+^| *_~channelType~_* 24+^|
+~Green sample information~
+^| 0 ^| 0 ^| 0 ^| 0 4+^| *++GGG++* 8+^| *_bitLength:_* 63 (= ``64'')
+16+^| *_bitOffset:_* 64
 8+^| *_~samplePosition3~_* 8+^| *_~samplePosition2~_* 8+^| *_~samplePosition1~_* 8+^| *_~samplePosition0~_*
 8+^| 0 8+^| 0 8+^| 0 8+^| 0
 32+^| *_sampleLower:_* 0
-32+^| *_sampleUpper:_* 0
+32+^| *_sampleUpper:_* *++UINT32_MAX++*
 |================================
 
 <<example_rgb>> shows a DFD for images that were `VK_FORMAT_R8G8B8_SNORM`,
@@ -1131,45 +1188,22 @@ each image and the offset and length within the image's mip level
 of the data for that image.
 
 The global data structure is designed to accommodate various
-transcodable block-compressed formats. Currently only one, ETC1S (a
-subset of ETC1, see Section 21.1 of <<KDF13>>), is defined.  ETC1S
-is a common subset of many GPU-native formats.
+transcodable block-compressed formats. The format in use is indicated
+by the <<_data_format_descriptor, data format descriptor>>. Currently
+BasisLZ only supports one, <<etc1s, ETC1S>> (a subset of ETC1, see
+Section 21.1 of <<KDF13>>).  ETC1S is a common subset of many
+GPU-native formats.
 
 The bitstreams for endpoints, selectors, Huffman tables and the image
 data are specific to the transcodable format in use. Those for ETC1S
 are defined in <<BASISLZ>>. These bitstreams have to be decoded to
 reconstruct the base images.
 
-Because ETC1 does not support an alpha component, images may consist
-of 1 or 2 _slices_ depending on the pre-deflation components as
-detailed below.
-
-_One-component images_ must have the component value replicated in all 3
-components of the _rgb_ slice of the compressed data and have no _alpha_
-slice.
-
-_Two-component images_ must have the R component replicated in all 3
-components of the rgb slice and the G component replicated in all 3
-components of the alpha slice.
-
-_Three-component images_ must have their RGB components in the rgb
-slice and no alpha slice.
-
-_Four-component images_ must have their RGB components in the rgb slice
-and the alpha component replicated in all 3 components of the alpha
-slice.
-
-TIP: KTX writers may map components of their original input images
-into the RGB and A components of the supercompressed image in any
-way they choose.  They may also offer an option to apply KTXswizzle
-metadata prior to supercompressing an uncompressed KTX2 file.
-
 The structure of the global data is shown below.
 
 .BasisLZ Global Data Structure
 [source,c,subs="+quotes,+attributes,+replacements"]
 ----
-UInt32 globalFlags;
 UInt16 endpointCount;
 UInt16 selectorCount;
 UInt32 endpointsByteLength;
@@ -1223,27 +1257,6 @@ for(int i = 1; i < levelCount; i++)
 ----
 ====
 
-===== globalFlags
-Flags with information that is the same for all images. The following
-flags are valid:
-[source,c]
-----
-isETC1S = 0x01
-hasAlphaSlices = 0x04
-----
-
-For current BasisLZ, `isETC1S` must be set. The flag is provided
-together with `extendedData` to enable use of additional transcodable
-formats in future.
-
-`hasAlphaSlices` indicates the data contains alpha slices. With future
-transcodable formats that do not need slices, it will simply mean the
-data carries an alpha component.
-
-NOTE: This does not necessarily mean the texture has an alpha component
-as the alpha channel may be used, e.g., to carry one component of a
-2-component normal map.
-
 ===== endpointCount
 The number of endpoints in <<_endpointsdata,endpointsData>>.
 
@@ -1272,7 +1285,7 @@ is valid:
 isIFrame = 0x02
 ----
 
-BasisLZ  supports inter-frame (video) encoding for 2D slices.
+BasisLZ/ETC1S  supports inter-frame (video) encoding for 2D slices.
 If `isIFrame` is set the image (frame) is an I frame. That is, it
 does not refer to the previous image. If unset, the image is a P
 frame. If the file is not an _animation sequence_ it must be unset. See
@@ -1288,8 +1301,10 @@ in the <<_level_index,Level Index>>.
 The offset of the start of the alpha slice within the
 <<_levelimages,levelImages>> of its mip level and its byte length.
 
-If `hasAlphaSlices` is unset these values must be 0. If `isETC1s` and
-`hasAlphaSlices` are set these values must be non-zero.
+If there is only one slice these values must be 0. For ETC1S with the data
+format descriptor colorModel of `KHR_DF_MODEL_ETC1S` this corresponds to
+the DFD having only one sample. (As the format is supercompressed
+`bytesPlane` fields can't be used to determine the number of planes.)
 
 ===== endpointsData
 Compressed endpoints data. The format of this data is described in
@@ -2263,11 +2278,15 @@ include::formats.json[]
                                     descriptions to account for UASTC.
                                     Describe use of VK_FORMAT_UNDEFINED.
                                     Generally polish the language.
-|      {docrev}     |  {revdate}  | Update Basis naming. Describe how to
+|        rc0        |  2020-05-20 | Update Basis naming. Describe how to
                                     extend capabilities. Resolve
                                     remaining issues. Add example KTX2
                                     file. Remove unwritten DFD
                                     endian-conversion section.
+|      {docrev}     |  {revdate}  | Make ETC1S & UASTC DFDs consistent
+                                    and provide channel Ids to identify
+                                    content. Remove globalFlags from
+                                    supercompressionGlobalData.
 |===
 
 [discrete]
