@@ -73,7 +73,7 @@ distributed until ratification.
 
 == Introduction
 
-This document describes the KTX file format version 2.0, hereafter
+This document describes the KTX^™️^ file format version 2.0, hereafter
 referred to as _KTX2_^™️^. KTX2 files are used for storing textures for
 use with GPU APIs such as OpenGL^®^, OpenGL ES^™️^, Vulkan^®^ and
 WebGL^™️^.
