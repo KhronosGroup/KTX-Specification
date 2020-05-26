@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification of a container format for GPU textures.
-:docrev: rc1
+:docrev: rc2
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -602,7 +602,7 @@ needed.
 
 === supercompressionScheme
 `supercompressionScheme` indicates if a supercompression scheme has
-been applied to the data in `<<_levelimages, levelImages>>`.  It
+been applied to the data in `<<levelImagesDesc, levelImages>>`.  It
 must be one of the values from <<supercompressionSchemes>>. A value
 of `0` indicates no supercompression.
 
@@ -628,7 +628,7 @@ of `0` indicates no supercompression.
 
 The supercompression scheme is applied independently to each mip
 level to permit streaming and random access to the levels. The
-format of the data in `<<_levelimages,levelImages>>` for a scheme
+format of the data in `<<levelImagesDesc,levelImages>>` for a scheme
 is specified in the reference given in the _Level Data Format_
 column of <<supercompressionSchemes>>.
 
@@ -647,16 +647,20 @@ LZW-style lossless supercompression, e.g, scheme 2, is generally
 ineffective on the block-compressed data of GPU texture formats.
 It is best reserved for use with uncompressed texture formats or
 with block-compressed data that has been specially conditioned for
-LZW compression such as by _Rate Distortion Optimization_ <<RDO>>.
+LZW compression such as by _Rate-distortion Optimization_ <<RDO>>.
 
 BasisLZ internally uses a universal block-compressed
-texture format and Rate Distortion Optimization. Encoding to the
+texture format and Rate-distortion Optimization. Encoding to the
 RDO-conditioned internal format is combined with supercompression.
 Therefore it is applicable only to uncompressed images.
 ====
 
 ==== Scheme Notes (Normative)
 ===== BasisLZ
+* Section 10 _ETC1S Slice Decoding_ of <<BASISLZ>> describes the
+  bitstream for a single image. Images must be concatenated as
+  described in <<levelImagesDesc>>. An image bitstream refers to
+  the endpoint and selector codebooks described in in <<basislz_gd>>.
 * `<<_vkformat,vkFormat>>` must be `VK_FORMAT_UNDEFINED` (0x00).
   The <<_data_format_descriptor,_Data Format Descriptor_>> must
   retain the pre-deflation color space information and indicate
@@ -890,13 +894,13 @@ Premultiplied Alpha::
 Basis Universal UASTC Format::
 The Universal ASTC image format (UASTC) is indicated by `colorModel`
 `KDF_DF_MODEL_UASTC` (= 166) together with `vkFormat` `VK_FORMAT_UNDEFINED`
-(= 0). The DFD must be as described in Section 5.6.14 "KHR_DF_MODEL_UASTC"
+(= 0). The DFD must be as described in Section 5.6.14 _KHR_DF_MODEL_UASTC_
 of <<KDF13>>. Images in this format must be transcoded to a
 GPU-supported block-compressed format or decoded to a GPU-supported
 uncompressed format before being uploaded to and sampled by a GPU.
 UASTC images can be supercompressed with Zstandard
 (`supercompressionScheme` = 2) with or without first conditioning
-the data with Rate Distortion Optimization. If supercompression is
+the data with Rate-distortion Optimization. If supercompression is
 used, the DFD's `bytesPlane[0-7]` must be set to 0 as described in
 the next subsection.
 +
@@ -921,14 +925,14 @@ _Four-component images_ must have their RGB components in the rgb
 channels and the alpha component in the alpha channel.
 `KHR_DF_CHANNEL_UASTC_RGBA`.
 +
-The format of the UASTC data is described in Chapter 25 "UASTC
-Compressed Texture Image Format" of <<KDF13>>.
+The bitstream of the UASTC data is described in Chapter 25 _UASTC
+Compressed Texture Image Format_ of <<KDF13>>.
 
 [[etc1s]]
 Basis Universal ETC1S Format::
 The ETC1S image format is indicated by `colorModel` `KDF_DF_MODEL_ETC1S`
 (= 163) together with `vkFormat` `VK_FORMAT_UNDEFINED` (= 0). The
-DFD must be as described in Section 5.6.11 "KHR_DF_MODEL_ETC1S" of
+DFD must be as described in Section 5.6.11 _KHR_DF_MODEL_ETC1S_ of
 <<KDF13>>. Because ETC1S does not support an alpha component, Basis
 Universal uses 2 _slices_, (_planes_ in DFD-speak).
 This color model provides channel Ids, e.g `KHR_DF_CHANNEL_ETC1S_RGB` that
@@ -970,6 +974,12 @@ described in the next subsection.
 TIP: Whether the image has 1 or 2 slices
 can be determined from the DFD's sample count.
 
+The bitstream of the ETC1S data pre LZ deflation is described in
+Chapter 21.1 _ETC1S_ of <<KDF13>>.
+
+NOTE: since inflation and transcoding are typically combined in a
+single operation, this bitstream is not visible to applications.
+
 [IMPORTANT]
 ====
 The DFD for UASTC and ETC1S must reflect the components provided
@@ -987,7 +997,7 @@ the _dfDescriptorBlock_ must preserve the `colorModel`, `transferFunction`,
 pre-deflation images along with each sample's `channelType`,
 `qualifiers`, `bitlength`, `bitOffset`, `sampleLower` and `sampleUpper`.
 `bytesPlane[0-7]` must be set to 0 to indicate an _unsized format_,
-as described in Section 5.19 "Unsized Formats" of <<KDF13>>.
+as described in Section 5.19 _Unsized Formats_ of <<KDF13>>.
 
 [NOTE]
 ====
@@ -1273,8 +1283,8 @@ The length of <<_selectorsdata,selectorsData>>.
 The length of <<_tablesdata,tablesData>>.
 
 ===== extendedByteLength
-The length of <<_extendeddata,extendedData>>. Must be 0 if `isETC1S`
-is set in flags.
+The length of <<_extendeddata,extendedData>>. Must be 0 if the data
+format desciptor `colorModel` is `KHR_DF_MODEL_ETC1S` (= 163).
 
 ===== ImageDesc
 ====== imageFlags
@@ -1293,13 +1303,13 @@ frame. If the file is not an _animation sequence_ it must be unset. See
 
 ====== rgbSliceByteOffset, rgbSliceByteLength
 The offset of the start of the RGB slice within the
-<<_levelimages,levelImages>> of its mip level and its byte length.
-The offset of <<_levelimages,levelImages>> within the file is given
+<<levelImagesDesc,levelImages>> of its mip level and its byte length.
+The offset of <<levelImagesDesc,levelImages>> within the file is given
 in the <<_level_index,Level Index>>.
 
 ====== alphaSliceByteOffset, alphaSliceByteLength
 The offset of the start of the alpha slice within the
-<<_levelimages,levelImages>> of its mip level and its byte length.
+<<levelImagesDesc,levelImages>> of its mip level and its byte length.
 
 If there is only one slice these values must be 0. For ETC1S with the data
 format descriptor colorModel of `KHR_DF_MODEL_ETC1S` this corresponds to
@@ -1307,18 +1317,25 @@ the DFD having only one sample. (As the format is supercompressed
 `bytesPlane` fields can't be used to determine the number of planes.)
 
 ===== endpointsData
-Compressed endpoints data. The format of this data is described in
-T.B.D.
+Compressed endpoints data. The bitstream of this for ETC1S is
+described in Section 7.0 _ETC1S Endpoint Codebooks_ of <<BASISLZ>>.
+References to the offset of this data in a .basis file can be
+ignored.
 
 ===== selectorsData
-Compressed selectors data. The format of this data is described in
-T.B.D.
+Compressed selectors data. The bitstream of this for ETC1S is
+described in Section 8.0 _ETC1S Selector Codebooks_ of <<BASISLZ>>.
+References to the offset of this data in a .basis file can be
+ignored.
 
 ===== tablesData
-Huffman tables data. The format of this data is described in T.B.D.
+Huffman tables data. The format of this data for ETC1S is described
+in Section 9.0 ETC1S _Compressed Slice Decoding Huffman Tables_ of
+<<BASISLZ>>.  References to the offset of this data in a .basis
+file can be ignored.
 
 ===== extendedData
-Extended data. The format of this data is described in T.B.D.
+Extended data. This is not used for ETC1S.
 
 === Mip Level Array
 
@@ -1336,10 +1353,12 @@ in a `VkCmdCopyBufferToImage`, to display a low resolution image quickly
 without waiting for the entire texture data.
 ====
 
+[[levelImagesDesc]]
 ==== levelImages
-`levelImages` is an array of Bytes holding all the image data for a
-level. The offset of a level's `levelImages` is provided by the
- <<_level_index,Level Index>>.
+`levelImages` is an array of Bytes holding all the image data for
+a level. The offset of a level's `levelImages` is provided by the
+<<_level_index,Level Index>>. Images are concatenated in the order
+layer, face, slice.
 
 When `<<_supercompressionscheme,supercompressionScheme>> != 0` these
 bytes are formatted as specified in the scheme documentation.
@@ -2057,64 +2076,68 @@ query this information.
 === Normative References
 
 - [[[BASISLZ]]]
-  https://somewhere/soon/we/hope
+  https://github.com/BinomialLLC/basis_universal/wiki/.basis-File-Format-and-ETC1S-Texture-Texture-Video-Specification[Basis
+  Specification, from Section 6: _Compressed Huffman Tables_ to the end of
+  the document]. Remarks relating to the .basis file format can be ignored.
+  Rich Geldreich. Binomial LLC, May 2020.
 
 - [[[KDF13]]] {url-khr-reg}/DataFormat/specs/1.3/dataformat.1.3.html[Khronos
   Data Format Specification 1.3].
-Andrew Garrard. The Khronos Group.
+  Andrew Garrard. The Khronos Group.
 
 - [[[OESCPT]]] {url-khr-reg}/OpenGL/extensions/OES/OES_compressed_paletted_texture.txt[GL_OES_compressed_paletted_texture].
-Aaftab Munshi. The Khronos Group, July 2003.
+  Aaftab Munshi. The Khronos Group, July 2003.
 
 - [[[OPENGL46]]] {url-khr-reg}/OpenGL/specs/gl/glspec46.core.pdf[The
   OpenGL^®^ Graphics System, A Specification (Version 4.6 (Core Profile))].
-Mark Segal, Kurt Akeley; Editor: Jon Leech. The Khronos Group, July 2017.
+  Mark Segal, Kurt Akeley; Editor: Jon Leech. The Khronos Group, July 2017.
 
 - [[[PVRTC]]]
   {url-khr-reg}/DataFormat/specs/1.3/dataformat.1.3.html#PVRTC["PVRTC
   Compressed Texture Image Formats" chapter, Khronos Data Format
   Specification 1.3].
-Andrew Garrard and Imagination Technologies Limited.
+  Andrew Garrard and Imagination Technologies Limited.
 
 - [[[PVRTC1_OES]]] https://www.khronos.org/registry/OpenGL/extensions/IMG/IMG_texture_compression_pvrtc.txt[IMG_texture_compression_pvrtc].
-Imagination Technologies Limited, 2005
+  Imagination Technologies Limited, 2005
 
 - [[[PVRTC2_OES]]] https://www.khronos.org/registry/OpenGL/extensions/IMG/IMG_texture_compression_pvrtc2.txt[IMG_texture_compression_pvrtc2].
-Imagination Technologies Limited, 2011
+  Imagination Technologies Limited, 2011
 
 - [[[REGEXP]]] https://www.ecma-international.org/ecma-262/5.1/index.html#sec-15.10[Standard
- ECMA-262 5.1{nbsp}Edition, Section 15.10: RegExp (Regular Expression) Objects].
-Ecma International, June 2011.
+ ECMA-262 5.1{nbsp}Edition, Section 15.10: _RegExp (Regular Expression)
+ Objects_]. Ecma International, June 2011.
 
 ////
 // "L." after the doc. title is to make the correct author name
 // L. Peter Deutsch. If I put it at the start of the line following
 // the title, Asciidoctor thinks I am trying to make a list.
 ////
-- [[[RFC1950]]] https://tools.ietf.org/html/rfc1950[ZLib Compressed Data
-  Data Format Specification version 3.3]. L.
-Peter Deutsch, Jean-Loup Gailly. IETF Network Working Group, May 1996.
+//- [[[RFC1950]]] https://tools.ietf.org/html/rfc1950[ZLib Compressed Data
+//  Data Format Specification version 3.3]. L.
+//Peter Deutsch, Jean-Loup Gailly. IETF Network Working Group, May 1996.
 
 // "L.", "S." and "Y." after doc titles avoid the Asciidoctor list issue.
-- [[[RFC1951]]] https://tools.ietf.org/html/rfc1951[DEFLATE Compressed
-  Data Format Specification version 1.3]. L.
-Peter Deutsch. IETF Network Working Group, May 1996.
+//- [[[RFC1951]]] https://tools.ietf.org/html/rfc1951[DEFLATE Compressed
+//  Data Format Specification version 1.3]. L.
+//Peter Deutsch. IETF Network Working Group, May 1996.
 
-- [[[RFC2119]]] https://www.ietf.org/rfc/rfc2119.txt[Key words for use in RFCs to
-Indicate Requirement Levels]. S.
+- [[[RFC2119]]] https://www.ietf.org/rfc/rfc2119.txt[Key words for use in RFCs
+  to Indicate Requirement Levels]. S.
 Bradner. IETF Network Working Group, March 1997.
 
 - [[[RFC8478]]] https://tools.ietf.org/html/rfc8478[Zstandard Compression
-and the application/zstd Media Type.]. Y.
-Collet, M. Kucherawy, Ed. Internet Engineering Task Force (IETF), October 2018.
+  and the application/zstd Media Type.]. Y.
+  Collet, M. Kucherawy, Ed. Internet Engineering Task Force (IETF),
+  October 2018.
 
 - [[[VULKAN12]]] {url-khr-vulkan}/specs/1.2/html/vkspec.html[Vulkan^®^
-1.2 - A Specification].
+  1.2 - A Specification].
 The Khronos Group, May 2020.
 
 - [[[VULKAN12EXT]]] {url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html[Vulkan^®^
-1.2 - A Specification (with all registered Vulkan extensions)].
-The Khronos Group, May 2020.
+  1.2 - A Specification (with all registered Vulkan extensions)].
+  The Khronos Group, May 2020.
 
 [NOTE]
 ====
@@ -2131,8 +2154,9 @@ particular version of OpenGL {,ES} or Vulkan.
 [bibliography]
 === Non-Normative References
 
-- [[[RDO]]] https://github.com/[Somewhere].
-Rich Geldreich, Jr.
+- [[[RDO]]]
+  https://en.wikipedia.org/wiki/Rate%E2%80%93distortion_optimization[Rate-distortion
+  optimization]. Wikipedia.
 
 [appendix#formatMapping]
 == Mapping of `vkFormat` values
@@ -2274,10 +2298,12 @@ include::formats.json[]
                                     remaining issues. Add example KTX2
                                     file. Remove unwritten DFD
                                     endian-conversion section.
-|      {docrev}     |  {revdate}  | Make ETC1S & UASTC DFDs consistent
+|        rc1        |  2020-05-26 | Make ETC1S & UASTC DFDs consistent
                                     and provide channel Ids to identify
                                     content. Remove globalFlags from
                                     supercompressionGlobalData.
+|      {docrev}     |  {revdate}  | Update example KTX file for DFD
+                                    changes. Add BasisLZ references.
 |===
 
 [discrete]
