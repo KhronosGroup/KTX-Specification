@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification of a container format for GPU textures.
-:docrev: rc0
+:docrev: rc1
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -2278,11 +2278,15 @@ include::formats.json[]
                                     descriptions to account for UASTC.
                                     Describe use of VK_FORMAT_UNDEFINED.
                                     Generally polish the language.
-|      {docrev}     |  {revdate}  | Update Basis naming. Describe how to
+|        rc0        |  2020-05-20 | Update Basis naming. Describe how to
                                     extend capabilities. Resolve
                                     remaining issues. Add example KTX2
                                     file. Remove unwritten DFD
                                     endian-conversion section.
+|      {docrev}     |  {revdate}  | Make ETC1S & UASTC DFDs consistent
+                                    and provide channel Ids to identify
+                                    content. Remove globalFlags from
+                                    supercompressionGlobalData.
 |===
 
 [discrete]
