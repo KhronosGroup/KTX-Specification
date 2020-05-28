@@ -23,7 +23,7 @@ overflow a decoder's buffer. Also the signature bytes provide early
 detection of common file transmission errors.
 
 The image payload may be uncompressed or block-compressed. The
-payload may be supercompressed with variable-rate compression.
+payload may be further supercompressed with variable-rate compression.
 
 Block compression schemes are designed so small blocks of data
 (typically 64 to 128 bits) can be decompressed in real time into a
@@ -38,17 +38,20 @@ as to the expected size of the uncompressed data. However applications
 must not rely on this and must guard against buffer overflow and
 ultra large memory allocation.
 
-The ktx type does not provide encryption of the data payload. Users
+The ktx2 type does not provide encryption of the data payload. Users
 or applications wishing or needing to keep their images confidential
 must overlay their own encryption on the ktx data during transmission.
 
 Interoperability considerations:
 
-The data payload may be compressed using a vendor-specific scheme.
-In this case, only devices or applications having a matching
-decompressor will be able to display the data. The compression
-scheme is identified in the ktx2 data so applications can quickly
-reject data using unsupported schemes.
+The ktx2 type is a container capable of holding a payload in one
+of a large number of formats, potentially supercompressed with one
+of a number of schemes. While the container format will not change,
+new payload formats and supercompression schemes may be added over
+time.  Consumers of this media-type must fail gracefully in the
+face of unrecognized formats and schemes. Since formats and schemes
+are identified in the ktx2 header, applications can quickly reject
+those they do not support.
 
 Published specification:
 
