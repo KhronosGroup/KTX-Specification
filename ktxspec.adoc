@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification of a container format for GPU textures.
-:docrev: rc2
+:docrev: rc3
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -191,7 +191,11 @@ end
 <.> See the <<levelImages>> below.
 
 After inflation from supercompression or when `supercompressionScheme ==
-0`, `levelImages` looks like this:
+0`, `levelImages` looks like the following:
+
+NOTE: Mip levels are supercompressed independently so do not contain
+`mipPadding.` Applications inflating levels may choose to restore the
+alignment caused by `mipPadding`.
 
 [[levelImages,levelImages structure]]
 .levelImages Structure
@@ -2302,8 +2306,12 @@ include::formats.json[]
                                     and provide channel Ids to identify
                                     content. Remove globalFlags from
                                     supercompressionGlobalData.
-|      {docrev}     |  {revdate}  | Update example KTX file for DFD
+|        rc2        |  2020-05-26 | Update example KTX file for DFD
                                     changes. Add BasisLZ references.
+|      {docrev}     |  {revdate}  | Update interoperability
+                                    considerations in Media-Type
+                                    registration. Add note re. mipPadding
+                                    and supercompressed levels.
 |===
 
 [discrete]
