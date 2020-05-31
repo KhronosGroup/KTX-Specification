@@ -1440,7 +1440,7 @@ establish a KTX registry to register both official and vendor
 extensions.
 
 TIP: The document revision can be used as a parameter for validators to
-guide the validation.
+guide validation.
 
 Consumers of KTX files must fail gracefully when encountering formats or
 supercompression schemes they are not prepared to handle. They must
@@ -1450,17 +1450,16 @@ ignore or report metadata items they are not prepared to handle.
 Formats are identified by one or more of the following:
 
 * A Vulkan VkFormat enum value.
-* A color model value from the Khronos Data Format Specification.
-* A flag in the header of the BasisLZ global data header.
+* A color model value from the Khronos Data Format Specification
+  <<KDF13>>.
 
 New transcodable formats can be added by:
 
-* Creating a new color model in the Khronos Data format specification
-  <<KDF13>> (as was done with UASTC).
-* Adding a flag to the BasisLZ global header (which currently identifies
-  ETC1S) accompanied by a spec. or new color model in <<KDF13>>.
-* Creating and providing a specification for a new supercompression
-  scheme that incorporates a transcodable format (à la BasisLZ).
+* Creating a new color model and format specification in the Khronos
+  Data format specification <<KDF13>> (as was done with UASTC).
+* Creating a new color model and format specification as above and
+  providing a specification for a new supercompression scheme that
+  incorporates this transcodable format (à la BasisLZ/ETC1S).
 
 New Vulkan formats are created via Vulkan extensions.
 
