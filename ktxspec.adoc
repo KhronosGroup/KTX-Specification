@@ -616,7 +616,7 @@ of `0` indicates no supercompression.
 |===
 | Scheme Id            | Scheme Name     | Level Data Format  | Global Data Format
 | 0                    | None            |   n/a              | n/a
-| 1                    | BasisLZ         |  <<BASISLZ>>        | <<basislz_gd,BasisU Global Data>>
+| 1                    | BasisLZ         |  <<BASISLZ>>       | <<basislz_gd,BasisLZ Global Data>>
 | 2                    | Zstandard       |  <<RFC8478>>       | n/a
 | 3･･･0xffff           | Reserved^1^     |                    |
 | 0x10000･･･0x1ffff    | Reserved^2^     |                    |
