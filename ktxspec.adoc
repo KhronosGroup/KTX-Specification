@@ -68,15 +68,15 @@ universal textures, supercompression and the possibility of streaming.
 === Status of this document
 
 Undergoing ratification-readiness review. Trial implementations
-completed. KTX2 files to this specification should _NOT_ be
+completed. KTX files to this specification should _NOT_ be
 distributed until ratification.
 
 == Introduction
 
 This document describes the KTX^™️^ file format version 2.0, hereafter
-referred to as _KTX2_^™️^. KTX2 files are used for storing textures for
-use with GPU APIs such as OpenGL^®^, OpenGL ES^™️^, Vulkan^®^ and
-WebGL^™️^.
+_KTX_, unless disambiguation is necessary. KTX files are used for
+storing textures for use with GPU APIs such as OpenGL^®^, OpenGL
+ES^™️^, Vulkan^®^ and WebGL^™️^.
 
 The canonical version of the specification is available in the
 Khronos Registry ({url-khr-reg}). The source files used to generate
@@ -85,17 +85,17 @@ the specification are stored in the KTX-Specification Repository
 repository has a public issue tracker and allows the submission of
 pull requests that improve the specification.
 
-KTX2 files can contain almost any of the wide variety of image
+KTX files can contain almost any of the wide variety of image
 formats supported by GPUs. Other specifications wishing to refer
-to KTX2 as a container may wish to restrict the range of image
+to KTX as a container may wish to restrict the range of image
 formats or other items that can be used. Such referrers must establish
-a way to identify that given KTX2 files are compliant with their
+a way to identify that given KTX files are compliant with their
 subsets such as by adding a metadata item.
 
 === Document Conventions
 
-The KTX2 specification is intended for use by both creators and
-consumers of KTX2 files forming a contract between these parties.
+The KTX specification is intended for use by both creators and
+consumers of KTX files forming a contract between these parties.
 Specification text may address either party; typically the intended
 audience can be inferred from context
 
@@ -268,8 +268,8 @@ Byte[12] FileIdentifier = {
 ----
 The rationale behind the choice of values in the identifier is based
 on the rationale for the identifier in the PNG specification. This
-identifier both identifies the file as a KTX file and provides for
-immediate detection of common file-transfer problems.
+identifier both identifies the file as a KTX version 2 file and
+provides for immediate detection of common file-transfer problems.
 
   * Byte [0] is chosen as a non-ASCII value to reduce the probability that a
     text file may be misrecognized as a KTX file.
@@ -310,7 +310,7 @@ the format of the data is a not a recognized Vulkan format, such
 as in the case of the universal texture formats. In this case
 information about the format must be provided by the Data Format
 Descriptor and, in cases where the format is known to another GPU
-API, the KTX2 writer must include one or more of the metadata items
+API, the KTX writer must include one or more of the metadata items
 described in <<formatMappingMetadata>>.  Some permissible uses are
 outlined within this specification and summarized in
 <<Use of `VK_FORMAT_UNDEFINED`>>.
@@ -322,7 +322,7 @@ and type values), DXGI_FORMAT and MTLPixelFormat. Applications must
 use these mappings. If <<formatMapping>> does not have an entry for
 the value of `vkFormat` and a mapping to one or more of the other
 APIs exists then, even if the value is not `VK_FORMAT_UNDEFINED`,
-the KTX2 writer must provide that mapping using one or more of the
+the KTX writer must provide that mapping using one or more of the
 metadata items described in <<formatMappingMetadata>>.
 
 [TIP]
@@ -831,7 +831,7 @@ is Part 2, Chapters 2 to 11, of the _Khronos Data Format Specification_
 version 1.3 <<KDF13>>.
 
 The dfDescriptor is partially expanded in this specification in
-order to provide sufficient information for a KTX2 file to be parsed
+order to provide sufficient information for a KTX file to be parsed
 without having to refer to <<KDF13>>. It consists of a total size
 field and one or more Descriptor Blocks (_dfDescriptorBlock_)
 described below.
@@ -966,7 +966,7 @@ or `RRR` + `GGG` with `RGB` or `RRR` being the first slice.
 TIP: KTX writers may map components of their original input images
 into the RGB and A components of the supercompressed image in any
 way they choose.  They may also offer an option to apply KTXswizzle
-metadata prior to supercompressing an uncompressed KTX2 file.
+metadata prior to supercompressing an uncompressed KTX file.
 +
 Images in this format are always supercompressed with BasisLZ and
 must be inflated and transcoded to a GPU-supported block-compressed
@@ -1124,7 +1124,7 @@ pairs is such that
 
 Any file that does not meet the above condition is invalid.
 
-KTX2 editors must preserve any key/value data they do not understand
+KTX editors must preserve any key/value data they do not understand
 or which is not modified by the user.
 
 Key/value data must be written to the file sorted by the Unicode
@@ -1429,12 +1429,12 @@ other combination of parameters makes the KTX file invalid.
   equivalents. In this case at least one API's format must be
   recorded in a format metadata item.
 
-=== Extending KTX2
+=== Extending KTX
 The following sections describe ways to extend what can be contained
-in a KTX2 file. It covers three categories: formats, supercompression
+in a KTX file. It covers three categories: formats, supercompression
 schemes and metadata. This specification can be periodically updated
 to incorporate officially recognized additions and the document
-revision incremented. Since the KTX2 format itself would not change
+revision incremented. Since the KTX format itself would not change
 the KTX version and file identifier would not change. Khronos will
 establish a KTX registry to register both official and vendor
 extensions.
@@ -1470,7 +1470,7 @@ format value.
 
 ==== Supercompression Schemes
 Supercompression schemes are identified by `supercompressionScheme` in the
-KTX2 header. New official schemes can be documented in updates to this
+KTX header. New official schemes can be documented in updates to this
 specification and in the registry.
 
 Vendors can register new schemes in the registry.
@@ -1496,7 +1496,7 @@ memory efficient. Animation sequences should be limited to
 block-compressed or, preferably, Basis Universal compressed textures.
 
 === Endianness
-KTX {ktxver} files are little endian. All header fields and the
+KTX files are little endian. All header fields and the
 data for all uncompressed texture formats are stored in little
 endian order.  Readers on big-endian machines must endian convert
 all header UInt32s and UInt64s and, when <<_typesize,typeSize>> is
@@ -1747,9 +1747,10 @@ must overwrite this value when rewriting a file originally written
 by a different tool.
 
 === KTXastcDecodeMode
-By default, ASTC decoders produce pixel values with half-float precision for HDR and
-linear LDR blocks. KTX file writers may indicate that the data is compatible with
-more compact decoding modes (as defined in <<VULKAN12EXT>>, `VK_EXT_astc_decode_mode`)
+By default, ASTC decoders produce pixel values with half-float
+precision for HDR and linear LDR blocks. KTX file writers may
+indicate that the data is compatible with more compact decoding
+modes (as defined in <<VULKAN12EXT>>, `VK_EXT_astc_decode_mode`)
 by using the key
 
 -   `KTXastcDecodeMode`
@@ -1763,11 +1764,11 @@ be decoded with UNORM8 mode.
 
 Other values are not allowed.
 
-This metadata entry has no effect on and should not be present in KTX files that
-use sRGB transfer function.
+This metadata entry has no effect on and should not be present in
+KTX files that use sRGB transfer function.
 
-This metadata entry has no effect on and should not be present in KTX files that
-use non-ASTC formats.
+This metadata entry has no effect on and should not be present in
+KTX files that use non-ASTC formats.
 
 === KTXanimData
 The images of a 2D array texture can be indicated to be the frames of a
@@ -1794,7 +1795,7 @@ seconds is stem:[duration / timescale].
 * 1 - plays once
 * n - plays n times
 
-== An example KTX file:
+== An example KTX version 2 file:
 
 [source,c]
 ----
@@ -1954,7 +1955,7 @@ Can we guarantee the DF descriptor blocks are always a multiple of 4 bytes?::
 _Resolved:_ The Data Format Specification has been updated to
 recommend but not require padding. This spec. will require padding.
 
-Should KTX2 support level sizes > 4GB?::
+Should KTX support level sizes > 4GB?::
   _Discussion:_ Users have reported having base levels > 4GB for 3D
   textures.  For this the `imageSize` field needs to be 64-bits. Loaders
   on 32-bit systems will have to ensure correct handling of this and
@@ -1963,7 +1964,7 @@ Should KTX2 support level sizes > 4GB?::
 _Resolved:_ Be future proof and make all image-size related fields 64
 bits.
 
-Should KTX2 provide a way to distinguish between rectangle and regular 2D textures?::
+Should KTX provide a way to distinguish between rectangle and regular 2D textures?::
   _Discussion:_ The difference is that unnormalized texel coordinates
   are used for sampling via a special sampler type in GLSL and, in the
   case of OpenGL {,ES}, the special TEXTURE_RECTANGLE target is used. If
@@ -1973,7 +1974,7 @@ Should KTX2 provide a way to distinguish between rectangle and regular 2D textur
 _Resolved:_ Not at this time. Should the need emerge, a metadata item
 can be added.
 
-Should KTX2 provide a way to distinguish between 1D textures and buffer textures?::
+Should KTX provide a way to distinguish between 1D textures and buffer textures?::
   _Discussion:_ The difference is how you use the data in OpenGL.
   With buffer textures the image data is stored in a buffer object.
   Note that a TextureView can be used to give a different view of the
@@ -1984,7 +1985,7 @@ Should KTX2 provide a way to distinguish between 1D textures and buffer textures
 _Resolved:_ Not at this time. Should the need emerge, metadata items
 can be added.
 
-Should KTX2 drop the `gl*` fields?::
+Should KTX drop the `gl*` fields?::
   _Discussion:_ Narrowing down and enforcing the valid combinations
   of `glFormat`, `glInternalFormat` and `glType` is fraught with
   issues. The spec. could be simplified by dropping them and having
@@ -2013,13 +2014,13 @@ Is anything needed to support sparse textures?::
 +
 _Resolved:_ No. Nothing is seen to be required.
 
-Should KTX2 support metadata for effective use of Vulkan SCALED formats?::
+Should KTX support metadata for effective use of Vulkan SCALED formats?::
   _Discussion:_ Vulkan SCALED formats convert int (or uint) values
   to unnormalized floating point values, equivalent to specifying a
   value of `GL_FALSE` for the `normalized` parameter to
   `glVertexAttribFormat`. Generally when using such data, associated
   scale and bias values are folded into the transformation matrix.
-  Should KTX2 specify standard metadata for these?
+  Should KTX specify standard metadata for these?
 +
 _Resolved:_ No. These formats will not be supported. They are
 primarily for vertex data and several Vulkan vendors have said they
@@ -2178,15 +2179,18 @@ include::formats.json[]
 =====
 
 [appendix]
-== Changes compared to KTX
+== Changes compared to KTX version 1
 
 - `vkFormat` added.
 - OpenGL format information fields removed.
 - Data format descriptor added.
 - Supercompression added.
+- Transcodable format support added.
 - Files always little endian.
 - Swizzle and writer id metadata added.
 - Row and cube padding removed.
+- Mip level alignment (`mipPadding`) changed to match GPU requirements.
+- Mip level order changed so smallest level is first.
 
 [discrete]
 == Revision History
@@ -2297,7 +2301,7 @@ include::formats.json[]
                                     Generally polish the language.
 |        rc0        |  2020-05-20 | Update Basis naming. Describe how to
                                     extend capabilities. Resolve
-                                    remaining issues. Add example KTX2
+                                    remaining issues. Add example KTX v2
                                     file. Remove unwritten DFD
                                     endian-conversion section.
 |        rc1        |  2020-05-26 | Make ETC1S & UASTC DFDs consistent
