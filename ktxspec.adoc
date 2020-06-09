@@ -1296,14 +1296,14 @@ Flags giving information about an individual image. The following flag
 is valid:
 [source,c]
 ----
-isIFrame = 0x02
+isPFrame = 0x02
 ----
 
 BasisLZ/ETC1S  supports inter-frame (video) encoding for 2D slices.
-If `isIFrame` is set the image (frame) is an I frame. That is, it
-does not refer to the previous image. If unset, the image is a P
-frame. If the file is not an _animation sequence_ it must be unset. See
-<<Animation Sequence>> for details.
+If `isPFrame` is set the image (frame) is a P frame. That is, it
+refers to the previous image of an _animation sequence_. All other
+images are I frames.  Only animation sequences can have P frames.
+See <<Animation Sequence>> for details.
 
 ====== rgbSliceByteOffset, rgbSliceByteLength
 The offset of the start of the RGB slice within the
@@ -1491,9 +1491,9 @@ addition to KTXanimData metadata. <<_layercount,`layerCount`>> is
 the number of frames in the video, i.e. layers become the temporal
 axis.
 
-TIP: Use of uncompressed images for an animation sequence will not be
-memory efficient. Animation sequences should be limited to
-block-compressed or, preferably, Basis Universal compressed textures.
+TIP: Use of uncompressed images for an animation sequence will not
+be memory efficient. Animation sequences should be limited to
+block-compressed or, preferably, BasisLZ compressed textures.
 
 === Endianness
 KTX files are little endian. All header fields and the
