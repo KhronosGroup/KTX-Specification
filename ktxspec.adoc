@@ -2158,8 +2158,8 @@ particular version of OpenGL {,ES} or Vulkan.
 === Non-Normative References
 
 - [[[RDO]]]
-  https://en.wikipedia.org/wiki/Rate%E2%80%93distortion_optimization[Rate-distortion
-  optimization]. Wikipedia.
+  https://fgiesen.wordpress.com/2018/12/10/rate-distortion-optimization/[Rate-distortion
+  optimization]. The ryg blog, December 18th, 2018.
 
 [appendix#formatMapping]
 == Mapping of `vkFormat` values
