@@ -2663,8 +2663,8 @@ for (uint32_t block_y = 0; block_y < num_blocks_y; block_y++)
         else
         {
             // We need to decode and apply a DPCM encoded delta to the previously used endpoint index.
-            // This uses the delta endpoint Huffman table (see section 9.0).
-            const uint32_t delta_sym = decode_huffman(delta_endpoint_model);
+            // This uses the delta endpoint Huffman table.
+            const uint32_t delta_sym = decode_huffman(endpointDeltaModel);
 
             endpoint_index = delta_sym + prev_endpoint_index;
 
@@ -2703,14 +2703,14 @@ for (uint32_t block_y = 0; block_y < num_blocks_y; block_y++)
             }
             else
             {
-                // Decode the selector symbol, using the selector Huffman table (see section 9.0).
-                selector_sym = decode_huffman(m_selector_model);
+                // Decode the selector symbol, using the selector Huffman table.
+                selector_sym = decode_huffman(selectorModel);
 
                 // Is it a run?
                 if (selector_sym == static_cast<int>(SELECTOR_HISTORY_BUF_RLE_SYMBOL_INDEX))
                 {
-                    // Decode the selector run's size, using the selector history buf RLE Huffman table (see section 9.0).
-                    int run_sym = decode_huffman(selector_history_buf_rle_model);
+                    // Decode the selector run's size, using the selector history buf RLE Huffman table.
+                    int run_sym = decode_huffman(selectorHistoryBufRleModel);
 
                     // Is it a very long run?
                     if (run_sym == (SELECTOR_HISTORY_BUF_RLE_COUNT_TOTAL - 1))
