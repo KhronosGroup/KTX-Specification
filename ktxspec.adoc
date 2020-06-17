@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification of a container format for GPU textures.
-:docrev: rc3
+:docrev: rc4
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -2902,10 +2902,14 @@ At this point, the decoder has decoded each block's endpoint and selector codebo
                                     supercompressionGlobalData.
 |        rc2        |  2020-05-26 | Update example KTX file for DFD
                                     changes. Add BasisLZ references.
-|      {docrev}     |  {revdate}  | Update interoperability
+|        rc3        |  2020.05.29 | Update interoperability
                                     considerations in Media-Type
                                     registration. Add note re. mipPadding
                                     and supercompressed levels.
+|      {docrev}     |  {revdate}  | Change isIFrame to isPFrame. Restore
+                                    Zlib supercompression. Add
+                                    BasisLZ/ETC1S bitstream spec. & RDO
+                                    reference.
 |===
 
 [discrete]
@@ -2913,8 +2917,12 @@ At this point, the decoder has decoded each block's endpoint and selector codebo
 Thanks to Manmohan Bishnoi for designing the KTX file and application
 icons.
 
-Thanks to Alexey Knyazev for enormous help tightening the specification
-and removing potential conflicts.
+Thanks to Rich Geldreich for inventing transcodable textures and
+BasisLZ and providing documentation of them.
+
+Thanks to Alexey Knyazev for polishing Rich's documentation and for
+enormous help tightening the specification and removing potential
+conflicts.
 
 Thanks to David Wilkinson for chairing the initial effort.
 
