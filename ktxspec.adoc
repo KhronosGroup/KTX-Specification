@@ -67,9 +67,9 @@ universal textures, supercompression and the possibility of streaming.
 [discrete]
 === Status of this document
 
-Undergoing ratification-readiness review. Trial implementations
-completed. KTX files to this specification should _NOT_ be
-distributed until ratification.
+Submitted for ratification. Trial implementations completed. KTX
+files to this specification should _NOT_ be distributed until
+ratification.
 
 == Introduction
 
