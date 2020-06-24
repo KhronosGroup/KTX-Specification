@@ -95,6 +95,8 @@ The Khronos Group (www.khronos.org), the industry consortium
 responsible for standards such as OpenGL, OpenGL ES, WebGL and
 Vulkan.
 
+For change requests contact (iana at khronos.org).
+
 Provisional registration? No
 
 Relationship to image/ktx:
