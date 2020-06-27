@@ -1135,8 +1135,12 @@ pairs is such that
 
 Any file that does not meet the above condition is invalid.
 
-KTX editors must preserve any key/value data they do not understand
-or which is not modified by the user.
+KTX tools must update any key/value data affected by their operations.
+For example, a tool that supports xflip or yflip operations must
+update existing `KTXorientation` data to reflect the result of
+performing one of these. Tools must, preserve any key/value data
+not affected by their operations and not modified by the user or that
+they do not understand.
 
 Key/value data must be written to the file sorted by the Unicode
 code points of the keys starting from a key's first character.
