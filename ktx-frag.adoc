@@ -1,0 +1,768 @@
+= KTX Fragment URI
+:author: Mark Callow
+:author_org: Edgewise Consulting
+:description: URI syntax for accessing fragments of a KTX v2 file.
+:docrev: draft1
+:ktxfragver: 1.0
+:revnumber: {ktxfragver}.{docrev}
+:revdate: {docdate}
+:version-label: Version
+:lang: en
+:docinfo1:
+:doctype: article
+:encoding: utf-8
+// Disabling toc and numbered attributes doesn't work with a2x.
+// Use the xsltproc options instead.
+:toc!:
+// a2x: --xsltproc-opts "--stringparam generate.toc nop"
+:numbered:
+// a2x: --xsltproc-opts "--stringparam chapter.autolabel 0"
+// a2x: --xsltproc-opts "--stringparam section.autolabel 0"
+:data-uri:
+:icons: font
+:stylesheet: khronos.css
+:xrefstyle: full
+
+[abstract]
+== Abstract
+This document describes the KTX Fragments 1.0 specification. It
+specifies the syntax for constructing KTX fragment URIs and explains
+how to handle them when used over the HTTP protocol. The syntax is
+based on the specification of particular name-value pairs that can
+be used in URI fragment and URI query requests to restrict a media
+resource to a certain fragment. It is compatible with the W3C Media
+Fragments syntax <<W3CMF>>.
+
+[discrete]
+=== Status of this document
+Draft for review.
+
+== Introduction
+
+This document provides a standard means of addressing fragments of
+KTX texture files on the Web using Uniform Resource Identifiers
+(URI). In the context of this document KTX fragments are regarded
+along several different dimensions such as mip level, stratal (array
+layer) and spatial.
+
+The aim of this specification is to enhance the Web infrastructure
+for supporting the addressing and retrieval of subparts of the
+texture payload of KTX version 2 Web resources, as well as the
+automated processing of such subparts for reuse.
+
+For discussion of standardization issues including terminology, and the
+difference between URI fragents and URI queries see &sect; 2 and &sect;
+3 of _Media Fragments  URI 1.0 (basic)_ <<W3CMF>>.
+
+== KTX Fragments Syntax
+
+The guiding principles for the definition of the KTX fragment syntax
+are:
+
+    a. The KF syntax for queries and fragments should be identical.
+    b. The KF syntax should be unambiguous.
+    c. The KF syntax should allow any UTF-8 character for dimensions that need it.
+    d. The KF syntax should adhere to applicable formal standards.
+    e. The KF syntax should adhere to de-facto usage of queries and fragments.
+    f. The KF syntax should be as concise as possible.
+
+=== General Structure
+
+The general structure is as in <<W3CMF>>, a list of name value pairs
+encoded in the query or fragment component of a URI.  Name and value
+components are separated by an equal sign (=), while multiple
+name-value pairs are separated by an ampersand (&).
+
+[[namevalue]]
+----
+    name = fragment - "&" - "="
+    value = fragment - "&"
+    namevalue = name [ "=" value ]
+    namevalues = namevalue *( "&" namevalue )
+----
+
+The names and values can be arbitrary Unicode strings, encoded in
+UTF-8 and percent-encoded as per <<RFC3986>>.
+
+.Examples
+--
+  http://www.example.com/example.ktx2#l=0,2
+  http://www.example.com/example.ktx2#a=1,18
+  http://www.example.com/example.ktx2#a=1,18&xyzwhd=percent:25,25,25,50,50,50
+  http://www.example.com/example.ktx2#f=4,5
+  http://www.example.com/example.ktx2#t=10,20
+--
+
+While arbitrary name-value pairs can be encoded in this manner,
+this specification defines a fixed set of dimensions. The dimension
+keyword name is encoded in the name component, while dimension-specific
+syntax is encoded in the value component.
+
+<<Processing name-value components>> defines in more
+detail how to process the name-value pair syntax, arriving at a
+list of name-value Unicode string pairs. The syntax definitions in
+<<Fragment Dimensions>> apply to these Unicode strings.
+
+=== Fragment Dimensions
+KTX fragments support addressing the KTX file's payload along 5
+dimensions
+
+[qanda]
+relating to mip level::
+This dimension denotes a range of mip levels in the KTX file.
+
+stratal::
+This dimension denotes a range of array layers when the KTX file
+contains an array texture.
+
+temporal::
+This dimension denotes a specific time range in a KTX file containing
+`KTXanimData` metadata. Since a frame is an array layer, this is an
+alternate way of selecting in the stratal dimension.
+
+facial::
+This dimension denotes a range of faces when the KTX file contains a
+cube map.
+
+spatial:: xyzwhd
+This dimension denotes a range of pixels in the KTX file such as "a
+volume with size (100,100,1) with its origin at (10,10,0).
+
+==== Mip Level Dimension
+
+Mip level selection is denoted by the name _m_ and specified as a
+range with a first level and a last level. Either one or both
+parameters may be omitted with the first level defaulting to level
+0, the largest level and the last level defaulting to level~n~, the
+texture's smallest mip level.
+
+    levelprefix    = %x6C                                        ; "m"
+
+Examples:
+
+    m=2,5    # => selects mip level[2] to level[5].
+    m=,5     # => selects mip level[0] to level[5].
+    m=2      # => selects mip level[2] to level[n].
+    m=0,0    # => selects layer[0].
+
+==== Stratal Dimension
+
+Stratal or array layer selection is denoted by the name _a_ and
+specified as a range with a first layer and a last layer. Either
+one or both parameters may be omitted with the first layer defaulting
+to layer 0 and the last layer defaulting to layer~n~, the array
+texture's last layer.
+
+    layerprefix    = %x61                                        ; "a"
+
+Examples:
+
+    a=3,6    # => selects layer[3] to layer[6].
+    a=,6     # => selects layer[0] to layer[6].
+    a=3      # => selects layer[3] to layer[n].
+    a=3,3    # => selects layer[3].
+
+==== Temporal Dimension
+
+Temporal clipping is denoted by the name _t_. Since a frame is a
+single array layer, it is an alternate way of selecting array layers
+and only valid for files with KTXanimData metadata. It is specified
+as an interval with a begin time and an end time (or an in-point
+and an out-point in video editing terms).  Either one or both
+parameters may be omitted, with the begin time defaulting to 0
+seconds and the end time defaulting to the duration of the source
+media. The interval is half-open: the begin time is considered part
+of the interval whereas the end time is considered to be the first
+time point that is not part of the interval. If a single number
+only is given, this corresponds to the begin time except if it is
+preceded by a comma in which case it corresponds to end time.
+
+The duration of the source media in seconds is calculated from the
+KTXanimData by
+
+// This is the only way to get an indented paragraph.
+[none]
+* _duration~source~_ = _duration~frame~_ / _timescale_ x _layerCount_
+
+where _duration~frame~_ and _timescale_ are the values given in the
+KTXanimData metadata and _layerCount_ is the value given in the KTX
+header.
+
+timeprefix    = %x74                                        ; "t"
+
+Examples:
+
+    t=10,20   # => results in the time interval [10,20)
+    t=,20     # => results in the time interval [0,20)
+    t=10      # => results in the time interval [10,end)
+
+Temporal clipping is specified as Normal Play Time (npt) <<RFC7826>>.
+
+Normal Play Time can either be specified as seconds, with an optional
+fractional part to indicate miliseconds, or as colon-separated
+hours, minutes and seconds (again with an optional fraction). Minutes
+and seconds must be specified as exactly two digits, hours and
+fractional seconds can be any number of digits. The hours, minutes
+and seconds specification for NPT is a convenience only, it does
+not signal frame accuracy. This specification builds on the RTSP
+specification of NPT in <<RFC7826>>.
+
+[source,bn,subs=+macros]
+----
+npt-sec       =  1*DIGIT [ "." *DIGIT ]                     ; definitions
+npt-hhmmss    =  npt-hh ":" npt-mm ":" npt-ss [ "." *DIGIT] ; from <<RFC7826>>.
+npt-mmss      =  npt-mm ":" npt-ss [ "." *DIGIT] 
+npt-hh        =  1*DIGIT               ; any positive number
+npt-mm        =  2DIGIT                ; 0-59
+npt-ss        =  2DIGIT                ; 0-59
+
+npttimedef    = ( npttime  [ "," npttime ] ) / ( "," npttime )
+
+npttime       = npt-sec / npt-mmss / npt-hhmmss
+----
+
+Examples:
+
+    t=10,20         # => results in the time interval [10,20)
+    t=,121.5        # => results in the time interval [0,121.5)
+    t=0:02:00,121.5 # => results in the time interval [120,121.5)
+    t=120,0:02:01.5 # => also results in the time interval [120,121.5)
+
+==== Facial Dimension
+
+Face selection is denoted by the name _f_ and specified as a range with
+a first face and a last face. Either one or both parameters may be
+omitted with the first face defaulting to to face 0 and the last face to
+face 5.
+
+    faceprefix    = %x66                                        ; "f"
+
+Examples:
+
+    f=1,2   # selects face[1] and face[2].
+    f=,3    # selects face[0] to face[3].
+    f=3     # selects face[3] to face[5].
+    f=3,3   # selects face[3].
+    f=5     # selects face[5].
+
+==== Spatial Dimension
+
+Spatial clipping selects a volume of pixels from a KTX texture.
+Only cubic selections are supported though, of course, width, height
+or depth can be 1. The cube can be specified as pixel coordinates
+or percentages.
+
+Pixels coordinates are interpreted after taking into account the
+texture's base level dimensions and the mip levels being accessed.
+
+Cube selection is denoted by the name _xyzwhd_. The value is an
+optional format, _pixel:_ or _percent:_ (defaulting to _pixel_) and
+6 comma-separated integers. The integers denote x, y, z, width
+height and depth, respectively, with x=0, y=0, z=0 being the origin
+indicated by the texture's `KTXorientation` metadata. If there is no
+metadata, the origin is the top-left-front corner of the cube.
+
+If pixel is used, coordinates are in the space of the texture's base
+level. When selecting from other than the base level, the user agent
+must adjust the coordinates according to the level being accessed.
+Level~n+1~ offsets and sizes are max(1, level~n~/2) offsets and sizes.
+
+If percent is used, x and width are interpreted as a percentage of the width
+of the level being accessed, y and height as a percentage of the level's height
+and z and depth as a percentage of the level's depth.
+
+
+    xyzwhdprefix = %x78.79.7F.77.68.64                  ; "xyzwhd"
+    xyzwhdparam  = [ xywhunit ":" ] 1*DIGIT "," 1*DIGIT "," 1*DIGIT "," 1*DIGIT
+    xyzwhdunit   = %x70.69.78.65.6C                     ; "pixel"
+                   / %x70.65.72.63.65.6E.74             ; "percent"
+
+Examples:
+
+    xyzwhd=160,120,0,320,240,1        # => selects a 320x240x1 cube at x=160, y=120
+                                      # and z=0
+    xyzwhd=pixel:160,120,0,320,240,1  # => selects a 320x240x1 cube at x=160, y=120
+                                      # and z=0
+    xyzwhd=percent:25,25,25,50,50,50  # => selects a 50%x50%x50% cube at x=25%,
+                                      # y=25% and z = 25%
+
+== Media Fragments Processing
+
+This section defines the different exchange scenarios for the situations
+explained in  &sect; 3 _URI fragment and URI query over the HTTP
+protocol_ in <<W3CMF>>.
+
+The formal grammar defined in <<KTX Fragments Syntax>> describes
+what producers of a KTX fragment URI should output. It is not taking
+into account possible percent-encodings that are valid according to
+<<RFC3986>> and the grammar is not a specification of how a media
+fragment should be parsed. Therefore, <<Processing Media Fragment URI>>
+defines how to parse media fragment URIs.
+
+=== Processing Media Fragment URI
+
+This section defines how to parse media fragment URIs defined in
+<<KTX Fragments Syntax>>, along with notes on some of the caveats
+to be aware of. Implementors are free to use any equivalent
+technique(s).
+
+==== Processing name-value components
+
+This section defines how to convert an octet string (from the query
+or fragment component of a URI) into a list of name-value Unicode
+string pairs.
+
+1. Parse the octet string according to the <<namevalue>> syntax,
+   yielding a list of name-value pairs, where name and value are both
+   octet string. In accordance with <<RFC3986>>, the name and value
+   components must be parsed and separated before percent-encoded
+   octets are decoded.
+
+2. For each name-value pair:
+
+    a. Decode percent-encoded octets in name and value as defined
+       by <<RFC3986>>. If either name or value are not valid
+       percent-encoded strings, then remove the name-value pair
+       from the list.
+
+    b. Convert name and value to Unicode strings by interpreting
+       them as UTF-8. If either name or value are not valid UTF-8
+       strings, then remove the name-value pair from the list.
+
+Note that the output is well defined for any input.
+
+Examples:
+|===
+| Input | Output | Notes
+
+| "t=1" | [("t", "1")] | simple case
+| "t=1&t=2" | [("t", "1"), ("t", "2")] | repeated name
+| "a=b=c" | [("a", "b=c")] | "=" in value
+| "a&b=c" | [("a", ""), ("b", "c")] | missing value
+| "%74=%6ept%3A%310" | [("t", "npt:10")] | unnecssary percent-encoding
+| "id=%xy&t=1" | [("t", "1")] | invalid percent-encoding
+| "id=%E4r&t=1" | [("t", "1")] | invalid UTF-8
+|===
+
+While the processing defined in this section is designed to be
+largely compatible with the parsing of the URI query component in
+many HTTP server environments, there are incompatible differences
+that implementors should be aware of:
+
+* "&" is the only primary separator for name-value pairs, but some server-side languages also treat ";" as a separator.
+
+* name-value pairs with invalid percent-encoding should be ignored, but some server-side languages silently mask such errors.
+
+* The "+" character should not be treated specially, but some server-side languages replace it with a space (" ") character.
+
+* Multiple occurrences of the same name must be preserved, but some server-side languages only preserve the last occurrence. 
+
+=== Processing name-value lists
+
+This section defines how to convert a list of name-value Unicode
+string pairs into the KTX fragment dimensions.
+
+Given the dimensions defined in section <<Fragment Dimensions>>,
+each has a pair of production rules that corresponds to the name
+and value component respectively:
+
+|===
+|Keyword | Dimension
+
+|m | <<Mip Level Dimension>>
+|a | <<Stratal Dimension>>
+|f | <<Facial Dimension>>
+|xyzwhd | <<Spatial Dimension>>
+|t | <<Temporal Dimension>>
+|===
+
+1. Initially, all dimensions are undefined.
+
+2. For each name-value pair:
+
+    a. If name matches a keyword in the above table, interpret value
+       as per the corresponding section.
+
+    b. Otherwise, the name-value pair does not represent a KTX
+       fragment dimension. Validators should emit a warning. User
+       agents must ignore the name-value pair.
+
+NOTE: Because the name-value pairs are processed in order, the last
+valid occurence of any dimension is the one that is used.
+
+== Media Fragments Semantics
+
+In this section, we discuss how media fragment URIs should be
+interpreted by user agents. Valid and error cases are presented.
+In case of errors, we distinguish between errors that can be detected
+solely based on the media fragment URI and errors that can only be
+detected when the user agent has information of the KTX resource
+(such as the number of mip levels).
+
+=== Valid KTX Fragment URIs
+
+For each dimension, a number of valid KTX fragments and their
+semantics are presented.
+
+==== Valid mip level dimension
+
+To describe the different cases for valid mip levels, we make the
+following definitions:
+
+[%hardbreaks]
+b: the base (largest) mip level which is always 0;
+x: the maximum (smallest) mip level within the KTX file;
+p: a positive integer, p >= 0;
+q: a positive integer, q >= 0.
+
+For m=p,q with p \<= q the following level selections are valid:
+
+* m=p with p < x: the user agent selects levels p to x.
+* m=,q with q \<= x: the user agent selects levels b to q.
+* m=,q with x < q: the user agent selects levels b to x.
+* m=p,q with p = b and q = x: the user agent selects all levels.
+* m=p,q with p < q, p < x and q \<= x: the user agent selects levels p to q.
+* m=p,q with p < q, p < x and x < q: the user agent selects levels p to x.
+* %6D=5,12: resolve percent encoding to m=5,12.
+* m=%31%30: resolve percent encoding to m=10.
+* m=5%2C12: resolve percent encoding to t=5,12.
+
+When clipping levels from a KTX file with multiple layers, faces
+or depth-slices the selection include all layers, faces and
+depth-slices of the selected levels or all those selected by clipping
+in additional dimensions.
+
+==== Valid stratal dimension
+
+To describe the different cases for valid array layers, we make the
+following definitions:
+
+[%hardbreaks]
+f: the first array layer which is always 0;
+l: the last array layer
+i: a positive integer, i >= 0;
+j: a positive integer, j >= 0.
+
+For a=i,j with i \<= j the following layer selections are valid:
+
+* a=i with i < l: the user agent selects layers i to l.
+* a=,j with j \<= l: the user agent selects layers f to j.
+* a=,j with l < j: the user agent selects layers f to l.
+* a=i,j with i = f and j = l, the user agent selects all layers.
+* a=i,j with i < j, i < l and j <= l: the user agent selects layers i to j.
+* %61=3,14 resolve percent encoding to a=3,14.
+* a=%31%30 resolve percent encoding to a=10.
+* a=3%2C14 resolve percent encoding to t=3,14.
+
+When clipping layers from a KTX file with multiple levels or faces
+the selection includes all the levels and faces of the selected
+layers or all those selected by clipping in additional dimensions.
+
+==== Valid temporal dimension
+
+To describe the different cases for temporal media fragments, we
+make the following definitions:
+
+[%hardbreaks]
+s: the start point of the animation sequence, which is always zero (in NPT);
+e: the end point of the animation sequence (i.e. duration) and e > 0;
+a: a positive integer, a >= 0;
+b: a positive integer, b >= 0.
+
+Further, as stated in <<Temporal Dimension>>, temporal intervals
+are half-open.  Thus, if we state below that "the media is played
+from x to y", this means that the frame corresponding to y will not
+be played.
+
+For t=a,b with a <= b, the following temporal fragments are valid:
+
+* t=a with a < e: sequence is played from a to e.
+* t=,b with b \<= e: sequence is played from s to b.
+* t=,b with e < b: sequence is played from s to e.
+* t=a,b with a = 0, b = e: whole sequence resource is played.
+* t=a,b with a < b, a < e and b \<= e: sequence is played from a to b (the normal case).
+* t=a,b with a < b, a < e and e < b: sequence is played from a to e.
+* %74=10,20 resolve percent encoding to t=10,20.
+* t=%31%30 resolve percent encoding to t=10.
+* t=10%2C20 resolve percent encoding to t=10,20.
+* t=%6ept:10 resolve percent encoding to t=npt:10.
+* t=npt%3a10 resolve percent encoding to t=npt:10.
+
+==== Valid facial dimension
+
+To describe the different cases for valid faces, we make the
+following definitions:
+
+[%hardbreaks]
+i: a positive integer, i >= 0 and i < 6.
+j: a positive integer, j >= 0 and j < 6.
+
+For f=i,j with i < j the following face selections are
+valid.
+
+* f=i, the user agent selects face[i] to face[5].
+* f=i,j the user agent selects face[i] to face[j].
+* f=,j the user agent selects face[0] to face[j].
+
+Note that when a subset of faces is selected, the texture is lowered from a
+cube map to an array or a 2D texture.
+
+==== Valid spatial dimension
+
+To describe the different cases for spatial media fragments, we
+make the following definitions:
+
+[%hardbreaks]
+a: the x coordinate of the spatial region (a >= 0).
+b: the y coordinate of the spatial region (b >= 0).
+c: the z coordinate of the spatial region (c >= 0).
+e: the width the spatial region (e > 0).
+f: the height of the spatial region (f > 0).
+g: the depth of the spatial region (g > 0).
+w: the width of the texture base level (w > 0).
+h: the height of the texture base level (h > 0).
+d: the depth of the texture base level (h > 0).
+
+The coordinate system has an upper-left origin.
+
+The following spatial fragments are valid:
+
+*     xyzwhd=a,b,c,e,f,g with a+e \<= w, b+f \<= h and c+g \<= d: the
+      user agent displays a spatial fragment with coordinates (in pixel
+      xyzefg format) a,b,c,e,f,g (the normal pixel case).
+*     xyzwhd=a,b,c,e,f,g with a+e > w, a < w, b+f < h and c+g < d: the
+      user agent displays a spatial fragment with coordinates (in pixel
+      xyzwhd format) a,b,c,w-a,f,g.
+*     xyzwhd=a,b,c,e,f,g with a+e < w, b+f > h, b < h and c+g < d: the
+      user agent displays a spatial fragment with coordinates (in pixel
+      xyzwwhd format) a,b,c,e,h-b,g.
+*     xyzwhd=a,b,c,e,f,g with a+e < w, b+f < h, c+g > d and c < d: the
+      user agent displays a spatial fragment with coordinates (in pixel
+      xyzwwhd format) a,b,c,e,f,d-c.
+*     xyzwhd=a,b,c,e,f,g with a+e > w, a < w, b+f > h, b < h, c+g < d:
+      the user agent displays a spatial fragment with coordinates (in
+      pixel xyzwhd format) a,b,c,w-a,h-f,g.
+*     xyzwhd=a,b,c,e,f,g with a+e > w, a < w, b+f > h, b < h, c+g > d
+      and c < d: the user agent displays a spatial fragment with
+      coordinates (in pixel xyzwhd format) a,b,c,w-a,h-f,d-g.
+*     xyzwhd=pixel:a,b,c,e,f,g with a+e \<= w, b+f \<= h and c+g \<= d:
+      the user agent displays a spatial fragment with coordinates (in
+      pixel xyzwhd format) a,b,c,e,f,g (the normal pixel case).
+*     xyzwhd=percent:a,b,c,e,f,g with a+e \<= 100, b+f \<= 100 and c+g
+      \<= 100: the user agent displays a spatial fragment with coordinates
+      (in pixel xyzwhd format) floor(a/w*100), floor(b/h*100),
+      floor(c/d*100), ceil(e/w*100), ceil(f/h*100) and ceil(g/d*100) (the
+      normal percent case).
+
+The result of doing spatial clipping on a KTX file that has multiple
+layers, faces or depth-slices is that the spatial clipping is done
+across all layers and faces.
+
+When doing spatial clipping on multiple mip levels the user agent
+must scale the coordinates to each mip level being clipped.
+
+=== Errors detectable based on the URI syntax
+
+Both syntactical and semantical errors are treated similarly. More
+specifically, the user agent SHOULD ignore name-value pairs causing
+errors detectable based on the URI syntax. We provide below more
+details for each dimension. We look at errors in the different
+dimensions and their values in the subsequent sub-sections. We start
+with errors on the more general levels.
+
+==== Errors on the general URI level
+
+The following list provides the different kind of errors that can
+occur on the general URI level and how they should be treated:
+
+* Unknown dimension: only dimensions described in this specification
+  (i.e. m, a, t, f and xyzwhd ) are considered as known dimensions.
+  All other dimensions are considered as unknown. Unknown dimensions
+  SHOULD be ignored by the user agent.
+* Multiple occurrences of the same dimension: only the last valid
+  occurrence of a dimension (e.g. t=10 in `#t=2&t=10`) is interpreted
+  and all previous occurrences (valid or invalid) SHOULD be ignored
+  by the user agent.
+
+==== Errors on the mip level dimension
+
+The value cannot be parsed for the mip level dimension or the parsed
+value is invalid according to the specification. Invalid mip level
+fragments SHOULD be ignored by the user agent.
+
+Examples:
+
+    m=b
+    m=1,
+    m=qwer
+    m=asdf,9
+    m='4'
+    m=3:20
+    m=25,50,75
+
+==== Errors on the array layer dimension
+
+The value cannot be parsed for the stratal dimension or the parsed
+value is invalid according to the specification. Invalid stratal
+fragments SHOULD be ignored by the user agent.
+
+Examples:
+
+    a=b
+    a=1,
+    a=qwer
+    a=asdf,9
+    a='4'
+    a=3:20
+    a=25,50,75
+
+==== Errors on the temporal dimension
+
+The value cannot be parsed for the temporal dimension or the parsed
+value is invalid according to the specification. Invalid temporal
+fragments SHOULD be ignored by the user agent.
+
+Examples:
+
+    t=a,b with a >= b (the case of an empty temporal fragment (a=b) is also considered as an error)
+    t=a,
+    t=asdf
+    t=5,ekj
+    t=agk,9
+    t='0'
+    t=10-20
+    t=10:20
+    t=10,20,40
+    t%3D10 where %3D is equivalent to =; percent encoding does not resolve
+
+==== Errors on the face dimension
+
+The value cannot be parsed for the facial dimension or the parsed
+value is invalid according to the specification. Invalid facial
+fragments SHOULD be ignored by the user agent.
+
+Examples:
+
+    f=6
+    f=1,
+    f=a,b
+    f=posx
+    f="negy"
+
+==== Errors on the spatial dimension
+
+The value cannot be parsed for the spatial dimension or the parsed
+value is invalid according to the specification. Invalid spatial
+fragments SHOULD be ignored by the user agent.
+
+Examples:
+
+    xyzwhd=4,5,abc,8,9,a
+    xyzwhd=4,5
+    xyzwhd=foo:4,5,6,8,9,10
+    xyzwhd=percent:400,5,6,7,8,9
+    xyzwhd=4,5,6,0,3,2
+
+=== Errors detectable based on information of the source KTX file.
+
+Errors that can only be detected when the user agent has information
+of the source KTX file are treated differently. Examples of such
+information are the number of mip levels, the number of array layers,
+the duration of an animation sequence and the size of an image (i.e. all
+information that is not detectable solely based on the URI).
+We provide below more details for each of the dimensions.
+
+==== Errors on the general level
+
+The following errors can occur on the general level:
+
+Not a KTX Version 2 file. If the user agent knows the media type,
+it is able to detect that the source is not a KTX file so it SHOULD
+ignore KTX specific dimensions. The temporal dimension is the only
+non KTX specific dimension.
+
+Non-existent dimension: a dimension that does not exist in the
+source KTX (e.g. level clipping on a file with only a single mip level,
+layer clipping on a file with only 1 array layer or temporal clipping
+on a file without KTXanimData) is considered as a non-existent
+dimension. The user agent SHOULD ignore these.
+
+==== Errors on the mip level dimension
+
+To describe the different cases for mip level fragments, we
+use the definitions from <<Valid mip level dimension>>. The invalidity of the
+following mip level fragments can only be detected by the user agent if
+it knows the number of mip levels in the KTX source file.
+
+* m=p,q with p > 0, p < q, p > x: a non-existent mip level fragment,
+  the user agent selects mip level x.
+* m=p with p > x: a non-existent mip level, the user agent selects mip
+  level x.
+
+==== Errors on the stratal dimension
+
+To describe the different cases for stratal fragments, we
+use the definitions from <<Valid stratal dimension>>. The invalidity of the
+following stratal fragments can only be detected by the user agent if
+it knows the number of array layers in the KTX source file.
+
+* a=i,j with i > 0, i < j, i > l: a non-existent mip level fragment,
+  the user agent selects array level l.
+* a=i with i > l: a non-existent array layer, the user agent selects mip
+  level x.
+
+==== Errors on the temporal dimension
+
+To describe the different cases for temporal media fragments, we
+use the definitions from <<Valid temporal dimension>>. The invalidity
+of the following temporal fragments can only be detected by the
+user agent if it knows the duration (for non-existent temporal
+fragments) and the frame rate of the source sequence.
+
+* t=a,b with a > 0, a < b, a >= e and b > e: a non-existent temporal
+  fragment, the user agent seeks to the end of the sequence e.
+* t=a with a >= e: a non-existent temporal fragment, the user agent
+  seeks to the end of the media e.
+
+==== Errors on the facial dimension
+
+To describe this case we use the definitions from <<Valid facial dimension>>.
+The invalidity of the following facial fragments can only be detected
+if the user agent knows the KTX file does not contain a cubemap.
+In that case the user agent SHOULD ignore these facial fragments.
+
+
+* f=i,j with i >= 0, i < j, i < 6
+* f=i with i >= 0, i < 6
+* f=,j with j >= 0, j < 6
+
+==== Errors on the spatial dimension
+
+To describe the different cases for spatial media fragments, we use
+the definitions from <<Valid spatial dimension>>. The invalidity
+of the following spatial fragments can only be detected by the user
+agent if it knows the size and depth of the source KTX file.
+
+* xyzwhd=a,b,c,e,f,g with a >= w or b >= h or c >= d: the origin
+  (a,b,c) of the cube lies outside the source image and is therefore
+  invalid. The user agent SHOULD ignore this spatial fragment.
+
+[bibliography]
+== References
+
+- [[[W3CMF]]] https://www.w3.org/TR/media-frags/[Media Fragments URI 1.0 (basic)].
+  Raphaël Troncy et al. World Wide Web Consortium, September 2012.
+
+////
+// The initial initial, "T." is placed after the doc title to prevent
+// Asciidoctor thinking I am trying to make a list.
+////
+- [[[RFC3986]]] https://tools.ietf.org/html/rfc3986[Uniform Resource
+  Identifier (URI): Generic Syntax]. T.
+  Berners-Lee, R. Fielding and L. Masinter. IETF, January 2005.
+
+- [[[RFC7826]]] https://tools.ietf.org/html/rfc7826#page-29[Real Time Streaming
+  Protocol Version 2.0]. H.
+  Schulzrinne, A. Rao, R. Lanphier, M. Westerlund, M Stiemerling. IETF,
+  December 2016.
+
