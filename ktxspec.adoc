@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification of a container format for GPU textures.
-:docrev: rc4
+:docrev: pr1
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -513,14 +513,6 @@ otherwise be needed for proper alignment of `sgdByteOffset`.
 === pixelWidth, pixelHeight, pixelDepth [[dimensions]]
 The size of the texture image for level 0, in pixels.
 
-Image dimensions must adhere to format-specific requirements, including:
-
-* width and height being multiples of 4 for BCn and ETC1/ETC2/EAC formats;
-* width, height, and depth being multiples of the corresponding block size
-  dimensions for ASTC formats;
-* various restrictions for PVRTC formats (see <<PVRTC>>, <<PVRTC1_OES>>, and
-<<PVRTC2_OES>>).
-
 For 1D textures, `pixelHeight` and `pixelDepth` must be 0.
 
 For 2D and cubemap textures, `pixelDepth` must be 0.
@@ -530,6 +522,24 @@ For cubemap textures, `pixelHeight` must be equal to `pixelWidth`.
 `pixelWidth` cannot be 0.
 
 `pixelDepth` must be 0 for depth or stencil formats.
+
+[TIP]
+====
+While the KTX format does not impose any size restrictions, beyond
+those above, producers of KTX files need to be aware that some APIs
+and formats have specific requirements including, but not limited
+to, the following:
+
+* Direct3D requires the width, and height of level 0 texture images
+  using the BCn formats to be multiples of the format's block size.
+* WebGL 1.0 requires the width and height of textures using the
+  BC[1-3] formats to be powers of 2.
+* PVRTC format requires width and height to be a power of 2.
+  Transcoders from universal formats to PVRTC may have the same
+  requirement.
+* Both PVRTC and PVRTC2 place various restrictions on setting of sub-images.
+  (see <<PVRTC>>, <<PVRTC1_OES>>, and <<PVRTC2_OES>>).
+====
 
 === layerCount
 `layerCount` specifies the number of array elements. If
@@ -2099,18 +2109,6 @@ query this information.
   OpenGL^®^ Graphics System, A Specification (Version 4.6 (Core Profile))].
   Mark Segal, Kurt Akeley; Editor: Jon Leech. The Khronos Group, July 2017.
 
-- [[[PVRTC]]]
-  {url-khr-reg}/DataFormat/specs/1.3/dataformat.1.3.html#PVRTC["PVRTC
-  Compressed Texture Image Formats" chapter, Khronos Data Format
-  Specification 1.3].
-  Andrew Garrard and Imagination Technologies Limited.
-
-- [[[PVRTC1_OES]]] https://www.khronos.org/registry/OpenGL/extensions/IMG/IMG_texture_compression_pvrtc.txt[IMG_texture_compression_pvrtc].
-  Imagination Technologies Limited, 2005
-
-- [[[PVRTC2_OES]]] https://www.khronos.org/registry/OpenGL/extensions/IMG/IMG_texture_compression_pvrtc2.txt[IMG_texture_compression_pvrtc2].
-  Imagination Technologies Limited, 2011
-
 - [[[REGEXP]]] https://www.ecma-international.org/ecma-262/5.1/index.html#sec-15.10[Standard
  ECMA-262 5.1{nbsp}Edition, Section 15.10: _RegExp (Regular Expression)
  Objects_]. Ecma International, June 2011.
@@ -2160,6 +2158,18 @@ particular version of OpenGL {,ES} or Vulkan.
 
 [bibliography]
 === Non-Normative References
+
+- [[[PVRTC]]]
+  {url-khr-reg}/DataFormat/specs/1.3/dataformat.1.3.html#PVRTC["PVRTC
+  Compressed Texture Image Formats" chapter, Khronos Data Format
+  Specification 1.3].
+  Andrew Garrard and Imagination Technologies Limited.
+
+- [[[PVRTC1_OES]]] https://www.khronos.org/registry/OpenGL/extensions/IMG/IMG_texture_compression_pvrtc.txt[IMG_texture_compression_pvrtc].
+  Imagination Technologies Limited, 2005
+
+- [[[PVRTC2_OES]]] https://www.khronos.org/registry/OpenGL/extensions/IMG/IMG_texture_compression_pvrtc2.txt[IMG_texture_compression_pvrtc2].
+  Imagination Technologies Limited, 2011
 
 - [[[RDO]]]
   https://fgiesen.wordpress.com/2018/12/10/rate-distortion-optimization/[Rate-distortion
@@ -2910,10 +2920,13 @@ At this point, the decoder has decoded each block's endpoint and selector codebo
                                     considerations in Media-Type
                                     registration. Add note re. mipPadding
                                     and supercompressed levels.
-|      {docrev}     |  {revdate}  | Change isIFrame to isPFrame. Restore
+|        rc4        |  2020.06.17 | Change isIFrame to isPFrame. Restore
                                     Zlib supercompression. Add
                                     BasisLZ/ETC1S bitstream spec. & RDO
                                     reference.
+|      {docrev}     |  {revdate}  | Remove width & height restrictions.
+                                    Update draft Media Type
+                                    registration.
 |===
 
 [discrete]
