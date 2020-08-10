@@ -57,7 +57,7 @@ Published specification:
 
 The KTX file format specification can be found at
 
-    http://github.khronos.org/KTX-Specification/
+    https://github.khronos.org/KTX-Specification/
 
 Applications Usage:
 
