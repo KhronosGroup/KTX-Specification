@@ -273,7 +273,7 @@ and z and depth as a percentage of the level's depth.
 
 
     xyzwhdprefix = %x78.79.7F.77.68.64                  ; "xyzwhd"
-    xyzwhdparam  = [ xywhunit ":" ] 1*DIGIT "," 1*DIGIT "," 1*DIGIT "," 1*DIGIT
+    xyzwhdparam  = [ xywhunit ":" ] 1*DIGIT "," 1*DIGIT "," 1*DIGIT "," 1*DIGIT," 1*DIGIT "," 1*DIGIT"
     xyzwhdunit   = %x70.69.78.65.6C                     ; "pixel"
                    / %x70.65.72.63.65.6E.74             ; "percent"
 
