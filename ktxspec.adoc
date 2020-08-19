@@ -1766,6 +1766,27 @@ Only the most recent writer should be identified.  Editing tools
 must overwrite this value when rewriting a file originally written
 by a different tool.
 
+=== KTXwriterScParams
+KTX file writers may, and are strongly encouraged to, identify any
+non-default Basis Universal encoding and supercompression options
+specified when the file is created by including a value with the key
+
+-    `KTXwriterScParams`
+
+The value can be any UTF-8 string that shows the command-line or other
+options used when writing the file, for example:
+
+[no-bullet]
+-    `--uastc --uastc_rdo_q 4 --zcmp 5`
+
+If `KTXwriterScParams` is present, `KTXwriter` must also be present.
+
+In general only the most recent writer and most recently used options
+should be identified unless the writer is building on operations
+done previously. For example if a writer is adding Zstd supercompression
+to a file it previously encoded in UASTC, it should append the
+additional options to those previously used.
+
 === KTXastcDecodeMode
 By default, ASTC decoders produce pixel values with half-float
 precision for HDR and linear LDR blocks. KTX file writers may
