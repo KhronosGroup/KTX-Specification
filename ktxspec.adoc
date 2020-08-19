@@ -534,7 +534,7 @@ to, the following:
   using the BCn formats to be multiples of the format's block size.
 * WebGL 1.0 requires the width and height of textures using the
   BC[1-3] formats to be powers of 2.
-* PVRTC format requires width and height to be a power of 2.
+* The PVRTC format requires width and height to be a power of 2.
   Transcoders from universal formats to PVRTC may have the same
   requirement.
 * Both PVRTC and PVRTC2 place various restrictions on setting of sub-images.
@@ -837,6 +837,12 @@ uncompressedByteLength % (faceCount * max(1, layerCount)) == 0
 
 [TIP]
 ====
+Writers should be aware that block-compressed formats require the
+byte length of encoded levels be a multiple of the block size, i.e.
+the data is always a whole number of blocks regardless of the size
+in texels. The PVRTC format has extra restrictions. See Chapter 24
+_PVRTC Compressed Texture Image Formats_ in <<KDF13>>.
+
 In versions of OpenGL < 4.5 and in OpenGL ES, faces of non-array
 cubemap textures (any texture where `faceCount` is 6 and
 `layerCount` is 0) must be uploaded individually. Loaders
