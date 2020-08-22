@@ -530,8 +530,9 @@ those above, producers of KTX files need to be aware that some APIs
 and formats have specific requirements including, but not limited
 to, the following:
 
-* Direct3D requires the width, and height of level 0 texture images
-  using the BCn formats to be multiples of the format's block size.
+* Direct3D requires the width and height of level 0 texture images
+  using the BCn formats to be multiples of the format's block width and
+  height.
 * WebGL 1.0 requires the width and height of textures using the
   BC[1-3] formats to be powers of 2.
 * The PVRTC format requires width and height to be a power of 2.
