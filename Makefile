@@ -6,9 +6,9 @@ out=out
 
 all: $(out)/index.html $(out)/ktx-frag.html #$(out)/ktx.pdf
 
-inlined_images := icons/masters/ktx_document.svg \
-                  icons/win/ktx_document.ico \
-                  images/khronos.svg
+inlined_images := icons/ktx_favicon.ico \
+                  images/khronos.svg \
+                  images/ktx.svg
 
 ktx_sources := ktxspec.adoc \
            ktx-media-registration.txt \

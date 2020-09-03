@@ -2959,8 +2959,7 @@ At this point, the decoder has decoded each block's endpoint and selector codebo
 
 [discrete]
 == Acknowledgements
-Thanks to Manmohan Bishnoi for designing the KTX file and application
-icons.
+Thanks to Dominic Agoro-Ombaka for designing the KTX logo and icons.
 
 Thanks to Rich Geldreich for inventing transcodable textures and
 BasisLZ and providing documentation of them.
