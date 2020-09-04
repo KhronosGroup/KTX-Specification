@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification of a container format for GPU textures.
-:docrev: pr1
+:docrev: pr-draft2
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -67,9 +67,10 @@ universal textures, supercompression and the possibility of streaming.
 [discrete]
 === Status of this document
 
-Submitted for ratification. Trial implementations completed. KTX
-files to this specification should _NOT_ be distributed until
-ratification.
+Ratified by the Khronos Board of Promoters Aug 14th, 2020.
+
+This is a post-ratification draft published while awaiting
+additional informative sections before release.
 
 == Introduction
 
@@ -2952,9 +2953,14 @@ At this point, the decoder has decoded each block's endpoint and selector codebo
                                     Zlib supercompression. Add
                                     BasisLZ/ETC1S bitstream spec. & RDO
                                     reference.
-|      {docrev}     |  {revdate}  | Remove width & height restrictions.
+|      pr-draft1    |  2020.08.01 | Remove width & height restrictions.
                                     Update draft Media Type
                                     registration.
+|      {docrev}     |  {revdate}  | Update status to ratified. Add
+                                    KTXwriteScParams. Update logo.
+                                    Make clarifications in size
+                                    restriction tips. Add tip about
+                                    byteLength.
 |===
 
 [discrete]
