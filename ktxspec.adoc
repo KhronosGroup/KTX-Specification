@@ -56,13 +56,15 @@ include::license.adoc[]
 
 [abstract]
 == Abstract
-The KTX file format, version 2 is a format for storing textures for
-GPU applications. It is distinguished by the simplicity of the
-loader required to instantiate texture objects from the file contents.
+The KTX file format is a format for storing textures for GPU
+applications. It is distinguished by the simplicity of the loader
+required to instantiate texture objects from the file contents.
 
-It extends the version 1 format with easier loading of Vulkan
-textures, easier use by non-OpenGL and non-Vulkan applications,
-universal textures, supercompression and the possibility of streaming.
+Version 2 extends the functionality of version 1 with easier loading
+of Vulkan textures, easier use by non-OpenGL and non-Vulkan
+applications, universal textures, supercompression and the possibility
+of streaming. Providing this new functionality requires a significantly
+different file structure from version 1.
 
 [discrete]
 === Status of this document
