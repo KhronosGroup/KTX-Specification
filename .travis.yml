@@ -7,11 +7,11 @@ sudo: required
 
 language: ruby
 
-branches:
-  only:
-  - master
-  # Enable building of tags.
-  - /2.0.*/
+#branches:
+#  only:
+#  - master
+#  # Enable building of tags.
+#  - /2.0.*/
 
 install: sudo gem install asciidoctor
 
