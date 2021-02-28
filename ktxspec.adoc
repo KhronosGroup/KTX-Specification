@@ -2442,7 +2442,7 @@ ETC1S slices consist of a compressed 2D array of ETC1S blocks, always compressed
 
 Each ETC1S block is encoded by using references to the color endpoint codebook and the selector codebook. The following sections describe the helper procedures using by the decoder, and how the array of ETC1S blocks is actually decoded.
 
-### ETC1S Approximate Move to Front Routines
+==== ETC1S Approximate Move to Front Routines
 
 An approximate Move to Front (MTF) approach is used to efficiently encode the selector codebook references. Here is the C++ example class for approximate MTF decoding:
 
