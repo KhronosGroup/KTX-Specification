@@ -279,7 +279,7 @@ provides for immediate detection of common file-transfer problems.
   * Byte [0] also catches bad file transfers that clear bit 7.
   * Bytes [1..6] identify the format, and are the ASCII values for the string
     "KTX 20".
-  * Byte [7] is for aesthetic balance with byte 1 (they are a matching pair
+  * Byte [7] is for aesthetic balance with byte [0] (they are a matching pair
     of double-angle quotation marks).
   * Bytes [8..9] form a CR-LF sequence which catches bad file transfers that
     alter newline sequences.
