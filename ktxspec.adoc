@@ -1513,10 +1513,10 @@ to this specification and in the KTX registry.
 Vendors can register metadata items in KTX registry.
 
 === Animation Sequence
-The images of a 2D array texture can be indicated to be the frames
+The images of any array texture can be indicated to be the frames
 of a short animation sequence by including <<_ktxanimdata,KTXanimData>>
 metadata. Valid _animation_ files must have the combination of
-parameters outlined in <<Texture Type>> for 2D Array textures in
+parameters outlined in <<Texture Type>> for Array textures in
 addition to KTXanimData metadata. <<_layercount,`layerCount`>> is
 the number of frames in the video, i.e. layers become the temporal
 axis.
@@ -1583,6 +1583,8 @@ When a texture is a cubemap array, missing/present faces must be
 the same for each element.
 
 As with complete cubemaps, `pixelHeight` must be equal to `pixelWidth`.
+
+This metadata entry must not be used together with `KTXanimData`.
 
 === KTXorientation
 Texture data in a KTX file are arranged so that the first pixel in
@@ -1822,7 +1824,7 @@ This metadata entry has no effect on and should not be present in
 KTX files that use non-ASTC formats.
 
 === KTXanimData
-The images of a 2D array texture can be indicated to be the frames of a
+The images of an array texture can be indicated to be the frames of a
 short animation by using the key
 
 -   `KTXanimData`
@@ -1845,6 +1847,8 @@ seconds is stem:[duration / timescale].
 * 0 - loops infinitely
 * 1 - plays once
 * n - plays n times
+
+This metadata entry must not be used together with `KTXcubemapIncomplete`.
 
 == An example KTX version 2 file:
 
