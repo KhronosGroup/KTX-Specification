@@ -1,4 +1,4 @@
-= KTX^™️^ File Format Specification
+= KTX File Format Specification
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification of a container format for GPU textures.
@@ -56,7 +56,7 @@ include::license.adoc[]
 
 [abstract]
 == Abstract
-The KTX file format is a format for storing textures for GPU
+The KTX^™️^ file format is a format for storing textures for GPU
 applications. It is distinguished by the simplicity of the loader
 required to instantiate texture objects from the file contents.
 
@@ -1026,7 +1026,7 @@ have a sample with a channelType that indicates it is alpha.
 ====
 
 ===== DFD for Supercompressed Data
-When `<<_supercompressionscheme,supercompressionScheme>> is not 0`
+When `<<_supercompressionscheme,supercompressionScheme>>` is not 0
 the _dfDescriptorBlock_ must preserve the `colorModel`, `transferFunction`,
 `colorPrimaries`, `flags` and `texelBlockDimension[0-3]` of the
 pre-deflation images along with each sample's `channelType`,
