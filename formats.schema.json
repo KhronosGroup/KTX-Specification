@@ -76,6 +76,7 @@
                     "GL_UNSIGNED_INT_5_9_9_9_REV",
                     "GL_UNSIGNED_SHORT",
                     "GL_UNSIGNED_SHORT_4_4_4_4",
+                    "GL_UNSIGNED_SHORT_4_4_4_4_REV",
                     "GL_UNSIGNED_SHORT_5_5_5_1",
                     "GL_UNSIGNED_SHORT_1_5_5_5_REV",
                     "GL_UNSIGNED_SHORT_5_6_5",

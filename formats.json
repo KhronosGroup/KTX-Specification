@@ -5582,5 +5582,43 @@
         "glWebExtensions": null,
         "dxgiFormat": null,
         "mtlFormat": null
+    },
+    {
+        "type": "PACKED",
+        "vkFormat": "VK_FORMAT_A4R4G4B4_UNORM_PACK16_EXT",
+        "typeSize": 2,
+        "blockWidth": 1,
+        "blockHeight": 1,
+        "blockDepth": 1,
+        "glInternalFormat": "GL_RGBA4",
+        "glFormat": "GL_BGRA",
+        "glType": "GL_UNSIGNED_SHORT_4_4_4_4_REV",
+        "glVersion": "1.2",
+        "glExtensions": null,
+        "glEsVersion": null,
+        "glEsExtensions": null,
+        "glWebVersion": null,
+        "glWebExtensions": null,
+        "dxgiFormat": "DXGI_FORMAT_B4G4R4A4_UNORM",
+        "mtlFormat": null
+    },
+    {
+        "type": "PACKED",
+        "vkFormat": "VK_FORMAT_A4B4G4R4_UNORM_PACK16_EXT",
+        "typeSize": 2,
+        "blockWidth": 1,
+        "blockHeight": 1,
+        "blockDepth": 1,
+        "glInternalFormat": "GL_RGBA4",
+        "glFormat": "GL_RGBA",
+        "glType": "GL_UNSIGNED_SHORT_4_4_4_4_REV",
+        "glVersion": "1.2",
+        "glExtensions": null,
+        "glEsVersion": null,
+        "glEsExtensions": null,
+        "glWebVersion": null,
+        "glWebExtensions": null,
+        "dxgiFormat": null,
+        "mtlFormat": null
     }
 ]
