@@ -1008,7 +1008,7 @@ as detailed in the following table of valid channel id combinations.
 | Combination | Description
 |`KHR_DF_CHANNEL_ETC1S_RGB` | One slice, opaque color.
 |`KHR_DF_CHANNEL_ETC1S_RGB` + `KHR_DF_CHANNEL_ETC1S_AAA` | Two slices,
-                                                           color + transparency.
+                                                           color + alpha
 |`KHR_DF_CHANNEL_ETC1S_RRR` | One slice, 1 component encoded as greyscale.
 |`KHR_DF_CHANNEL_ETC1S_RRR` + `KHR_DF_CHANNEL_ETC1S_GGG` | Two slices, 2
                                                            independent
