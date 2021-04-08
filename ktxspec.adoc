@@ -949,9 +949,10 @@ _One-component images_ have the component value replicated in all 3
 channels of the rgb portion of the compressed data.
 `KHR_DF_CHANNEL_UASTC_RRR`.
 +
-_Two-component images_ must have the R component replicated in all 3
-channels of the rgb portion and the G component in the alpha channel.
-`KHR_DF_CHANNEL_UASTC_RRRG`.
+_Two-component images_ must either have their RG components in the rg
+channels or have the R component replicated in all 3 channels of the 
+rgb portion and the G component in the alpha channel.
+`KHR_DF_CHANNEL_UASTC_RG` or `KHR_DF_CHANNEL_UASTC_RRRG`.
 +
 _Three-component images_ must have their RGB components in the rgb
 channels. `KHR_DF_CHANNEL_UASTC_RGB`.
