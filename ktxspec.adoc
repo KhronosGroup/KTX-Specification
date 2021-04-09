@@ -995,7 +995,7 @@ indicate the use of a slice.
 |`KHR_DF_CHANNEL_ETC1S_GGG` | 4  | Not used independently. 1 component:
                                    G component replicated in all 3 rgb
                                    channels
-|`KHR_DF_CHANNEL_ETC1S_AAA` | 15 | Not used independent;y. 1 component:
+|`KHR_DF_CHANNEL_ETC1S_AAA` | 15 | Not used independently. 1 component:
                                    alpha component replicated in all 3
                                    rgb channels.
 |===
