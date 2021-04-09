@@ -1,6 +1,7 @@
 # Copyright (c) 2020 The Khronos Group Inc.
 # SPDX-License-Identifier: Apache-2.0
 
+require 'fileutils'
 require 'json'
 formats = JSON.parse(File.read('formats.json'), :symbolize_names => true).freeze
 targets = [:glFormat, :glType, :glInternalFormat, :dxgiFormat, :mtlFormat].freeze
@@ -12,7 +13,8 @@ HEADER = %{// Copyright 2020 The Khronos Group Inc.
  *************************************************************************/
 }
 
-files = targets.map { |target| [target, File.open("vkFormat2#{target}.inl", 'w')] }.to_h.freeze
+dir = FileUtils.mkdir_p(ARGV.fetch(0, 'out'))[0]
+files = targets.map { |t| [t, File.open("#{dir}/vkFormat2#{t}.inl", 'w')] }.to_h.freeze
 files.values.each { |file| file << HEADER }
 formats.each do |format|
   files.each do |target, file|
