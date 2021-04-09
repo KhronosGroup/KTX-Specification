@@ -942,23 +942,34 @@ the next subsection.
 This color model provides channel Ids, e.g. `KHR_DF_CHANNEL_UASTC_RGB`
 that must be used to indicate the effective number of components
 in the data.  Consumers use this information to help select a
-transcode target. The id to use depends on the pre-deflation
-components as detailed below.
+transcode target. The following ids are valid and must be used for
+the type of data indicated.
 +
-_One-component images_ have the component value replicated in all 3
-channels of the rgb portion of the compressed data.
-`KHR_DF_CHANNEL_UASTC_RRR`.
+[width=100%,align=center,cols="<30,^10,<60",options=header]
+|===
+| Id | Value | Type 
+|`KHR_DF_CHANNEL_UASTC_RGB`  | 0 | 3 component: opaque color. RGB
+                                   components in the rgb channels.
+|`KHR_DF_CHANNEL_UASTC_RGBA` | 3 | 4 component: color + alpha. RGB
+                                   components in the rgb channels,
+                                   alpha in the alpha channel.
+|`KHR_DF_CHANNEL_UASTC_RRR`  | 4 | 1 component: R component replicated
+                                   in all 3 rgb channels for better
+                                   compression results.
+|`KHR_DF_CHANNEL_UASTC_RRRG` | 5 | 2 independent components: R component
+                                   replicated in all 3 rgb channels and
+                                   G moved to alpha for better
+                                   compression results.
+|`KHR_DF_CHANNEL_UASTC_RG`   | 6 | 2 independent components. Blue &
+                                   alpha should not be sampled.
+|===
 +
-_Two-component images_ must have the R component replicated in all 3
-channels of the rgb portion and the G component in the alpha channel.
-`KHR_DF_CHANNEL_UASTC_RRRG`.
-+
-_Three-component images_ must have their RGB components in the rgb
-channels. `KHR_DF_CHANNEL_UASTC_RGB`.
-+
-_Four-component images_ must have their RGB components in the rgb
-channels and the alpha component in the alpha channel.
-`KHR_DF_CHANNEL_UASTC_RGBA`.
+[TIP]
+====
+_UASTC_RRRG cannot be transcoded to the RG channels of an ASTC or BC7
+texture. Applications using this channel id will have to use swizzles or
+have shaders that understand this channel layout.
+====
 +
 The bitstream of the UASTC data is described in Chapter 25 _UASTC
 Compressed Texture Image Format_ of <<KDF13>>.
@@ -970,29 +981,41 @@ The ETC1S image format is indicated by `colorModel` `KDF_DF_MODEL_ETC1S`
 DFD must be as described in Section 5.6.11 _KHR_DF_MODEL_ETC1S_ of
 <<KDF13>>. Because ETC1S does not support an alpha component, Basis
 Universal uses 2 _slices_, (_planes_ in DFD-speak).
-This color model provides channel Ids, e.g `KHR_DF_CHANNEL_ETC1S_RGB` that
-must be used to indicate the use of a slice. Whether there
-are 1 or 2 slices depends on the pre-deflation components as detailed
-below along with the channel Ids to use.
+This color model provides the following channel ids that must be used to
+indicate the use of a slice.
 +
-_One-component images_ must have the component value replicated in all 3
-components of the _rgb_ slice of the compressed data and have no _alpha_
-slice. `KHR_DF_CHANNEL_ETC1S_RRR`.
+[width=100%,align=center,cols="<30,^10,<60",options=header]
+|===
+| Id | Value | Type 
+|`KHR_DF_CHANNEL_ETC1S_RGB` | 0  | 3 component: opaque color. RGB
+                                   components in the rgb channels.
+|`KHR_DF_CHANNEL_ETC1S_RRR` | 3  | 1 component: R component replicated
+                                   in all 3 rgb channels for better
+                                   compression results.
+|`KHR_DF_CHANNEL_ETC1S_GGG` | 4  | Not used independently. 1 component:
+                                   G component replicated in all 3 rgb
+                                   channels
+|`KHR_DF_CHANNEL_ETC1S_AAA` | 15 | Not used independently. 1 component:
+                                   alpha component replicated in all 3
+                                   rgb channels.
+|===
 +
-_Two-component images_ must have the R component replicated in all 3
-components of the rgb slice and the G component replicated in all 3
-components of the alpha slice. `KHR_DF_CHANNEL_ETC1S_RRR`
-+ `KHR_DF_CHANNEL_ETC1S_GGG`
+Whether there are 1 or 2 slices depends on the pre-deflation components
+as detailed in the following table of valid channel id combinations.
 +
-_Three-component images_ must have their RGB components in the rgb
-slice and no alpha slice. `KHR_DF_CHANNEL_ETC1S_RGB`
-+
-_Four-component images_ must have their RGB components in the rgb slice
-and the alpha component replicated in all 3 components of the alpha
-slice. `KHR_DF_CHANNEL_ETC1S_RGB` + `KHR_DF_CHANNEL_ETC1S_AAA`
-+
-The only valid combinations of more than one slice are `RGB` + `AAA`
-or `RRR` + `GGG` with `RGB` or `RRR` being the first slice.
+[width=100%,align=center,cols="<65,<35",options=header]
+|===
+| Combination | Description
+|`KHR_DF_CHANNEL_ETC1S_RGB` | One slice, opaque color.
+|`KHR_DF_CHANNEL_ETC1S_RGB` + `KHR_DF_CHANNEL_ETC1S_AAA` | Two slices,
+                                                           color + alpha
+|`KHR_DF_CHANNEL_ETC1S_RRR` | One slice, 1 component encoded as greyscale.
+|`KHR_DF_CHANNEL_ETC1S_RRR` + `KHR_DF_CHANNEL_ETC1S_GGG` | Two slices, 2
+                                                           independent
+                                                           components
+                                                           each encoded
+                                                           as greyscale.
+|===
 +
 TIP: KTX writers may map components of their original input images
 into the RGB and A components of the supercompressed image in any
