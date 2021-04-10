@@ -18,6 +18,14 @@ Everything needed is inlined.
 
 The canonical spec. text is in the file `ktxspec.adoc`.
 
+### GPU texture format mappings
+
+To ensure correct mappings from Vulkan's `VkFormat` to other GPU APIs, this repo additionally contains:
+
+- [JSON database](formats.json) ([schema](formats.schema.json)) with mappings to OpenGL, Direct3D, and Metal enums.
+- [Switch-case generator](generate_format_switches.rb) that produces 5 files with simple C-like case-return statements.
+  > **Usage:** `./generate_format_switches.rb [<out_dir>]`
+
 ### <a id="kwexpansion"></a>$Date$ keyword expansion
 
 A few auxiliary  files have `$Date$` keywords. If you care about having
