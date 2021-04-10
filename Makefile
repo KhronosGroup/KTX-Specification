@@ -3,12 +3,15 @@
 
 # Use docs for compatibility with GitHub pages.
 out=out
+ktxspec=$(out)/ktxspec-v2
+ktxfrag=$(out)/ktx-frag
 
-all: $(out)/index.html $(out)/ktx-frag.html #$(out)/ktx.pdf
+all: $(ktxspec).html $(ktx-frag).html #$(ktxspec).pdf
 
 inlined_images := icons/ktx_favicon.ico \
                   images/khronos.svg \
-                  images/ktx.svg
+                  images/ktx.svg \
+                  images/logo-spec.png
 
 ktx_sources := ktxspec.adoc \
            ktx-media-registration.txt \
@@ -21,13 +24,13 @@ ktx_sources := ktxspec.adoc \
 frag_sources : = ktx-frag.adoc \
                  khronos.css
 
-$(out)/index.html: $(ktx_sources)
+$(ktxspec).html: $(ktx_sources)
 	asciidoctor --trace -v --failure-level INFO -r ./inline-images.rb -r ./formats-include.rb -D $(dir $@) -o $(notdir $@) $<
 
-$(out)/ktx-frag.html: ktx-frag.adoc
+$(ktx-frag).html: ktx-frag.adoc
 	asciidoctor --trace -v --failure-level INFO -D $(dir $@) -o $(notdir $@) $<
 
-$(out)/ktx.pdf:
+$(ktxspec).pdf:
 
 $(out):
 	mkdir -p $@
