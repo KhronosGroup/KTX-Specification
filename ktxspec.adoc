@@ -188,7 +188,7 @@ end
 <.> Required. See <<Index>>.
 <.> Required. See <<Level Index>>.
 <.> Required. See <<Data Format Descriptor>>.
-<.> Required. See <<Key/Value Data>>.
+<.> Not required. See <<Key/Value Data>>.
 <.> `align(n)` is pseudo function that inserts the minimum number
     of 0-filled bytes of padding required to align the following
     item on an n-byte boundary.  where n is the function parameter.
@@ -1816,7 +1816,7 @@ The value can be any UTF-8 string that shows the command-line or other
 options used when writing the file, for example:
 
 [no-bullet]
--    `--uastc --uastc_rdo_q 4 --zcmp 5`
+-    `--uastc --uastc_rdo_l 2 --zcmp 5`
 
 If `KTXwriterScParams` is present, `KTXwriter` must also be present.
 
