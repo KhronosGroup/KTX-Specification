@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification of a container format for GPU textures.
-:docrev: pr-draft2
+:docrev: 0
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -32,6 +32,7 @@
 
 :url-khr-reg: https://www.khronos.org/registry
 :url-khr-vulkan: {url-khr-reg}/vulkan
+:url-khr-ktx: {url-khr-reg}/KTX
 
 ////
 // This part is the Preamble whose 1st 'graph is given [.lead] role
@@ -49,30 +50,33 @@
 
 [.legal]
 --
-© 2020 The Khronos Group Inc. All Rights Reserved.
+© 2020-2021 The Khronos Group Inc. All Rights Reserved.
 
 include::license.adoc[]
 --
 
 [abstract]
 == Abstract
-The KTX^™️^ file format is a format for storing textures for GPU
-applications. It is distinguished by the simplicity of the loader
-required to instantiate texture objects from the file contents.
+KTX^™️^ (Khronos TeXture) is an efficient lightweight container
+file format for reliably distributing GPU textures to diverse
+platforms and applications. It is distinguished by the simplicity
+of the loader required to instantiate texture objects from the file
+contents. The contents of a KTX file can range from a simple
+base-level 2D texture to a cubemap array texture with mipmaps. KTX
+files hold all the parameters needed for efficient texture loading
+into 3D APIs such as OpenGL® and Vulkan®
 
 Version 2 extends the functionality of version 1 with easier loading
 of Vulkan textures, easier use by non-OpenGL and non-Vulkan
-applications, universal textures, supercompression and the possibility
-of streaming. Providing this new functionality requires a significantly
-different file structure from version 1.
+applications, the possibility of streaming, through sending small
+mip levels first, universal textures using Basis Universal texchnology
+and supercompression. Providing this new functionality requires a
+significantly different file structure from version 1.
 
 [discrete]
 === Status of this document
 
 Ratified by the Khronos Board of Promoters Aug 14th, 2020.
-
-This is a post-ratification draft published while awaiting
-additional informative sections before release.
 
 == Introduction
 
@@ -82,9 +86,9 @@ storing textures for use with GPU APIs such as OpenGL^®^, OpenGL
 ES^™️^, Vulkan^®^ and WebGL^™️^.
 
 The canonical version of the specification is available in the
-Khronos Registry ({url-khr-reg}). The source files used to generate
+Khronos Registry ({url-khr-ktx}). The source files used to generate
 the specification are stored in the KTX-Specification Repository
-(https://github.com/KhronosGroup/KTX-Specification).  The source
+(https://github.com/KhronosGroup/KTX-Specification). The source
 repository has a public issue tracker and allows the submission of
 pull requests that improve the specification.
 
@@ -2870,7 +2874,7 @@ At this point, the decoder has decoded each block's endpoint and selector codebo
 |      pr-draft1    |  2020.08.01 | Remove width & height restrictions.
                                     Update draft Media Type
                                     registration.
-|      {docrev}     |  {revdate}  | Update status to ratified. Add
+|      pr-draft2    |  2020.09.04 | Update status to ratified. Add
                                     KTXwriteScParams. Update logo.
                                     Make clarifications in size
                                     restriction tips. Add tip about
