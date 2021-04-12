@@ -2599,11 +2599,15 @@ The decoder iterates through all the slice blocks in top-down, left-right raster
 
 The decoding procedure loops over all the blocks in raster order, and decodes the endpoint and selector indices used to represent each block. The decoding procedure is complex enough that commented code is best used to describe it.
 
-The compressed format allows the encoder to reuse the endpoint index used by the block to the left, the block immediately above the current block, or the block to the upper left (if the file is not an animation sequence). Alternately, the encoder can send a Huffman-coded DPCM encoded index relative to the previously used endpoint index.
+The compressed format allows the encoder to reuse the endpoint index used by the block to the left, the block immediately above the current block, or the block to the upper left (if the slice is not a P-frame). Alternately, the encoder can send a Huffman-coded DPCM encoded index relative to the previously used endpoint index.
 
 Which type of prediction was used by the encoder is controlled by the endpoint prediction indices, which are sent with Huffman coding (using the `endpointPredModel` table) once every 2x2 blocks.
 
-For animation sequences (matches `is_video` flag in the code below), the endpoint prediction symbol normally used to refer to the upper left block (endpoint prediction index 2) instead indicates that both the endpoint and selector indices from the previous frame's block should be reused on the current frame's block. The endpoint prediction indices are RLE coded, so this allows the encoder to efficiently skip over a large number of unchanged blocks in a video sequence. Slices marked as I-frames (that have `isIFrame` flag set in `imageFlags`) cannot use skip blocks. The first frame of an animation sequence must be an I-frame.
+For P-frames (that have `isPFrame` flag in `imageFlags` set, matches `is_p_frame` flag in the code below) used in animation sequences (matches `is_video` flag in the code below), the endpoint prediction symbol normally used to refer to the upper left block (endpoint prediction index 2) instead indicates that both the endpoint and selector indices from the previous frame's block should be reused on the current frame's block. The endpoint prediction indices are RLE coded, so this allows the encoder to efficiently skip over a large number of unchanged blocks in a video sequence.
+
+The first frame of an animation sequence must be an I-frame.
+
+A KTX file that is not an animation sequence cannot contain P-frames.
 
 .Reference implementation
 [%collapsible]
@@ -2722,9 +2726,9 @@ for (uint32_t block_y = 0; block_y < num_blocks_y; block_y++)
         }
         else if (pred == 2)
         {
-            if (is_video)
+            if (is_p_frame)
             {
-                // If it's texture video, reuse the previous frame's endpoint index, at this block.
+                // If it's a P-frame, reuse the previous frame's endpoint index, at this block.
                 assert(pred == CR_ENDPOINT_PRED_INDEX);
                 endpoint_index = prev_frame_endpoints[block_x][block_y];
                 selector_index = prev_frame_selectors[block_x][block_y];
@@ -2763,9 +2767,9 @@ for (uint32_t block_y = 0; block_y < num_blocks_y; block_y++)
         const uint32_t SELECTOR_HISTORY_BUF_RLE_COUNT_BITS = 6;
         const uint32_t SELECTOR_HISTORY_BUF_RLE_COUNT_TOTAL = (1 << SELECTOR_HISTORY_BUF_RLE_COUNT_BITS);
 
-        // Decode selector index, unless it's texture video and the endpoint predictor indicated that the
+        // Decode selector index, unless it's a P-frame and the endpoint predictor indicated that the
         // block's endpoints and selectors were reused from the previous frame.
-        if ((!is_video) || (pred != CR_ENDPOINT_PRED_INDEX))
+        if ((!is_p_frame) || (pred != CR_ENDPOINT_PRED_INDEX))
         {
             int selector_sym;
 
