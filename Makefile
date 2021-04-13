@@ -6,7 +6,7 @@ out=out
 ktxspec=$(out)/ktxspec-v2
 ktxfrag=$(out)/ktx-frag
 
-all: $(ktxspec).html $(ktx-frag).html #$(ktxspec).pdf
+all: $(ktxspec).html $(ktxfrag).html #$(ktxspec).pdf
 
 inlined_images := icons/ktx_favicon.ico \
                   images/khronos.svg \
@@ -27,7 +27,7 @@ frag_sources : = ktx-frag.adoc \
 $(ktxspec).html: $(ktx_sources)
 	asciidoctor --trace -v --failure-level INFO -r ./inline-images.rb -r ./formats-include.rb -D $(dir $@) -o $(notdir $@) $<
 
-$(ktx-frag).html: ktx-frag.adoc
+$(ktxfrag).html: ktx-frag.adoc
 	asciidoctor --trace -v --failure-level INFO -D $(dir $@) -o $(notdir $@) $<
 
 $(ktxspec).pdf:
