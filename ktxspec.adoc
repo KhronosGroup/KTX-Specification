@@ -300,16 +300,16 @@ future core versions or registered Vulkan extensions, except for
 values listed in <<prohibitedFormats>> and any `\*_SCALED_*`,
 `\*422*`, `\*[2-9]PLANE*` or `\*[34]PACK16*` formats added in future.
 Values defined by core Vulkan 1.2 are given in
-{url-khr-vulkan}/specs/1.2/html/vkspec.html#formats-definition[section 32.1
+{url-khr-vulkan}/specs/1.2/html/vkspec.html#formats-definition[section 33.1
 _Format Definition_] of <<VULKAN12>>.  The list of registered
 extensions is provided in the {url-khr-vulkan}/#repos[Khronos Vulkan
 Registry]. A complete list of values defined by both core Vulkan
 1.2 and extensions can be found in
 {url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html#formats-definition[section
-40.1 _Format Definition_] of <<VULKAN12EXT>>.
+43.1 _Format Definition_] of <<VULKAN12EXT>>.
 
 NOTE: The section number given for <<VULKAN12EXT>> is as of this
-writing (Vulkan 1.2.140). It is subject to change as future extensions
+writing (Vulkan 1.2.175). It is subject to change as future extensions
 are added to the document but the link should remain valid as it is to
 an internal anchor.
 
@@ -1620,7 +1620,8 @@ Note that this metadata affects only the logical interpretation of
 the data and has no effect on the mapping from pixels in the file
 byte stream to texture coordinates.
 
-The value is a NUL-terminated string formatted depending on the texture type.
+The value is a NUL-terminated string formatted depending on the
+texture type.
 
 [options="header"]
 |====
@@ -1640,7 +1641,8 @@ where
 - `o` indicates R values increasing out from the screen (moving towards viewer)
 - `i` indicates R values increasing in towards the screen (moving away from viewer)
 
-When a texture is an array, all its elements have the same orientation.
+When a texture is an array, all its elements have the same orientation
+and when it is a cubemap, all faces have the same orientation.
 
 Values not matching the table above are invalid.
 
@@ -2222,7 +2224,7 @@ The KTX cubemap coordinate system in <<faceCount>> is directly
 compatible with the Vulkan and OpenGL cube samplers described by the
 face selection tables and equations for calculating (s, t) in
 {url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html#_cube_map_face_selection_and_transformations[section
-15.5.3 Cube Map Face Selection and Transformations] of <<VULKAN12>>
+16.5.3 Cube Map Face Selection and Transformations] of <<VULKAN12>>
 and
 {url-khr-reg}/OpenGL/specs/gl/glspec46.core.pdf#nameddest=section-8.13[section
 8.13 Cube Map Texture Selection] of <<OPENGL46>>.
@@ -2235,11 +2237,11 @@ arranged.
 [.right.text-center]
 image::cubemap_coord_system.png[]
 
-If using a skybox to render the cubemap the uvw  coordinates passed to the
-cubemap sampler need to match the KTX cubemap coordinate system, that is
-left-handed with +Y up.
+If using a skybox to render the cubemap the (s, t, r) coordinates
+passed to the cubemap sampler need to match the KTX cubemap coordinate
+system, that is left-handed with +Y up.
 
-If using OpenGL's default clip-space, which is right-handed, you
+If using OpenGL's default object space, which is right-handed, you
 can transform your skybox cube coordinates to the necessary left-handed
 system by multiplying the Z coordinate by -1. Failure to do this
 will result in the skybox scene being a mirror image of reality,
