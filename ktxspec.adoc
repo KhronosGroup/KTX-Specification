@@ -29,6 +29,7 @@
 :source-highlighter: prettify
 :stylesheet: khronos.css
 :xrefstyle: full
+:imagesdir: images
 
 :url-khr-reg: https://www.khronos.org/registry
 :url-khr-vulkan: {url-khr-reg}/vulkan
@@ -562,36 +563,11 @@ Refer to <<_texture_type>> for more details about valid values.
 === faceCount
 `faceCount` specifies the number of cubemap faces. For cubemaps and
 cubemap arrays this must be 6. For non cubemaps this must be 1.
-Cubemap faces are stored in the order: +X, -X, +Y, -Y, +Z, -Z.
-
-As prescribed by the Vulkan and OpenGL specifications, all faces
-must have a right-down orientation, i.e., an upper left origin, and
-must be arranged using a left-handed coordinate system with +Y up.
-For example in an outdoor scene, the +Y face must be the sky.  When
-facing in the scene what is shown in the +Z face, what is on the
-left must be shown in the -X face and what is on the right in the
-+X face.  See the identical face selection tables and the equations
-for calculating (s, t) in
-{url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html#_cube_map_face_selection_and_transformations[section
-15.5.3 Cube Map Face Selection and Transformations] of <<VULKAN12>>
-and
-{url-khr-reg}/OpenGL/specs/gl/glspec46.core.pdf#nameddest=section-8.13[section
-8.13 Cube Map Texture Selection] of <<OPENGL46>>.
-
-[TIP]
-====
-OpenGL has a right-handed coordinate system. Therefore when using a
-skybox cube's coordinates as the uvw coordinates for sampling a cubemap
-those coordinates must first be transformed to a left-handed system by
-multiplying the Z coordinate by -1. Failure to do this will result in
-the displayed scene being a mirror image of reality, a common error in
-samples found on the web.
-
-While Vulkan has a left-handed coordinate system, +Y is down, therefore
-skybox coordinates must be rotated 180 degrees around the X axis before
-they are used to sample a cubemap. Failure to do this will result in the
-scene being upside down.
-====
+Cubemap faces are stored in the order: +X, -X, +Y, -Y, +Z, -Z in a
+left-handed coordinate system with +Y up. All faces must have the
+same orientation which must be `rd` (top-left origin) in the absence
+of <<KTXorientation>> metadata. See <<cubemapOrientation>> for
+details.
 
 Applications wanting to store incomplete cubemaps should flatten faces
 into a 2D array and use the metadata described in <<KTXcubemapIncomplete>>
@@ -2237,10 +2213,47 @@ particular version of OpenGL {,ES} or Vulkan.
   https://fgiesen.wordpress.com/2018/12/10/rate-distortion-optimization/[Rate-distortion
   optimization]. The ryg blog, December 18th, 2018.
 
+[appendix#cubemapOrientation]
+== Cubemap Orientation
+
+CAUTION: This appendix is non-normative.
+
+The KTX cubemap coordinate system in <<faceCount>> is directly
+compatible with the Vulkan and OpenGL cube samplers described by the
+face selection tables and equations for calculating (s, t) in
+{url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html#_cube_map_face_selection_and_transformations[section
+15.5.3 Cube Map Face Selection and Transformations] of <<VULKAN12>>
+and
+{url-khr-reg}/OpenGL/specs/gl/glspec46.core.pdf#nameddest=section-8.13[section
+8.13 Cube Map Texture Selection] of <<OPENGL46>>.
+
+<<orientationFigure>> shows graphically how the cubemap images should be
+arranged.
+
+[[orientationFigure]]
+.Cubemap Coordinate System
+[.right.text-center]
+image::cubemap_coord_system.png[]
+
+If using a skybox to render the cubemap the uvw  coordinates passed to the
+cubemap sampler need to match the KTX cubemap coordinate system, that is
+left-handed with +Y up.
+
+If using OpenGL's default clip-space, which is right-handed, you
+can transform your skybox cube coordinates to the necessary left-handed
+system by multiplying the Z coordinate by -1. Failure to do this
+will result in the skybox scene being a mirror image of reality,
+a common error in samples found on the web.
+
+While Vulkan defaults to a left-handed coordinate system it has +Y
+down therefore skybox coordinates must be rotated 180 degrees around
+the X axis before they are used to sample a cubemap. Failure to do
+this will result in the skybox scene being upside down.
+
 [appendix#formatMapping]
 == Mapping of `vkFormat` values
 
-CAUTION: This section is non-normative.
+CAUTION: This appendix is non-normative.
 
 CAUTION: Provided mappings for BGR(A) formats are based on non-ES OpenGL specifications. See the relevant OpenGL ES extensions for more options.
 
