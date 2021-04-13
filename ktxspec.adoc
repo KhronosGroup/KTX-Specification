@@ -1627,7 +1627,7 @@ texture type.
 |====
 |Type|Format (<<REGEXP>>)
 |1D  |`/^[rl]$/`
-|2D  |`/^[rl][du]$/`
+|2D or Cubemap  |`/^[rl][du]$/`
 |3D  |`/^[rl][du][oi]$/`
 |====
 
