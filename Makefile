@@ -3,8 +3,8 @@
 
 # Use docs for compatibility with GitHub pages.
 out=out
-ktxspec=$(out)/ktxspec-v2
-ktxfrag=$(out)/ktx-frag
+ktxspec=$(out)/ktxspec_v2
+ktxfrag=$(out)/ktx_frag
 
 all: $(ktxspec).html $(ktxfrag).html #$(ktxspec).pdf
 
