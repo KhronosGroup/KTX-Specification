@@ -564,10 +564,10 @@ Refer to <<_texture_type>> for more details about valid values.
 `faceCount` specifies the number of cubemap faces. For cubemaps and
 cubemap arrays this must be 6. For non cubemaps this must be 1.
 Cubemap faces are stored in the order: +X, -X, +Y, -Y, +Z, -Z in a
-left-handed coordinate system with +Y up. All faces must have the
-same orientation which must be `rd` (top-left origin) in the absence
-of <<KTXorientation>> metadata. See <<cubemapOrientation>> for
-details.
+left-handed coordinate system with +Y up and, with the +Z face
+forward, +X on the on the right. All faces must have the same
+orientation which must be `rd` (top-left origin) in the absence of
+<<KTXorientation>> metadata. See <<cubemapOrientation>> for details.
 
 Applications wanting to store incomplete cubemaps should flatten faces
 into a 2D array and use the metadata described in <<KTXcubemapIncomplete>>
@@ -2239,18 +2239,28 @@ image::cubemap_coord_system.png[]
 
 If using a skybox to render the cubemap the (s, t, r) coordinates
 passed to the cubemap sampler need to match the KTX cubemap coordinate
-system, that is left-handed with +Y up.
+system, that is left-handed with +Y up, +Z forward and +X on the right.
 
 If using OpenGL's default object space, which is right-handed, you
 can transform your skybox cube coordinates to the necessary left-handed
-system by multiplying the Z coordinate by -1. Failure to do this
-will result in the skybox scene being a mirror image of reality,
-a common error in samples found on the web.
+system by multiplying either the X or the Z coordinate by -1. The
+former places the +Z face in the +Z direction so, if using OpenGL's
+default view, that face will be behind you. The latter places the
++Z face in the -Z direction so it will be in front of you. Failure
+to do one of these things will result in the skybox scene being a
+mirror image of reality, a common error in samples found on the
+web.
 
 While Vulkan defaults to a left-handed coordinate system it has +Y
-down therefore skybox coordinates must be rotated 180 degrees around
-the X axis before they are used to sample a cubemap. Failure to do
-this will result in the skybox scene being upside down.
+down, with +Z out of the screen (behind the default view) and +X
+to the right. To transform these skybox coordinates to the cubemap's
+coordinate system, either rotate the skybox coordinates 180 degrees
+around the X axis or multiply the Y coordinate by -1. The former
+ensures the +Y face is up and places the +Z face in front of the
+view (in the -Z direction). The latter ensures the +Y face is up
+while placing the +Z face in the +Z direction.  Failure to do one
+of these will result in the cubemap top and bottom faces being
+swapped.
 
 [appendix#formatMapping]
 == Mapping of `vkFormat` values
