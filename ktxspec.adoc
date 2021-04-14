@@ -2254,13 +2254,15 @@ web.
 While Vulkan defaults to a left-handed coordinate system it has +Y
 down, with +Z out of the screen (behind the default view) and +X
 to the right. To transform these skybox coordinates to the cubemap's
-coordinate system, either rotate the skybox coordinates 180 degrees
-around the X axis or multiply the Y coordinate by -1. The former
-ensures the +Y face is up and places the +Z face in front of the
-view (in the -Z direction). The latter ensures the +Y face is up
-while placing the +Z face in the +Z direction.  Failure to do one
-of these will result in the cubemap top and bottom faces being
-swapped.
+coordinate system, either
+
+* multiply both Y and Z by -1 to keep +Y up and place the +Z face
+in -Z direction, or
+* multiply both Y and X by -1 to keep +Y up and place the +Z face
+in +Z direction.
+
+Failure to do one of these will result in the cubemap top and bottom
+faces being swapped.
 
 [appendix#formatMapping]
 == Mapping of `vkFormat` values
