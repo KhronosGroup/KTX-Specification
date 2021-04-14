@@ -29,6 +29,7 @@
 :source-highlighter: prettify
 :stylesheet: khronos.css
 :xrefstyle: full
+:imagesdir: images
 
 :url-khr-reg: https://www.khronos.org/registry
 :url-khr-vulkan: {url-khr-reg}/vulkan
@@ -299,16 +300,16 @@ future core versions or registered Vulkan extensions, except for
 values listed in <<prohibitedFormats>> and any `\*_SCALED_*`,
 `\*422*`, `\*[2-9]PLANE*` or `\*[34]PACK16*` formats added in future.
 Values defined by core Vulkan 1.2 are given in
-{url-khr-vulkan}/specs/1.2/html/vkspec.html#formats-definition[section 32.1
+{url-khr-vulkan}/specs/1.2/html/vkspec.html#formats-definition[section 33.1
 _Format Definition_] of <<VULKAN12>>.  The list of registered
 extensions is provided in the {url-khr-vulkan}/#repos[Khronos Vulkan
 Registry]. A complete list of values defined by both core Vulkan
 1.2 and extensions can be found in
 {url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html#formats-definition[section
-40.1 _Format Definition_] of <<VULKAN12EXT>>.
+43.1 _Format Definition_] of <<VULKAN12EXT>>.
 
 NOTE: The section number given for <<VULKAN12EXT>> is as of this
-writing (Vulkan 1.2.140). It is subject to change as future extensions
+writing (Vulkan 1.2.175). It is subject to change as future extensions
 are added to the document but the link should remain valid as it is to
 an internal anchor.
 
@@ -562,36 +563,11 @@ Refer to <<_texture_type>> for more details about valid values.
 === faceCount
 `faceCount` specifies the number of cubemap faces. For cubemaps and
 cubemap arrays this must be 6. For non cubemaps this must be 1.
-Cubemap faces are stored in the order: +X, -X, +Y, -Y, +Z, -Z.
-
-As prescribed by the Vulkan and OpenGL specifications, all faces
-must have a right-down orientation, i.e., an upper left origin, and
-must be arranged using a left-handed coordinate system with +Y up.
-For example in an outdoor scene, the +Y face must be the sky.  When
-facing in the scene what is shown in the +Z face, what is on the
-left must be shown in the -X face and what is on the right in the
-+X face.  See the identical face selection tables and the equations
-for calculating (s, t) in
-{url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html#_cube_map_face_selection_and_transformations[section
-15.5.3 Cube Map Face Selection and Transformations] of <<VULKAN12>>
-and
-{url-khr-reg}/OpenGL/specs/gl/glspec46.core.pdf#nameddest=section-8.13[section
-8.13 Cube Map Texture Selection] of <<OPENGL46>>.
-
-[TIP]
-====
-OpenGL has a right-handed coordinate system. Therefore when using a
-skybox cube's coordinates as the uvw coordinates for sampling a cubemap
-those coordinates must first be transformed to a left-handed system by
-multiplying the Z coordinate by -1. Failure to do this will result in
-the displayed scene being a mirror image of reality, a common error in
-samples found on the web.
-
-While Vulkan has a left-handed coordinate system, +Y is down, therefore
-skybox coordinates must be rotated 180 degrees around the X axis before
-they are used to sample a cubemap. Failure to do this will result in the
-scene being upside down.
-====
+Cubemap faces are stored in the order: +X, -X, +Y, -Y, +Z, -Z in a
+left-handed coordinate system with +Y up and, with the +Z face
+forward, +X on the on the right. All faces must have the same
+orientation which must be `rd` (top-left origin) in the absence of
+<<KTXorientation>> metadata. See <<cubemapOrientation>> for details.
 
 Applications wanting to store incomplete cubemaps should flatten faces
 into a 2D array and use the metadata described in <<KTXcubemapIncomplete>>
@@ -1644,13 +1620,14 @@ Note that this metadata affects only the logical interpretation of
 the data and has no effect on the mapping from pixels in the file
 byte stream to texture coordinates.
 
-The value is a NUL-terminated string formatted depending on the texture type.
+The value is a NUL-terminated string formatted depending on the
+texture type.
 
 [options="header"]
 |====
 |Type|Format (<<REGEXP>>)
 |1D  |`/^[rl]$/`
-|2D  |`/^[rl][du]$/`
+|2D or Cubemap  |`/^[rl][du]$/`
 |3D  |`/^[rl][du][oi]$/`
 |====
 
@@ -1664,7 +1641,8 @@ where
 - `o` indicates R values increasing out from the screen (moving towards viewer)
 - `i` indicates R values increasing in towards the screen (moving away from viewer)
 
-When a texture is an array, all its elements have the same orientation.
+When a texture is an array, all its elements have the same orientation
+and when it is a cubemap, all faces have the same orientation.
 
 Values not matching the table above are invalid.
 
@@ -2237,10 +2215,57 @@ particular version of OpenGL {,ES} or Vulkan.
   https://fgiesen.wordpress.com/2018/12/10/rate-distortion-optimization/[Rate-distortion
   optimization]. The ryg blog, December 18th, 2018.
 
+[appendix#cubemapOrientation]
+== Cubemap Orientation
+
+CAUTION: This appendix is non-normative.
+
+The KTX cubemap coordinate system in <<faceCount>> is directly
+compatible with the Vulkan and OpenGL cube samplers described by the
+face selection tables and equations for calculating (s, t) in
+{url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html#_cube_map_face_selection_and_transformations[section
+16.5.3 Cube Map Face Selection and Transformations] of <<VULKAN12>>
+and
+{url-khr-reg}/OpenGL/specs/gl/glspec46.core.pdf#nameddest=section-8.13[section
+8.13 Cube Map Texture Selection] of <<OPENGL46>>.
+
+<<orientationFigure>> shows graphically how the cubemap images should be
+arranged.
+
+[[orientationFigure]]
+.Cubemap Coordinate System
+[.right.text-center]
+image::cubemap_coord_system.png[]
+
+If using a skybox to render the cubemap the (s, t, r) coordinates
+passed to the cubemap sampler need to match the KTX cubemap coordinate
+system, that is left-handed with +Y up, +Z forward and +X on the right.
+
+If using OpenGL's default object space, which is right-handed, you
+can transform your skybox cube coordinates to the necessary left-handed
+system by multiplying either the X or the Z coordinate by -1. The
+former places the +Z face in the +Z direction so, if using OpenGL's
+default view, that face will be behind you. The latter places the
++Z face in the -Z direction so it will be in front of you. Failure
+to do one of these things will result in the skybox scene being a
+mirror image of reality, a common error in samples found on the
+web.
+
+While Vulkan defaults to a left-handed coordinate system it has +Y
+down, with +Z out of the screen (behind the default view) and +X
+to the right. To transform these skybox coordinates to the cubemap's
+coordinate system, either rotate the skybox coordinates 180 degrees
+around the X axis or multiply the Y coordinate by -1. The former
+ensures the +Y face is up and places the +Z face in front of the
+view (in the -Z direction). The latter ensures the +Y face is up
+while placing the +Z face in the +Z direction.  Failure to do one
+of these will result in the cubemap top and bottom faces being
+swapped.
+
 [appendix#formatMapping]
 == Mapping of `vkFormat` values
 
-CAUTION: This section is non-normative.
+CAUTION: This appendix is non-normative.
 
 CAUTION: Provided mappings for BGR(A) formats are based on non-ES OpenGL specifications. See the relevant OpenGL ES extensions for more options.
 
