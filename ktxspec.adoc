@@ -2908,6 +2908,13 @@ At this point, the decoder has decoded each block's endpoint and selector codebo
                                     Make clarifications in size
                                     restriction tips. Add tip about
                                     byteLength.
+|      {docrev}     |  {revdate}  | Polish abstract. Allow animData for
+                                    any kind of array texture. Add
+                                    VK_EXT_4444 formats to mapping.
+                                    Remove "required" from key-value
+                                    data. Bug fixes in ETC1S video spec.
+                                    Define coordinate system for
+                                    cubemaps.
 |===
 
 [discrete]
