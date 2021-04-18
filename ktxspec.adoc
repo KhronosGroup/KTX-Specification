@@ -566,8 +566,9 @@ cubemap arrays this must be 6. For non cubemaps this must be 1.
 Cubemap faces are stored in the order: +X, -X, +Y, -Y, +Z, -Z in a
 left-handed coordinate system with +Y up and, with the +Z face
 forward, +X on the on the right. All faces must have the same
-orientation which must be `rd` (top-left origin) in the absence of
-<<KTXorientation>> metadata. See <<cubemapOrientation>> for details.
+orientation which must be `rd` (top-left origin) which is assumed
+in the absence of <<KTXorientation>> metadata. See <<cubemapOrientation>>
+for details.
 
 Applications wanting to store incomplete cubemaps should flatten faces
 into a 2D array and use the metadata described in <<KTXcubemapIncomplete>>
@@ -2237,7 +2238,12 @@ arranged.
 [.right.text-center]
 image::cubemap_coord_system.png[]
 
-If using a skybox to render the cubemap the (s, t, r) coordinates
+If the face orientation is not `rd`, maintaining compatibility with
+the cube samplers may require changing the relative positions of
+faces, e.g. swapping +Y and -Y faces. To keep things simple `rd` must
+always be used.
+
+If using a skybox to render the cubemap, the (s, t, r) coordinates
 passed to the cubemap sampler need to match the KTX cubemap coordinate
 system, that is left-handed with +Y up, +Z forward and +X on the right.
 
