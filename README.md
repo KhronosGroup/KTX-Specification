@@ -14,7 +14,7 @@ make
 ```
 
 in a Unix-like environment with [AsciiDoctor](https://asciidoctor.org/docs/install-toolchain/)
-installed to generate the publishable specs. They are the files `out/ktxspec_v2.html` and `ktx-frag.html`.
+installed to generate the publishable specs. They are the files `out/ktxspec_v2.html` and `out/ktx_frag.html`.
 Everything needed is inlined.
 
 The canonical spec. text is in the file `ktxspec.adoc`.
