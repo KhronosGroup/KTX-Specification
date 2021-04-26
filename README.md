@@ -19,6 +19,9 @@ Everything needed is inlined.
 
 The canonical spec. text is in the file `ktxspec.adoc`.
 
+If you have questions or comments that don't merit creating an issue such as "why did you do
+so-and-so?" use GitHub [Discussions](https://github.com/KhronosGroup/KTX-Specification/discussions).
+
 ### GPU texture format mappings
 
 To ensure correct mappings from Vulkan's `VkFormat` to other GPU APIs, this repo additionally contains:
