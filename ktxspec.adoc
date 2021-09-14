@@ -210,7 +210,7 @@ alignment caused by `mipPadding`.
 [source, c]
 ----
 align( lcm(texel_block_size, 4) ) mipPadding <1>
-for each layer in max(1,layerCount)
+for each layer in max(1, layerCount)
    for each face in faceCount
        for each z_slice_of_blocks in num_blocks_z <2>
            for each row_of_blocks in num_blocks_y <2>
