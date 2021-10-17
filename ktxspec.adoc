@@ -2663,7 +2663,7 @@ selector selectors[selectorCount];
 uint16_t [2][num_block_x] block_endpoint_preds;
 
 // Odd rows prediction information for two blocks packed into 4-bit values
-uint8_t block_pred_bits[max(1, num_blocks_x >> 1)]
+uint8_t block_pred_bits[(num_blocks_x + 1) >> 1]
 
 // Some constants and state used during block decoding
 const uint32_t SELECTOR_HISTORY_BUF_FIRST_SYMBOL_INDEX = selectorCount;
