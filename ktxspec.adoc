@@ -166,7 +166,7 @@ UInt32 dfdTotalSize
 continue
     dfDescriptorBlock dfdBlock
           [.optional]#&#xFE19;#
-until dfdByteLength read
+until dfdTotalSize read
 
 // Key/Value Data <.>
 continue
