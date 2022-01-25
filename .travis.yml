@@ -2,8 +2,6 @@
 # See https://docs.travis-ci.com/user/multi-os/ for more info.
 
 os: osx
-osx_image: xcode9.3
-sudo: required
 
 language: ruby
 
@@ -26,7 +24,7 @@ script:
 
 deploy:
   provider: pages
-  skip-cleanup: true
+  cleanup: false
   github-token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
   local-dir: out
   on:
