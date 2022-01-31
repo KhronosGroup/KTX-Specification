@@ -1586,7 +1586,8 @@ same order as with complete cubemaps: +X, -X, +Y, -Y, +Z, -Z.
 When a texture is a cubemap array, missing/present faces must be
 the same for each element.
 
-As with complete cubemaps, `pixelHeight` must be equal to `pixelWidth`.
+As with complete cubemaps, `pixelHeight` must be equal to `pixelWidth`,
+and `pixelDepth` must be zero.
 
 This metadata entry must not be used together with `KTXanimData`.
 
