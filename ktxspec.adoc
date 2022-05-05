@@ -2209,8 +2209,6 @@ particular version of OpenGL {,ES} or Vulkan.
 [appendix#cubemapOrientation]
 == Cubemap Orientation
 
-CAUTION: This appendix is non-normative.
-
 The KTX cubemap coordinate system in <<faceCount>> is directly
 compatible with the Vulkan and OpenGL cube samplers described by the
 face selection tables and equations for calculating (s, t) in
