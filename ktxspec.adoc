@@ -1662,10 +1662,13 @@ as other values may not be widely supported by other tools.
 [#formatMappingMetadata]
 === Format Mapping
 
-When <<formatMapping>> does not have an entry for the value of
-`vkFormat`, which will happen for newly added Vulkan formats, the
-KTX writer must provide any known mapping via the following key-value
-pairs.
+The `vkFormat` field is the primary way of describing the format
+of the texture data stored in a KTX file. However when there is no
+matching Vulkan format, KTX writers may use the following key-value
+pairs to provide alternative API-specific enum values.
+
+These metadata entries must not be used when the `vkFormat`
+is not `VK_FORMAT_UNDEFINED`.
 
 ==== KTXglFormat
 
