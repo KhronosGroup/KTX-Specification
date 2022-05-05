@@ -230,27 +230,27 @@ end
 [[levelImages_defs]]In the `levelImages` loops above,
 
 [stem]
-// num_blocks_z = max(1, ceil(pixelDepth / block_depth))
+// num_blocks_z = max(1, ceil(level_depth / block_depth))
 +++++
-num\_blocks\_z = \max\left(1, \left\lceil{\frac{pixelDepth}{block\_depth}}\right\rceil\right)
-+++++
-
-[stem]
-// num_blocks_y = max(1, ceil(pixelHeight / block_height))
-+++++
-num\_blocks\_y = \max\left(1, \left\lceil{\frac{pixelHeight}{block\_height}}\right\rceil\right)
+num\_blocks\_z = \max\left(1, \left\lceil{\frac{\left\lfloor{{pixelDepth}*{2^{-p}}}\right\rfloor}{block\_depth}}\right\rceil\right)
 +++++
 
 [stem]
-// num_blocks_x = ceil(pixelWidth / block_width)
+// num_blocks_y = max(1, ceil(level_height / block_height))
 +++++
-num\_blocks\_x = \left\lceil{\frac{pixelWidth}{block\_width}}\right\rceil
+num\_blocks\_y = \max\left(1, \left\lceil{\frac{\left\lfloor{{pixelHeight}*{2^{-p}}}\right\rfloor}{block\_height}}\right\rceil\right)
 +++++
 
-where _block_depth_, _block_height_, and _block_width_ are `1` for
-uncompressed formats and the block size in that dimension for block
-compressed formats as given in the format's section of the Khronos
-Data Format specification <<KDF13>>.
+[stem]
+// num_blocks_x = ceil(level_width / block_width)
++++++
+num\_blocks\_x = \left\lceil{\frac{\left\lfloor{{pixelWidth}*{2^{-p}}}\right\rfloor}{block\_width}}\right\rceil
++++++
+
+where _p_ is the level index (see <<levelCount>>) and _block_depth_,
+_block_height_, and _block_width_ are `1` for uncompressed formats and
+the block size in that dimension for block compressed formats as given
+in the format's section of the Khronos Data Format specification <<KDF13>>.
 
 A _block_ is a single pixel for uncompressed formats and
 stem:[block\_width \times block\_height \times block\_depth]
@@ -644,9 +644,13 @@ Therefore it is applicable only to uncompressed images.
 
 ==== Scheme Notes (Normative)
 ===== BasisLZ
-* <<ETC1S Slice Decoding>> describes the bitstream for a single image.
-  Images must be concatenated as described in <<levelImagesDesc>>.
-  An image bitstream refers to the endpoint and selector codebooks
+* <<ETC1S Slice Decoding>> describes the bitstream for a single
+  image (slice).
+* ETC1S slice locations within a mip level are defined exclusively
+  by the corresponding `ImageDesc` structures from the
+  <<basislz_global_data_structure>>. The same slice data may be
+  used by multiple `ImageDesc` structures within the mip level.
+* An image bitstream refers to the endpoint and selector codebooks
   described in in <<basislz_gd>>.
 * `<<_vkformat,vkFormat>>` must be `VK_FORMAT_UNDEFINED` (0x00).
   The <<_data_format_descriptor,_Data Format Descriptor_>> must
@@ -671,6 +675,9 @@ transcode target format is selected.
 ====
 
 ===== Zstandard
+* After inflation, the level data follows the uncompressed layout as
+  specified in the <<levelImages>>.
+
 * Only _Zstandard_ frames are required. Inflators may skip _Skippable_
   frames.
 
@@ -683,6 +690,8 @@ transcode target format is selected.
   components are present. See <<DFD for Supercompressed Data>>.
 
 ===== ZLIB
+* After inflation, the level data follows the uncompressed layout as
+  specified in the <<levelImages>>.
 
 * With Deflate <<RFC1951>> compression scheme.
 
