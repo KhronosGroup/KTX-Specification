@@ -1775,8 +1775,8 @@ themselves by including a value with the key
 
 -   `KTXwriter`
 
-The value can be any UTF-8 string that will uniquely identify the tool
-writing the file, for example:
+The value is a NUL-terminated UTF-8 string that will uniquely identify
+the tool writing the file, for example:
 
 [no-bullet]
 -   `AcmeCo TexTool v1.0`
@@ -1792,8 +1792,8 @@ specified when the file is created by including a value with the key
 
 -    `KTXwriterScParams`
 
-The value can be any UTF-8 string that shows the command-line or other
-options used when writing the file, for example:
+The value is a NUL-terminated UTF-8 string that shows the command-line
+or other options used when writing the file, for example:
 
 [no-bullet]
 -    `--uastc --uastc_rdo_l 2 --zcmp 5`
