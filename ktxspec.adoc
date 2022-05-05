@@ -1256,7 +1256,7 @@ ImageDesc[imageCount] imageDescs;
 Byte[endpointsByteLength] endpointsData
 Byte[selectorsByteLength] selectorsData
 Byte[tablesByteLength] tablesData
-Bytes[extendedByteLength] extendedData
+Byte[extendedByteLength] extendedData
 ----
 
 `ImageDesc` is the following structure.
@@ -1296,6 +1296,18 @@ for(int i = 1; i < levelCount; i++)
     layerPixelDepth += max(pixelDepth >> i, 1);
 ----
 ====
+
+There must be no trailing bytes in the global data section after the
+`extendedData` field, i.e., the following condition must always be true:
+[source,c]
+----
+sgdByteLength == 20 +
+                 20 * imageCount +
+                 endpointsByteLength +
+                 selectorsByteLength +
+                 tablesByteLength +
+                 extendedByteLength
+----
 
 ===== endpointCount
 The number of endpoints in <<_endpointsdata,endpointsData>>.
