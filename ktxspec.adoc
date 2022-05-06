@@ -1245,7 +1245,7 @@ of the data for that image.
 
 The global data structure is designed to accommodate various
 transcodable block-compressed formats. The format in use is indicated
-by the <<_data_format_descriptor, data format descriptor>>. Currently
+by the <<_data_format_descriptor, Data Format Descriptor>>. Currently
 BasisLZ only supports one, <<etc1s, ETC1S>> (a subset of ETC1, see
 Section 21.1 of <<KDF13>>).  ETC1S is a common subset of many
 GPU-native formats.
@@ -1366,14 +1366,24 @@ The offset of the start of the RGB slice within the
 The offset of <<levelImagesDesc,levelImages>> within the file is given
 in the <<_level_index,Level Index>>.
 
+`rgbSliceByteLength` must not be zero.
+
+`rgbSliceByteOffset + rgbSliceByteLength` must not be greater than the
+byte length of the corresponding mip level.
+
 ====== alphaSliceByteOffset, alphaSliceByteLength
 The offset of the start of the alpha slice within the
 <<levelImagesDesc,levelImages>> of its mip level and its byte length.
 
-If there is only one slice these values must be 0. For ETC1S with the data
-format descriptor colorModel of `KHR_DF_MODEL_ETC1S` this corresponds to
+If there is only one slice these values must be 0. For ETC1S with the Data
+Format Descriptor color model of `KHR_DF_MODEL_ETC1S` this corresponds to
 the DFD having only one sample. (As the format is supercompressed
 `bytesPlane` fields can't be used to determine the number of planes.)
+
+If the second slice is present, `alphaSliceByteLength` must not be zero.
+
+`alphaSliceByteOffset + alphaSliceByteLength` must not be greater than the
+byte length of the corresponding mip level.
 
 ===== endpointsData
 Compressed endpoints data. The bitstream of this for ETC1S is
@@ -1513,7 +1523,7 @@ New transcodable formats can be added by:
 New Vulkan formats are created via Vulkan extensions.
 
 New DXGI or Metal formats can be carried by using `VK_FORMAT_UNDEFINED`
-together with a data format descriptor, which may or may not need
+together with a Data Format Descriptor, which may or may not need
 a new color model, and format mapping metadata giving the DXGI or Metal
 format value.
 
