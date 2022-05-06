@@ -256,6 +256,9 @@ A _block_ is a single pixel for uncompressed formats and
 stem:[block\_width \times block\_height \times block\_depth]
 pixels for block compressed formats.
 
+For formats whose Vulkan names have `\_422_`, _block_depth_ and _block_height_
+are `1`, and _block_width_ is `2`.
+
 == Field Descriptions
 
 === identifier
@@ -486,7 +489,8 @@ upload the data to a graphics API. When `typeSize` is greater than
 data since it is little-endian. When format is `VK_FORMAT_UNDEFINED`,
 `typeSize` must equal 1. For formats whose Vulkan names have the
 suffix `_BLOCK` it must equal 1. For formats with the suffix `_PACKxx`
-it must equal the value of stem:[xx / 8]. For unpacked formats,
+it must equal the value of stem:[xx / 8]. For formats with the suffix
+`_nPACKxx` it must equal the value of stem:[n * xx / 8]. For unpacked formats,
 except combined depth/stencil formats, it must equal the number of
 bytes needed for a single component which can be derived from the
 format name. E.g for `VK_FORMAT_R16G16B16_UNORM` it will be stem:[16
@@ -527,15 +531,16 @@ those above, producers of KTX files need to be aware that some APIs
 and formats have specific requirements including, but not limited
 to, the following:
 
+* Vulkan requires the width of texture images using `\_422_` formats to be
+  a multiple of 2.
 * Direct3D requires the width and height of level 0 texture images
   using the BCn formats to be multiples of the format's block width and
   height.
-* WebGL 1.0 requires the width and height of textures using the
-  BC[1-3] formats to be powers of 2.
-* The PVRTC format requires width and height to be a power of 2.
-  Transcoders from universal formats to PVRTC may have the same
+* WebGL 1.0 requires the width and height of all textures to be powers of 2.
+* The PVRTC1 format requires width and height to be a power of 2.
+  Transcoders from universal formats to PVRTC1 may have the same
   requirement.
-* Both PVRTC and PVRTC2 place various restrictions on setting of sub-images.
+* Both PVRTC1 and PVRTC2 place various restrictions on setting of sub-images.
   (see <<PVRTC>>, <<PVRTC1_OES>>, and <<PVRTC2_OES>>).
 ====
 
@@ -823,7 +828,7 @@ uncompressedByteLength % (faceCount * max(1, layerCount)) == 0
 Writers should be aware that block-compressed formats require the
 byte length of encoded levels be a multiple of the block size, i.e.
 the data is always a whole number of blocks regardless of the size
-in texels. The PVRTC format has extra restrictions. See Chapter 24
+in texels. The PVRTC1 format has extra restrictions. See Chapter 24
 _PVRTC Compressed Texture Image Formats_ in <<KDF13>>.
 
 In versions of OpenGL < 4.5 and in OpenGL ES, faces of non-array
