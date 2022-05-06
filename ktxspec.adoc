@@ -926,7 +926,7 @@ the type of data indicated.
 +
 [width=100%,align=center,cols="<30,^10,<60",options=header]
 |===
-| Id | Value | Type 
+| Id | Value | Type
 |`KHR_DF_CHANNEL_UASTC_RGB`  | 0 | 3 component: opaque color. RGB
                                    components in the rgb channels.
 |`KHR_DF_CHANNEL_UASTC_RGBA` | 3 | 4 component: color + alpha. RGB
@@ -959,25 +959,25 @@ The ETC1S image format is indicated by `colorModel` `KDF_DF_MODEL_ETC1S`
 (= 163) together with `vkFormat` `VK_FORMAT_UNDEFINED` (= 0). The
 DFD must be as described in Section 5.6.11 _KHR_DF_MODEL_ETC1S_ of
 <<KDF13>>. Because ETC1S does not support an alpha component, Basis
-Universal uses 2 _slices_, (_planes_ in DFD-speak).
+Universal uses 2 _slices_, (_planes_ in DFD-speak) to represent RGBA images.
 This color model provides the following channel ids that must be used to
 indicate the use of a slice.
 +
 [width=100%,align=center,cols="<30,^10,<60",options=header]
 |===
-| Id | Value | Type 
-|`KHR_DF_CHANNEL_ETC1S_RGB` | 0  | 3 component: opaque color. RGB
-                                   components in the rgb channels.
-|`KHR_DF_CHANNEL_ETC1S_RRR` | 3  | 1 component: R component replicated
-                                   in all 3 rgb channels for better
-                                   compression results.
-|`KHR_DF_CHANNEL_ETC1S_GGG` | 4  | Not used independently. 1 component:
-                                   G component replicated in all 3 rgb
-                                   channels
-|`KHR_DF_CHANNEL_ETC1S_AAA` | 15 | Not used independently. 1 component:
-                                   alpha component replicated in all 3
-                                   rgb channels.
+| Id | Value | Type
+|`KHR_DF_CHANNEL_ETC1S_RGB` | 0  | 3 components: opaque color. RGB
+                                   components in the slice's rgb components.
+|`KHR_DF_CHANNEL_ETC1S_RRR` | 3  | 1 component: R component in the
+                                   slice's r component.
+|`KHR_DF_CHANNEL_ETC1S_GGG` | 4  | 1 component: G component in the
+                                   slice's r component. Not used independently.
+|`KHR_DF_CHANNEL_ETC1S_AAA` | 15 | 1 component: Alpha component in the
+                                   slice's r component. Not used independently.
 |===
++
+For better compression results, non-RGB slices may have the same value
+replicated in all 3 slice components.
 +
 Whether there are 1 or 2 slices depends on the pre-deflation components
 as detailed in the following table of valid channel id combinations.
