@@ -1430,12 +1430,20 @@ bytes are formatted as specified in the scheme documentation.
 `mipPadding` is between 0 and stem:[lcm(texel\_block\_size, 4) -
 1] bytes of value `0x00`. stem:[lcm] is _least common multiple_.
 This is only required when
-`<<_supercompressionscheme,supercompressionScheme>> == 0`. When
-`<<_vkformat,vkFormat>>` is not `VK_FORMAT_UNDEFINED`, _texel block
-size_ is as given for the `vkFormat` value in
+`<<_supercompressionscheme,supercompressionScheme>> == 0`.
+
+_Texel block size_ is as given for the `vkFormat` value in
 {url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html#formats-compatibility[section
-40.1.6 _Format Compatibility Classes_] of <<VULKAN12EXT>> otherwise
-it is 16.
+40.1.6 _Format Compatibility Classes_] of <<VULKAN12EXT>> for all
+`vkFormat` values except the following three:
+
+[options="header"]
+|====
+| VkFormat                     | _Texel Block Size_
+|`VK_FORMAT_UNDEFINED`         | Derived from DFD
+|`VK_FORMAT_D16_UNORM_S8_UINT` | 4
+|`VK_FORMAT_D32_SFLOAT_S8_UINT`| 8
+|====
 
 [NOTE]
 .Padding Rationale
