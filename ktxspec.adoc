@@ -515,6 +515,9 @@ For cubemap textures, `pixelHeight` must be equal to `pixelWidth`.
 
 `pixelWidth` cannot be 0.
 
+`pixelHeight` cannot be 0 for block-compressed formats (including
+BasisLZ/ETC1S and UASTC).
+
 `pixelDepth` must be 0 for depth or stencil formats.
 
 [TIP]
