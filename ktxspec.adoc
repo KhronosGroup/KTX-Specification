@@ -2262,8 +2262,8 @@ arranged.
 
 [[orientationFigure]]
 .Cubemap Coordinate System
-[.right.text-center]
-image::cubemap_coord_system.png[]
+[.text-center]
+image::cubemap_coord_system.svg[]
 
 If the face orientation is not `rd`, maintaining compatibility with
 the cube samplers may require changing the relative positions of

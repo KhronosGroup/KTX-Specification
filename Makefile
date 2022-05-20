@@ -9,9 +9,10 @@ ktxfrag=$(out)/ktx_frag
 all: $(ktxspec).html $(ktxfrag).html #$(ktxspec).pdf
 
 inlined_images := icons/ktx_favicon.ico \
+                  images/cubemap_coord_system.svg \
                   images/khronos.svg \
                   images/ktx.svg \
-                  images/logo-spec.png
+                  images/logo-spec.svg
 
 ktx_sources := ktxspec.adoc \
            ktx-media-registration.txt \
