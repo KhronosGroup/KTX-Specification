@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="sans-serif" font-size="70" viewBox="0 0 3072 1024">
+  <rect width="100%" height="100%" fill="#fff" stroke="#000"/>
+  <g fill="none" stroke-width="4">
+    <path stroke="#999" d="M768 160v512h512m-512 0l-256 220"/>
+    <path stroke="#000" d="M512 380v512h512l256-220v-512h-512zm0 0h512v512m0-512 256-220"/>
+  </g>
+  <g font-size="80" font-weight="400" text-anchor="middle">
+    <text dy="-.5em" x="512" y="380">A</text>
+    <text dy="-.5em" x="768" y="160">B</text>
+    <text dy="-.5em" x="1280" y="160">C</text>
+    <text dy="-.5em" x="1024" y="380">D</text>
+    <text dy="1.2em" x="512" y="892">E</text>
+    <text dy="1.2em" x="768" y="672">F</text>
+    <text dy="1.2em" x="1024" y="892">H</text>
+    <text dy="1.2em" x="1280" y="672">G</text>
+  </g>
+  <svg x="64" y="704">
+    <path d="m16 240h208" stroke="#C33" stroke-width="8"/>
+    <path d="m16 240V16" stroke="#669D74" stroke-width="8"/>
+    <path d="m16 240 128-110" stroke="#5586A4" stroke-width="8"/>
+    <path d="m0 0 -10 16 32-16 -32-16z" transform="translate(224 240)" fill="#C33"/>
+    <path d="m0 0 -10 16 32-16 -32-16z" transform="translate(16 24) rotate(-90)" fill="#669D74"/>
+    <path d="m0 0 -10 16 32-16 -32-16z" transform="translate(144 130) rotate(-40.675)" fill="#5586A4"/>
+    <circle cx="16" cy="240" r="16" fill="#999" />
+    <text font-size="40" font-weight="700">
+      <tspan x="186" y="224" fill="#C33">X</tspan>
+      <tspan x="32" y="64" fill="#669D74">Y</tspan>
+      <tspan x="120" y="190" fill="#5586A4">Z</tspan>
+    </text>
+  </svg>
+  <svg width="512" height="512" x="1536">
+    <rect width="68%" height="68%" x="16%" y="16%" fill="none" stroke="#000" stroke-width="5"/>
+    <text x="50%" y="50%" dominant-baseline="central" font-size="80" font-weight="700" text-anchor="middle">+X</text>
+    <text x="5%" y="5%" dy="1em">C</text>
+    <text x="95%" y="5%" dy="1em" text-anchor="end">D</text>
+    <text x="5%" y="95%" dy="-.5em">G</text>
+    <text x="95%" y="95%" dy="-.5em" text-anchor="end">H</text>
+  </svg>
+  <svg width="512" height="512" x="2048">
+    <rect width="68%" height="68%" x="16%" y="16%" fill="none" stroke="#000" stroke-width="5"/>
+    <text x="50%" y="50%" dominant-baseline="central" font-size="80" font-weight="700" text-anchor="middle">+Y</text>
+    <text x="5%" y="5%" dy="1em">A</text>
+    <text x="95%" y="5%" dy="1em" text-anchor="end">D</text>
+    <text x="5%" y="95%" dy="-.5em">B</text>
+    <text x="95%" y="95%" dy="-.5em" text-anchor="end">C</text>
+  </svg>
+  <svg width="512" height="512" x="2560">
+    <rect width="68%" height="68%" x="16%" y="16%" fill="none" stroke="#000" stroke-width="5"/>
+    <text x="50%" y="50%" dominant-baseline="central" font-size="80" font-weight="700" text-anchor="middle">+Z</text>
+    <text x="5%" y="5%" dy="1em">B</text>
+    <text x="95%" y="5%" dy="1em" text-anchor="end">C</text>
+    <text x="5%" y="95%" dy="-.5em">F</text>
+    <text x="95%" y="95%" dy="-.5em" text-anchor="end">G</text>
+  </svg>
+  <svg width="512" height="512" x="1536" y="512">
+    <rect width="68%" height="68%" x="16%" y="16%" fill="none" stroke="#000" stroke-width="5"/>
+    <text x="50%" y="50%" dominant-baseline="central" font-size="80" font-weight="700" text-anchor="middle">-X</text>
+    <text x="5%" y="5%" dy="1em">A</text>
+    <text x="95%" y="5%" dy="1em" text-anchor="end">B</text>
+    <text x="5%" y="95%" dy="-.5em">E</text>
+    <text x="95%" y="95%" dy="-.5em" text-anchor="end">F</text>
+  </svg>
+  <svg width="512" height="512" x="2048" y="512">
+    <rect width="68%" height="68%" x="16%" y="16%" fill="none" stroke="#000" stroke-width="5"/>
+    <text x="50%" y="50%" dominant-baseline="central" font-size="80" font-weight="700" text-anchor="middle">-Y</text>
+    <text x="5%" y="5%" dy="1em">F</text>
+    <text x="95%" y="5%" dy="1em" text-anchor="end">G</text>
+    <text x="5%" y="95%" dy="-.5em">E</text>
+    <text x="95%" y="95%" dy="-.5em" text-anchor="end">H</text>
+  </svg>
+  <svg width="512" height="512" x="2560" y="512">
+    <rect width="68%" height="68%" x="16%" y="16%" fill="none" stroke="#000" stroke-width="5"/>
+    <text x="50%" y="50%" dominant-baseline="central" font-size="80" font-weight="700" text-anchor="middle">-Z</text>
+    <text x="5%" y="5%" dy="1em">D</text>
+    <text x="95%" y="5%" dy="1em" text-anchor="end">A</text>
+    <text x="5%" y="95%" dy="-.5em">H</text>
+    <text x="95%" y="95%" dy="-.5em" text-anchor="end">E</text>
+  </svg>
+</svg>
