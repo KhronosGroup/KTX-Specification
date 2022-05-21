@@ -2285,21 +2285,14 @@
         "blockWidth": 1,
         "blockHeight": 1,
         "blockDepth": 1,
-        "glInternalFormat": "GL_DEPTH_COMPONENT24",
-        "glFormat": "GL_DEPTH_COMPONENT",
-        "glType": "GL_UNSIGNED_INT",
-        "glVersion": "1.4",
-        "glExtensions": [
-            [
-                "GL_ARB_depth_texture"
-            ],
-            [
-                "GL_SGIX_depth_texture"
-            ]
-        ],
-        "glEsVersion": "3.0",
+        "glInternalFormat": null,
+        "glFormat": null,
+        "glType": null,
+        "glVersion": null,
+        "glExtensions": null,
+        "glEsVersion": null,
         "glEsExtensions": null,
-        "glWebVersion": "2.0",
+        "glWebVersion": null,
         "glWebExtensions": null,
         "dxgiFormat": null,
         "mtlFormat": null
