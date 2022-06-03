@@ -70,7 +70,7 @@ into 3D APIs such as OpenGL® and Vulkan®
 Version 2 extends the functionality of version 1 with easier loading
 of Vulkan textures, easier use by non-OpenGL and non-Vulkan
 applications, the possibility of streaming, through sending small
-mip levels first, universal textures using Basis Universal texchnology
+mip levels first, universal textures using Basis Universal technology
 and supercompression. Providing this new functionality requires a
 significantly different file structure from version 1.
 
@@ -340,7 +340,7 @@ metadata items described in <<formatMappingMetadata>>.
 ====
 Before loading any image, Vulkan loaders should confirm via
 `vkGetPhysicalDeviceFormatProperties` that the Vulkan physical
-device (`VkDevice`) supports the the intended use of the format.
+device (`VkDevice`) supports the intended use of the format.
 
 Vulkan applications using a core Vulkan format whose name has the
 `_BLOCK` suffix must ensure they enable the corresponding
@@ -1343,7 +1343,7 @@ The length of <<_tablesdata,tablesData>>.
 
 ===== extendedByteLength
 The length of <<_extendeddata,extendedData>>. Must be 0 if the data
-format desciptor `colorModel` is `KHR_DF_MODEL_ETC1S` (= 163).
+format descriptor `colorModel` is `KHR_DF_MODEL_ETC1S` (= 163).
 
 ===== ImageDesc
 ====== imageFlags
