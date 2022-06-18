@@ -38,12 +38,12 @@ src="https://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js" type="tex
 </div>
 <h2 class="no-toc" id="subhead1">22<sup>nd</sup> December 2018</h2>
 <h2 class="no-toc" id="subhead2">Format Version: 1.0</h2>
-<h2 class="no-toc" id="subhead2">Document Revision: 3</h2>
+<h2 class="no-toc" id="subhead2">Document Revision: 4</h2>
 <dl>
   <dt>Editors:</dt>
   <dd> Mark Callow (<a href="http://www.artspark.co.jp">ArtSpark</a>/<a href="http://www.hicorp.co.jp">HI Corp</a>), 
-    Georg Kolling (<a href="www.imgtec.com">Imagination Technologies</a>), and 
-    Jacob Str&ouml;m (<a href="http://www.ericsson.com/">Ericsson AB</a>) </dd>
+    Georg Kolling (<a href="https://www.imaginationtech.com/">Imagination Technologies</a>), and
+    Jacob Str&ouml;m (<a href="https://www.ericsson.com/">Ericsson AB</a>) </dd>
 </dl>
 <p class="copyright">&copy; 2013-2018 The Khronos Group Inc. All Rights Reserved. See <a href="#license">license</a>.</p>
 <hr />
@@ -100,10 +100,10 @@ for each mipmap_level in numberOfMipmapLevels<sup>1</sup>
 end</pre>
 <ol>
 <li>Replace with 1 if this field is 0 or if glInternalFormat is one of the
-   GL_PALETTE* formats from OES_compressed_paletted_texture <a href="refsOESCPT">[OESCPT]</a>.</li>
+   GL_PALETTE* formats from OES_compressed_paletted_texture <a href="#refsOESCPT">[OESCPT]</a>.</li>
 <li>Replace with 1 if this field is 0.</li>
 <li>Must be 1 if glInternalFormat is one of the GL_PALETTE* formats
-   from GL_OES_compressed_paletted_texture <a href="refsOESCPT">[OESCPT]</a>.
+   from GL_OES_compressed_paletted_texture <a href="#refsOESCPT">[OESCPT]</a>.
 <li>Uncompressed texture data matches a GL_UNPACK_ALIGNMENT of 4.</li>
 </ol>
 <h2>Field Descriptions</h2>
@@ -193,7 +193,7 @@ end</pre>
 <p>numberOfFaces specifies the number of cubemap faces. For cubemaps and 
   cubemap arrays this should be 6. For non cubemaps this should be 1. 
   Cube map faces are stored in the order: +X, -X, +Y, -Y, +Z, -Z.</p>
-<p>Due to GL_OES_compressed_paletted_texture  <a href="refsOESCPT">[OESCPT]</a>
+<p>Due to GL_OES_compressed_paletted_texture <a href="#refsOESCPT">[OESCPT]</a>
   not defining the interaction between cubemaps and its GL_PALETTE* formats,
   if `glInternalFormat` is one of its GL_PALETTE* format, numberOfFaces must
   be 1 </p>
@@ -473,6 +473,8 @@ end</pre>
   <dt>22 Dec 2018</dt>
   <dd>Clarified that UTF-8 strings must not contain BOMs and that
     padding bytes must have the value 0.</dd>
+  <dt>18 Jun 2022</dt>
+  <dd>Fix broken links.</dd>
 </dl>
 <hr />
 <h3 class="no-toc"><a name="license" id="license"/>License</h3>
