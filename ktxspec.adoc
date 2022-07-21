@@ -879,8 +879,8 @@ _dfDescriptorBlock_.
   DFD.  (In this case contradiction is impossible.)
 * `colorModel` must be `KHR_DF_MODEL_RGBSDA`
   or one of the block compressed color models listed in <<KDF13>>
-  Section 5.6 or its successors, currently `KDF_DF_MODEL_BC1A` to
-  `KDF_DF_MODEL_UASTC`.
+  Section 5.6 or its successors, currently `KHR_DF_MODEL_BC1A` to
+  `KHR_DF_MODEL_UASTC`.
 * `colorPrimaries` may be any of the available values since
   conversion of the selected primaries and white point to a display's
   can be done simply with a 3x3 matrix multiply.
@@ -912,7 +912,7 @@ Premultiplied Alpha::
 
 Basis Universal UASTC Format::
 The Universal ASTC image format (UASTC) is indicated by `colorModel`
-`KDF_DF_MODEL_UASTC` (= 166) together with `vkFormat` `VK_FORMAT_UNDEFINED`
+`KHR_DF_MODEL_UASTC` (= 166) together with `vkFormat` `VK_FORMAT_UNDEFINED`
 (= 0). The DFD must be as described in Section 5.6.14 _KHR_DF_MODEL_UASTC_
 of <<KDF13>>. Images in this format must be transcoded to a
 GPU-supported block-compressed format or decoded to a GPU-supported
@@ -960,7 +960,7 @@ Compressed Texture Image Format_ of <<KDF13>>.
 
 [[etc1s]]
 Basis Universal ETC1S Format::
-The ETC1S image format is indicated by `colorModel` `KDF_DF_MODEL_ETC1S`
+The ETC1S image format is indicated by `colorModel` `KHR_DF_MODEL_ETC1S`
 (= 163) together with `vkFormat` `VK_FORMAT_UNDEFINED` (= 0). The
 DFD must be as described in Section 5.6.11 _KHR_DF_MODEL_ETC1S_ of
 <<KDF13>>. Because ETC1S does not support an alpha component, Basis
@@ -1490,7 +1490,7 @@ other combination of parameters makes the KTX file invalid.
   not have corresponding Vulkan formats. If the format corresponds
   to a format in DirectX or Metal then at least one format mapping
   metadata item is required. One such format exists now, the
-  transcodable format with `colorModel` `KDF_DF_MODEL_UASTC` (=
+  transcodable format with `colorModel` `KHR_DF_MODEL_UASTC` (=
   166). This does not correspond to a DirectX or Metal format.
 * For formats from Metal or DirectX that do not have Vulkan
   equivalents. In this case at least one API's format must be
