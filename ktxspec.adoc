@@ -871,35 +871,43 @@ A _dfDescriptor_ is useful in the following cases:
 The following restrictions must be obeyed when setting the fields of a
 _dfDescriptorBlock_.
 
-* The value of `<<_vkformat,vkFormat>>` and the image data must
-  never contradict the DFD and, vice-versa, the DFD must not
-  contradict `<<_vkformat,vkFormat>>`. Thus the value of `vkFormat`
-  can be used as a shortcut. Only when it is `VK_FORMAT_UNDEFINED`,
-  does an application need to utilitize sample information from the
-  DFD.  (In this case contradiction is impossible.)
-* `colorModel` must be `KHR_DF_MODEL_RGBSDA`
-  or one of the block compressed color models listed in <<KDF13>>
-  Section 5.6 or its successors, currently `KHR_DF_MODEL_BC1A` to
-  `KHR_DF_MODEL_UASTC`.
-* `colorPrimaries` may be any of the available values since
-  conversion of the selected primaries and white point to a display's
-  can be done simply with a 3x3 matrix multiply.
+* If `<<_vkformat,vkFormat>>` is not `VK_FORMAT_UNDEFINED`, the DFD's
+  `texelBlockDimension*`, `bytesPlane*`, and sample information fields
+  must match the format's definition. The `colorModel` must be
+  `KHR_DF_MODEL_RGBSDA` or the matching block compressed color model
+  listed in <<KDF13>> Section 5.6 or its successors, currently
+  `KHR_DF_MODEL_BC1A` to `KHR_DF_MODEL_UASTC`.
+* If `<<_vkformat,vkFormat>>` is one of the `+*_SRGB{,_*}+` formats,
+  `transferFunction` must be `KHR_DF_TRANSFER_SRGB`.
+* If `<<_vkformat,vkFormat>>` is not one of the `+*_SRGB{,_*}+` formats
+  and an sRGB variant of that format exists, `transferFunction` should not
+  be `KHR_DF_TRANSFER_SRGB`.
 
 [NOTE]
 ====
-`KHR_DF_PRIMARIES_BT709/SRGB` is recommended for standard dynamic range,
-standard gamut images.
+For example, `VK_FORMAT_R8G8B8A8_UNORM` should not be used with
+`KHR_DF_TRANSFER_SRGB` because there is `VK_FORMAT_R8G8B8A8_SRGB`.
+
+On the other hand, `VK_FORMAT_A2B10G10R10_UNORM_PACK32` may be used with
+`KHR_DF_TRANSFER_SRGB` because there is no sRGB variant of this format.
 ====
 
-* `transferFunction` must be `KHR_DF_TRANSFER_LINEAR` or
-  `KHR_DF_TRANSFER_SRGB` since these are the only ones supported by the
-  vast majority of graphics hardware and correct filtering and blending
-  without hardware support is difficult to impossible.
-* If `<<_vkformat,vkFormat>>` is one of the `+*_SRGB{,_*}+` formats
-  then `transferFunction` must be `KHR_DF_TRANSFER_SRGB` and
-  vice-versa.  For all other `vkFormat` values, except
-  `VK_FORMAT_UNDEFINED`, `transfer_function` must be
-  `KHR_DF_TRANSFER_LINEAR`.
+[NOTE]
+====
+When `<<_vkformat,vkFormat>>` is not one of the `+*_SRGB{,_*}+` formats and the
+transfer function is not linear, the KTX file may be much less portable due to
+limited hardware support of such inputs.
+====
+
+[NOTE]
+====
+`colorPrimaries` may be any of the available values since conversion
+of the selected primaries and white point to a display's can be done
+simply with a 3x3 matrix multiply.
+
+Still, `KHR_DF_PRIMARIES_BT709` / `KHR_DF_PRIMARIES_SRGB` is recommended
+for standard dynamic range, standard gamut images.
+====
 
 ==== Providing additional information
 There are several cases where the _dfDescriptorBlock_ is used to
@@ -1485,7 +1493,8 @@ other combination of parameters makes the KTX file invalid.
 === Use of `VK_FORMAT_UNDEFINED`
 `VK_FORMAT_UNDEFINED` can be used
 
-* For BasisLZ  supercompressed data.
+* For custom formats that do not have any equivalent in GPU APIs.
+* For BasisLZ supercompressed data.
 * For compressed color models in <<KDF13>> or successors that do
   not have corresponding Vulkan formats. If the format corresponds
   to a format in DirectX or Metal then at least one format mapping
