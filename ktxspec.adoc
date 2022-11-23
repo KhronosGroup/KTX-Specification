@@ -462,8 +462,6 @@ Other GPU APIs support combined uploads and given KTX data alignment it's
 trivial to upload components separately in Vulkan.
 ====
 
-Depth or stencil formats cannot be used for 3D textures.
-
 `VK_FORMAT_D16_UNORM_S8_UINT` is defined as two 16-bit words per texel.
 The first word contains the D16 value. The second word contains the S8
 value in the eight LSBs and zeros in the eight MSBs.
@@ -511,37 +509,42 @@ otherwise be needed for proper alignment of `sgdByteOffset`.
 === pixelWidth, pixelHeight, pixelDepth [[dimensions]]
 The size of the texture image for level 0, in pixels.
 
-For 1D textures, `pixelHeight` and `pixelDepth` must be 0.
+These properties combined with <<faceCount,`faceCount`>> and
+<<layerCount,`layerCount`>> determine the type of the texture as
+understood by graphics APIs. See <<Texture Type>> for more details.
 
-For 2D and cubemap textures, `pixelDepth` must be 0.
+`pixelWidth` must not be 0.
 
-For cubemap textures, `pixelHeight` must be equal to `pixelWidth`.
+If `faceCount` is equal to 6, `pixelHeight` must be equal to
+`pixelWidth`, and `pixelDepth` must be 0.
 
-`pixelWidth` cannot be 0.
+`pixelHeight` must not be 0 for block-compressed formats, including
+BasisLZ/ETC1S and UASTC.
 
-`pixelHeight` cannot be 0 for block-compressed formats (including
-BasisLZ/ETC1S and UASTC).
+`pixelDepth` must not be 0 for block-compressed formats that have
+block depth greater than 1.
 
 `pixelDepth` must be 0 for depth or stencil formats.
 
 [TIP]
 ====
-While the KTX format does not impose any size restrictions, beyond
-those above, producers of KTX files need to be aware that some APIs
-and formats have specific requirements including, but not limited
-to, the following:
+While the KTX format does not impose any image size restrictions,
+beyond those above, producers of KTX files need to be aware that some
+APIs and formats have specific requirements including, but not
+limited to, the following:
 
-* Vulkan requires the width of texture images using `\_422_` formats to be
-  a multiple of 2.
-* Direct3D requires the width and height of level 0 texture images
-  using the BCn formats to be multiples of the format's block width and
-  height.
-* WebGL 1.0 requires the width and height of all textures to be powers of 2.
-* The PVRTC1 format requires width and height to be a power of 2.
-  Transcoders from universal formats to PVRTC1 may have the same
-  requirement.
-* Both PVRTC1 and PVRTC2 place various restrictions on setting of sub-images.
-  (see <<PVRTC>>, <<PVRTC1_OES>>, and <<PVRTC2_OES>>).
+* Partial texture uploads of all block-compressed formats except
+  PVRTC1 can be performed only along block boundaries. Textures of
+  PVRTC1 formats support only full-image replacement.
+* Vulkan requires the width of texture images using `\_422_` formats
+  to be a multiple of 2.
+* Direct3D 11 and earlier require the width and height of level 0
+  texture images using BCn formats to be multiples of 4.
+* WebGL 1.0 requires the width and height of all non-base mip
+  levels to be powers of 2.
+* PVRTC1 formats require the width and height of all images to be
+  powers of 2. Transcoders from universal formats to PVRTC1 may have
+  the same requirement.
 ====
 
 === layerCount
@@ -1475,7 +1478,7 @@ bytes between levels to meet the alignment requirement.
 == General comments
 === Texture Type
 The type of texture can be determined from the following table. Any
-other combination of parameters makes the KTX file invalid.
+other combination of these parameters makes the KTX file invalid.
 
 [options="header"]
 |====
@@ -1598,11 +1601,11 @@ with `GL_UNPACK_ROW_LENGTH` = 0 and `GL_UNPACK_ALIGNMENT` = 1.
 
 === KTXcubemapIncomplete
 A KTX file can be used to store an incomplete cubemap or an array of
-incomplete cubemaps. In such a case, `faceCount` must be `1` and
-`layerCount` must be equal to the number of faces present
-(in case of a single cubemap) or to the number of faces present times
-the number of cubemaps (in case of a cubemap array). The faces that are
-present must be indicated using the metadata key
+incomplete cubemaps. In such a case, <<faceCount,`faceCount`>> must
+be 1 and <<layerCount,`layerCount`>> must be equal to the number of
+faces present (in case of a single cubemap) or to the number of faces
+present times the number of cubemaps (in case of a cubemap array).
+The faces that are present must be indicated using the metadata key
 
 -   `KTXcubemapIncomplete`
 
@@ -1620,7 +1623,7 @@ The value is a one-byte bitfield defined as:
 
 Any value, not matching the mask above is invalid.
 
-At least one face must be present (i.e., value cannot be `0`).
+At least one face must be present, i.e., the value must not be 0.
 
 Within the <<levelImages>> structure, faces must be written in the
 same order as with complete cubemaps: +X, -X, +Y, -Y, +Z, -Z.
@@ -1628,10 +1631,12 @@ same order as with complete cubemaps: +X, -X, +Y, -Y, +Z, -Z.
 When a texture is a cubemap array, missing/present faces must be
 the same for each element.
 
-As with complete cubemaps, `pixelHeight` must be equal to `pixelWidth`,
-and `pixelDepth` must be zero.
+As with complete cubemaps, <<dimensions,`pixelHeight`>> must be equal
+to <<dimensions,`pixelWidth`>>, and <<dimensions,`pixelDepth`>> must
+be 0.
 
-This metadata entry must not be used together with `KTXanimData`.
+This metadata entry must not be used together with
+<<KTXanimData,`KTXanimData`>>.
 
 === KTXorientation
 Texture data in a KTX file are arranged so that the first pixel in
@@ -1900,7 +1905,8 @@ seconds is stem:[duration / timescale].
 * 1 - plays once
 * n - plays n times
 
-This metadata entry must not be used together with `KTXcubemapIncomplete`.
+This metadata entry must not be used together with
+<<KTXcubemapIncomplete,`KTXcubemapIncomplete`>>.
 
 == An example KTX version 2 file:
 
