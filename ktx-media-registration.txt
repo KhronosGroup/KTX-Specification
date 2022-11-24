@@ -74,8 +74,8 @@ expected to be nearly, er, universal.
 
 Fragment Identifier Considerations:
 
-The syntax and semantics for identifying fragments in the payload of a KTX file,
-is as specified in link:ktx-frag.html[KTX Fragments URI].
+The syntax and semantics for identifying fragments in the payload of a KTX
+file, is as specified in link:ktx-frag.html[KTX Fragments URI].
 
 Restrictions on Usage: none
 
