@@ -110,7 +110,7 @@ audience can be inferred from context
 ==== Normative Terminology
 
 Within this specification, the key words must, required, should,
-recommended, may, and optional are to be interpreted as described
+recommended, may and optional are to be interpreted as described
 in _Key words for use in RFCs to Indicate Requirement Levels_
 <<RFC2119>>.  In text addressing creators, their use expresses
 requirements that apply to the files produced.  In text addressing
@@ -248,7 +248,7 @@ num\_blocks\_x = \left\lceil{\frac{\left\lfloor{{pixelWidth}*{2^{-p}}}\right\rfl
 +++++
 
 where _p_ is the level index (see <<levelCount>>) and _block_depth_,
-_block_height_, and _block_width_ are `1` for uncompressed formats and
+_block_height_ and _block_width_ are `1` for uncompressed formats and
 the block size in that dimension for block compressed formats as given
 in the format's section of the Khronos Data Format specification <<KDF13>>.
 
@@ -479,7 +479,7 @@ texel.  The first word contains the floating-point D32 value. The
 second word contains the S8 value in the eight LSBs and zeros in
 the MSBs.
 
-`VK_FORMAT_S8_UINT`, `VK_FORMAT_D16_UNORM`, and `VK_FORMAT_D32_SFLOAT`
+`VK_FORMAT_S8_UINT`, `VK_FORMAT_D16_UNORM` and `VK_FORMAT_D32_SFLOAT`
 are defined as in <<VULKAN12EXT>>.
 
 === typeSize
@@ -541,7 +541,7 @@ to, the following:
   Transcoders from universal formats to PVRTC1 may have the same
   requirement.
 * Both PVRTC1 and PVRTC2 place various restrictions on setting of sub-images.
-  (see <<PVRTC>>, <<PVRTC1_OES>>, and <<PVRTC2_OES>>).
+  (see <<PVRTC>>, <<PVRTC1_OES>> and <<PVRTC2_OES>>).
 ====
 
 === layerCount
@@ -872,7 +872,7 @@ The following restrictions must be obeyed when setting the fields of a
 _dfDescriptorBlock_.
 
 * If `<<_vkformat,vkFormat>>` is not `VK_FORMAT_UNDEFINED`, the DFD's
-  `texelBlockDimension*`, `bytesPlane*`, and sample information fields
+  `texelBlockDimension*`, `bytesPlane*` and sample information fields
   must match the format's definition. The `colorModel` must be
   `KHR_DF_MODEL_RGBSDA` or the matching block compressed color model
   listed in <<KDF13>> Section 5.6 or its successors, currently
@@ -1185,7 +1185,7 @@ Keys must not appear more than once.
 ==== keyAndValueByteLength
 The number of bytes of combined key and value data in one key/value
 pair. This includes the size of the key, the required NUL byte
-terminating the key, and all the bytes of data in the value. If the
+terminating the key and all the bytes of data in the value. If the
 value is a UTF-8 string it should be NUL terminated and
 `keyAndValueByteLength` must include the NUL character (but code
 that reads KTX files must not assume that value fields are NUL
@@ -1774,7 +1774,7 @@ The value is a four-byte NUL-terminated string formatted as (<<REGEXP>>):
 -   `/^[rgba01]{4}$/`
 
 where each symbol represents source component (or fixed value) that
-is used for red, green, blue, and alpha values, thus `rgba` being
+is used for red, green, blue and alpha values, thus `rgba` being
 a default swizzling state.
 
 For example, `rg01` means:
@@ -1785,7 +1785,7 @@ For example, `rg01` means:
 - the alpha channel is set to one (fully saturated), ignoring texture data.
 
 When a channel is not present in the texture, a value of `0` must be
-used for colors (red, green, and blue) and a value of `1` (fully
+used for colors (red, green and blue) and a value of `1` (fully
 saturated) must be used for alpha.
 
 This metadata has no effect on depth or stencil texture formats.
@@ -2421,25 +2421,25 @@ isGrayscale          b(1)
 
 ==== Endpoints
 
-Immediately after the header is the compressed color endpoint codebook data (`inten[endpointCount]`, `red[endpointCount]`, `green[endpointCount]`, and `blue[endpointCount]` arrays). A simple form of DPCM (Delta Pulse Code Modulation) coding is used to send the ETC1S intensity table indices and color values. Here is the procedure to decode the endpoint codebook:
+Immediately after the header is the compressed color endpoint codebook data (`inten[endpointCount]`, `red[endpointCount]`, `green[endpointCount]` and `blue[endpointCount]` arrays). A simple form of DPCM (Delta Pulse Code Modulation) coding is used to send the ETC1S intensity table indices and color values. Here is the procedure to decode the endpoint codebook:
 
 . Set initial values:
   .. Let the previous intensity index `prevInten` be `0`.
   .. If `isGrayscale` is `1`, let `prevLuma` be `16`.
-  .. Else, let `prevRed`, `prevGreen`, and `prevBlue` be `16`.
+  .. Else, let `prevRed`, `prevGreen` and `prevBlue` be `16`.
 . For `i` from `0` to `endpointCount`:
   .. Decode table intensity index:
     ... Read an `intenDelta` value using the `intenDeltaModel` Huffman table.
     ... Set `inten[i]` to `((prevInten + intenDelta) & 7)`.
     ... Set `prevInten` to `inten[i]`.
   .. Decode endpoint color value:
-    ... Depending on the `isGrayscale` value, read `lumaDelta` or {`redDelta`, `greenDelta`, and `blueDelta`} using the Huffman tables depending on the `prevLuma` or {`prevRed`, `prevGreen`, and `prevBlue`} ranges:
+    ... Depending on the `isGrayscale` value, read `lumaDelta` or {`redDelta`, `greenDelta` and `blueDelta`} using the Huffman tables depending on the `prevLuma` or {`prevRed`, `prevGreen` and `prevBlue`} ranges:
          - `colorDeltaModel0` for values in [0..9];
          - `colorDeltaModel1` for values in [10..21];
          - `colorDeltaModel2` for values in [22..31].
     ... Sum deltas with the previous values as `value = (prevValue + valueDelta) & 31`.
-    ... Set `red[i]`, `green[i]`, and `blue[i]` from the decoded values. For grayscale endpoints, set all channels to the luma value.
-    ... Update `prevLuma` or {`prevRed`, `prevGreen`, and `prevBlue`}.
+    ... Set `red[i]`, `green[i]` and `blue[i]` from the decoded values. For grayscale endpoints, set all channels to the luma value.
+    ... Update `prevLuma` or {`prevRed`, `prevGreen` and `prevBlue`}.
 . The rest of the section's data (if any) can be ignored.
 
 === ETC1S Selector Codebooks
