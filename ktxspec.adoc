@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification of a container format for GPU textures.
-:docrev: 0
+:docrev: 1
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -31,7 +31,7 @@
 :xrefstyle: full
 :imagesdir: images
 
-:url-khr-reg: https://www.khronos.org/registry
+:url-khr-reg: https://registry.khronos.org
 :url-khr-vulkan: {url-khr-reg}/vulkan
 :url-khr-ktx: {url-khr-reg}/KTX
 
@@ -51,7 +51,7 @@
 
 [.legal]
 --
-© 2020-2021 The Khronos Group Inc. All Rights Reserved.
+Copyright 2020-2022 The Khronos Group Inc.
 
 include::license.adoc[]
 --
@@ -286,7 +286,7 @@ provides for immediate detection of common file-transfer problems.
     text file may be misrecognized as a KTX file.
   * Byte [0] also catches bad file transfers that clear bit 7.
   * Bytes [1..6] identify the format, and are the ASCII values for the string
-    "KTX 20".
+    "`KTX 20`".
   * Byte [7] is for aesthetic balance with byte [0] (they are a matching pair
     of double-angle quotation marks).
   * Bytes [8..9] form a CR-LF sequence which catches bad file transfers that
@@ -1149,7 +1149,7 @@ the file is invalid.
 [NOTE]
 ====
 `dfdTotalSize` is included so that the KTX file contains a complete
-descriptor as defined in Chapter 4 "Khronos Data Format Descriptor"
+descriptor as defined in Chapter 4 "`Khronos Data Format Descriptor`"
 of <<KDF13>>.
 ====
 
@@ -1202,7 +1202,7 @@ its NUL terminator.
 `keyAndValue` contains 2 separate sections. First it contains a key
 encoded in UTF-8 without a byte order mark (BOM). The key must be
 terminated by a NUL character (a single 0x00 byte). Keys that begin
-with the 3 ASCII characters 'KTX' or 'ktx' are reserved and must
+with the 3 ASCII characters `KTX` or `ktx` are reserved and must
 not be used except as described by this specification (this version
 of the KTX spec. defines eight keys). Immediately following the NUL
 character that terminates the key is the Value data.
@@ -2252,18 +2252,6 @@ particular version of OpenGL {,ES} or Vulkan.
 [bibliography]
 === Non-Normative References
 
-- [[[PVRTC]]]
-  {url-khr-reg}/DataFormat/specs/1.3/dataformat.1.3.html#PVRTC["PVRTC
-  Compressed Texture Image Formats" chapter, Khronos Data Format
-  Specification 1.3].
-  Andrew Garrard and Imagination Technologies Limited.
-
-- [[[PVRTC1_OES]]] https://www.khronos.org/registry/OpenGL/extensions/IMG/IMG_texture_compression_pvrtc.txt[IMG_texture_compression_pvrtc].
-  Imagination Technologies Limited, 2005
-
-- [[[PVRTC2_OES]]] https://www.khronos.org/registry/OpenGL/extensions/IMG/IMG_texture_compression_pvrtc2.txt[IMG_texture_compression_pvrtc2].
-  Imagination Technologies Limited, 2011
-
 - [[[RDO]]]
   https://fgiesen.wordpress.com/2018/12/10/rate-distortion-optimization/[Rate-distortion
   optimization]. The ryg blog, December 18th, 2018.
@@ -2347,7 +2335,7 @@ It stores different ETC1S format fields in separately-compressed data streams th
 BasisLZ data comprises:
 
 * global endpoint array, where each element is a base color and an intensity table index pair;
-* global selectors array, where each element contains 16 values, called ETC1 "pixel index bits" in KDFS;
+* global selectors array, where each element contains 16 values, called ETC1 "`pixel index bits`" in KDFS;
 * four global Huffman tables used for slice decoding;
 * per-slice block data encoded as references to the endpoint and selectors arrays.
 
@@ -2414,7 +2402,7 @@ of endpoint entries (called `endpointCount`) are defined by the
 <<basislz_global_data_structure,BasisLZ Global Data Structure>>.
 
 ==== Header
-At the beginning of the compressed endpoint codebook section are four compressed Huffman tables, stored using the procedure outlined in Section "Compressed Huffman Tables" and a 1-bit flag signalling whether endpoints have three color channles or one.
+At the beginning of the compressed endpoint codebook section are four compressed Huffman tables, stored using the procedure outlined in <<Compressed Huffman Tables>> and a 1-bit flag signalling whether endpoints have three color channles or one.
 
 [source]
 ----
@@ -2532,7 +2520,7 @@ Any bytes in this section following the selector codebook bits can be safely ign
 === ETC1S Slice Huffman Tables
 
 Each ETC1S slice is compressed with four Huffman tables (`tablesData`)
-stored using the procedure outlined in "Compressed Huffman Tables".
+stored using the procedure outlined in <<Compressed Huffman Tables>>.
 Their byte offset and byte length (`tablesByteLength`) are defined
 by the <<basislz_global_data_structure,BasisLZ Global Data Structure>>.
 
@@ -2552,7 +2540,7 @@ Any remaining bits may be safely ignored.
 [#etc1s_slice]
 === ETC1S Slice Decoding
 
-ETC1S slices consist of a compressed 2D array of ETC1S blocks, always compressed in top-down/left-right raster order. For an animation sequence, the previous slice's already decoded contents may be referred to when blocks are encoded using Conditional Replenishment (also known as "skip blocks").
+ETC1S slices consist of a compressed 2D array of ETC1S blocks, always compressed in top-down/left-right raster order. For an animation sequence, the previous slice's already decoded contents may be referred to when blocks are encoded using Conditional Replenishment (also known as "`skip blocks`").
 
 Each ETC1S block is encoded by using references to the color endpoint codebook and the selector codebook. The following sections describe the helper procedures used by the decoder, and how the array of ETC1S blocks is actually decoded.
 
@@ -2955,24 +2943,62 @@ At this point, the decoder has decoded each block's endpoint and selector codebo
 // a new revision.
 ////
 
-[.revhistory,cols="^25,^20,<55",options="header"]
+[.revhistory,cols="^25,^20,<55a",options="header"]
 |===
-| Document Revision |    Date     | Remark
-|      pr-draft1    |  2020.08.01 | Remove width & height restrictions.
-                                    Update draft Media Type
-                                    registration.
-|      pr-draft2    |  2020.09.04 | Update status to ratified. Add
-                                    KTXwriteScParams. Update logo.
-                                    Make clarifications in size
-                                    restriction tips. Add tip about
-                                    byteLength.
-|      {docrev}     |  {revdate}  | Polish abstract. Allow animData for
-                                    any kind of array texture. Add
-                                    VK_EXT_4444 formats to mapping.
-                                    Remove "required" from key-value
-                                    data. Bug fixes in ETC1S video spec.
-                                    Define coordinate system for
-                                    cubemaps.
+| Document Revision |    Date    ^|              Remark
+|      pr-draft1    | 2020-08-01  | - Remove width & height
+                                      restrictions.
+                                    - Update draft Media Type
+                                      registration.
+|      pr-draft2    | 2020-09-04  | - Update status to ratified.
+                                    - Add `KTXwriteScParams`.
+                                    - Update logo.
+                                    - Make clarifications in size
+                                      restriction tips.
+                                    - Add a tip about `byteLength`.
+|         0         | 2021-04-18  | - Polish abstract.
+                                    - Allow `KTXanimData` for any
+                                      kind of array texture.
+                                    - Add `VK_EXT_4444_formats` to
+                                      mapping.
+                                    - Remove "`required`" from
+                                      key-value data.
+                                    - Bug fixes in ETC1S video spec.
+                                    - Define coordinate system for
+                                      cubemaps.
+|      {docrev}     |  {revdate}  | - Disallow 3D block-compressed
+                                      formats for non 3D textures.
+                                    - Adjust DFD transfer function
+                                      restrictions.
+                                    - Fix
+                                      `VK_FORMAT_X8_D24_UNORM_PACK32`
+                                      mapping entry.
+                                    - Clarify valid `mipPadding`
+                                      length.
+                                    - Define valid values for ETC1S
+                                      slice byte lengths and offsets.
+                                    - Clarify descriptions of ETC1S
+                                      slices.
+                                    - Clarify 422 formats block size.
+                                    - Disallow block-compressed
+                                      formats for 1D textures.
+                                    - Clarify mip-level data layouts.
+                                    - Define valid size of
+                                      Supercompression Global Data
+                                      for BasisLZ.
+                                    - Remove non-normative notice
+                                      from Appendix A.
+                                    - Clarify format of `KTXwriter`
+                                      and `KTXwriterScParams`
+                                      metadata values.
+                                    - Remove single-plane formats
+                                      from the prohibited formats
+                                      list.
+                                    - Clarify valid usage of format
+                                      mapping and
+                                      `KTXcubemapIncomplete` metadata.
+                                    - Fix `block_pred_bits` size.
+                                    - Minor formatting and typo fixes.
 |===
 
 [discrete]
