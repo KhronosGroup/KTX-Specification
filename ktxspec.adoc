@@ -877,14 +877,25 @@ _dfDescriptorBlock_.
 * If `<<_vkformat,vkFormat>>` is not `VK_FORMAT_UNDEFINED`, the DFD's
   `texelBlockDimension*`, `bytesPlane*` and sample information fields
   must match the format's definition. The `colorModel` must be
-  `KHR_DF_MODEL_RGBSDA` or the matching block compressed color model
-  listed in <<KDF13>> Section 5.6 or its successors, currently
-  `KHR_DF_MODEL_BC1A` to `KHR_DF_MODEL_UASTC`.
+  `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA` or the matching block
+  compressed color model listed in <<KDF13>> Section 5.6 or its
+  successors, currently `KHR_DF_MODEL_BC1A` to `KHR_DF_MODEL_UASTC`.
+  `KHR_DF_MODEL_YUVSDA` should be used for all non-prohibited
+  `+*_422_*+` formats.
 * If `<<_vkformat,vkFormat>>` is one of the `+*_SRGB{,_*}+` formats,
   `transferFunction` must be `KHR_DF_TRANSFER_SRGB`.
 * If `<<_vkformat,vkFormat>>` is not one of the `+*_SRGB{,_*}+` formats
   and an sRGB variant of that format exists, `transferFunction` should not
   be `KHR_DF_TRANSFER_SRGB`.
+* If formats for other transfer functions are added to GPU APIs in the
+  future similar restrictions to those just described apply. For
+  example, if formats for the HLG transfer function which have the
+  the suffix `_HLG` are added then
+    - If `<<_vkformat,vkFormat>>` is one of the `+*_HLG{,_*}+` formats
+      `transferFunction` must be `KHR_DF_TRANSFER_HLG`.
+    - If `<<_vkformat,vkFormat>>` is not one of the `+*_HLG{,_*}+`
+      formats and an HLG variant of that format exists,
+      `transferFunction` should not be `KHR_DF_TRANSFER_HLG`.
 
 [NOTE]
 ====
