@@ -877,9 +877,12 @@ _dfDescriptorBlock_.
 * If `<<_vkformat,vkFormat>>` is not `VK_FORMAT_UNDEFINED`, the DFD's
   `texelBlockDimension*`, `bytesPlane*` and sample information fields
   must match the format's definition. The `colorModel` must be
-  `KHR_DF_MODEL_RGBSDA` or the matching block compressed color model
-  listed in <<KDF13>> Section 5.6 or its successors, currently
-  `KHR_DF_MODEL_BC1A` to `KHR_DF_MODEL_UASTC`.
+  `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA` or the matching block
+  compressed color model listed in <<KDF13>> Section 5.6 or its
+  successors, currently `KHR_DF_MODEL_BC1A` to `KHR_DF_MODEL_UASTC`.
+  `KHR_DF_MODEL_YUVSDA` should be used for all non-prohibited
+  `+*_422_*+` formats, `VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16`
+  and `VK_FORMAT_R12X4G12X4B12X4A12X4_UNORM_4PACK16`.
 * If `<<_vkformat,vkFormat>>` is one of the `+*_SRGB{,_*}+` formats,
   `transferFunction` must be `KHR_DF_TRANSFER_SRGB`.
 * If `<<_vkformat,vkFormat>>` is not one of the `+*_SRGB{,_*}+` formats
