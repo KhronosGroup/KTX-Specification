@@ -881,7 +881,7 @@ _dfDescriptorBlock_.
   compressed color model listed in <<KDF13>> Section 5.6 or its
   successors, currently `KHR_DF_MODEL_BC1A` to `KHR_DF_MODEL_UASTC`.
   `KHR_DF_MODEL_YUVSDA` should be used for all non-prohibited
-  `+*_422_*+` formats.
+  `+*_422_*+` formats, `KHR_DF_MODEL_RGBSDA` for the rest.
 * If `<<_vkformat,vkFormat>>` is one of the `+*_SRGB{,_*}+` formats,
   `transferFunction` must be `KHR_DF_TRANSFER_SRGB`.
 * If `<<_vkformat,vkFormat>>` is not one of the `+*_SRGB{,_*}+` formats
