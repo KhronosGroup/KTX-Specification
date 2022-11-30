@@ -885,6 +885,15 @@ _dfDescriptorBlock_.
 * If `<<_vkformat,vkFormat>>` is not one of the `+*_SRGB{,_*}+` formats
   and an sRGB variant of that format exists, `transferFunction` should not
   be `KHR_DF_TRANSFER_SRGB`.
+* If formats for other transfer functions are added to GPU APIs in the
+  future similar restrictions to those just described apply. For
+  example, if formats supporting the HLG transfer function are added
+  having the suffix `_HLG` then
+    - If `<<_vkformat,vkFormat>>` is one of the `+*_HLG{,_*}+` formats
+      `transferFunction` must be `KHR_DF_TRANSFER_HLG`.
+    - If `<<_vkformat,vkFormat>>` is not one of the `+*_HLG{,_*}+`
+      formats and an HLG variant of that format exists,
+      `transferFunction` should not be `KHR_DF_TRANSFER_SRGB`.
 
 [NOTE]
 ====
