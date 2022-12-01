@@ -79,6 +79,8 @@ significantly different file structure from version 1.
 
 Ratified by the Khronos Board of Promoters Aug 14th, 2020.
 
+Document Revision awaiting 3d Formats WG approval.
+
 == Introduction
 
 This document describes the KTX^™️^ file format version 2.0, hereafter

@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: URI syntax for accessing fragments of a KTX v2 file.
-:docrev: draft1
+:docrev: 1
 :ktxfragver: 1.0
 :revnumber: {ktxfragver}.{docrev}
 :revdate: {docdate}
@@ -35,7 +35,7 @@ Fragments syntax <<W3CMF>>.
 
 [discrete]
 === Status of this document
-Draft for review.
+Awaiting 3D Formats WG Approval
 
 == Introduction
 
@@ -766,3 +766,10 @@ agent if it knows the size and depth of the source KTX file.
   Schulzrinne, A. Rao, R. Lanphier, M. Westerlund, M Stiemerling. IETF,
   December 2016.
 
+[.revhistory,cols="^25,^20,<55a",options="header"]
+|===
+| Document Revision |    Date    ^|              Remark
+|         0         | 2021-04-18  | - Initial release.
+|      {docrev}     |  {revdate}  | - Fix typos.
+                                    - Embed images.
+|===
