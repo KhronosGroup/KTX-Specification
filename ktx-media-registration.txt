@@ -55,17 +55,17 @@ those they do not support.
 
 Published specification:
 
-The KTX file format specification can be found at
+The KTX v2 file format specification can be found at
 
-    https://github.khronos.org/KTX-Specification/
+    https://registry.khronos.org/KTX/specs/2.0/ktxspec.v2.html
 
 Applications Usage:
 
-Currently the tools in the KTX Software repo
+The tools in the KTX Software repo
 (https://github.com/KhronosGroup/KTX-Software) - ktx2check, ktx2ktx2,
-ktxinfo, ktxsc, toktx - and gltfpack. Prototype loaders are available
-in THREE.js and Babylon.js. It is anticipated it will incorporated
-within the glTF standard and be widely used by by applications using
+ktxinfo, ktxsc, toktx - and gltfpack. The KTX_texture_basisu glTF
+extension. Loaders are available in THREE.js and Babylon.js.  It
+is anticipated that it will be widely used by applications using
 glTF content and by applications built on top of OpenGl, Vulkan,
 WebGL and other 3D API standards as the means of delivering texture
 data. Since image/ktx2 supports universal textures (textures that
@@ -87,7 +87,7 @@ Additional information:
                      { 0xAB,0x4B,0x54,0x58,0x20,0x32,0x30,0xBB,0x0D,0x0A,0x1A,0x0A }
     File extension(s): .ktx2
     Macintosh file type code(s): n/a
-    Mccintosh Uniform Type Identifier: public.ktx2, conforms to public.image
+    Macintosh Uniform Type Identifier: public.ktx2, conforms to public.image
 
 Intended usage: COMMON
 
