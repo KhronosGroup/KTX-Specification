@@ -63,7 +63,7 @@ Applications Usage:
 
 The tools in the KTX Software repo
 (https://github.com/KhronosGroup/KTX-Software) - ktx2check, ktx2ktx2,
-ktxinfo, ktxsc, toktx - and gltfpack. The KTX_texture_basisu glTF
+ktxinfo, ktxsc, toktx - and gltfpack. The KHR_texture_basisu glTF
 extension. Loaders are available in THREE.js and Babylon.js.  It
 is anticipated that it will be widely used by applications using
 glTF content and by applications built on top of OpenGl, Vulkan,
