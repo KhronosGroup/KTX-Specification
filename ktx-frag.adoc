@@ -86,7 +86,7 @@ UTF-8 and percent-encoded as per <<RFC3986>>.
 
 .Examples
 --
-  http://www.example.com/example.ktx2#l=0,2
+  http://www.example.com/example.ktx2#m=0,2
   http://www.example.com/example.ktx2#a=1,18
   http://www.example.com/example.ktx2#a=1,18&xyzwhd=percent:25,25,25,50,50,50
   http://www.example.com/example.ktx2#f=4,5
