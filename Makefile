@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 out=out
-spec=$(out)/ktxspec_v1.html
+spec=$(out)/ktxspec.v1.html
 
 default: $(spec)
 
