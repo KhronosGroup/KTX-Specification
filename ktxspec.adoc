@@ -2051,7 +2051,7 @@ This metadata entry must not be used together with
 _Permission is expressly granted to IANA to copy this section as
 necessary for managing the MIME types registry._
 
-include::ktx-media-registration.txt[]
+include::ktx-media-registration.adoc[]
 
 == Issues
 [qanda]

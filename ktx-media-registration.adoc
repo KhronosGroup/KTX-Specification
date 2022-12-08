@@ -56,8 +56,10 @@ those they do not support.
 Published specification:
 
 The KTX v2 file format specification can be found at
-
+[subs=normal]
+....
     https://registry.khronos.org/KTX/specs/2.0/ktxspec.v2.html
+....
 
 Applications Usage:
 
