@@ -5,19 +5,19 @@
 KTX is a file format that can be used for storing GPU-ready texture data (with cubemaps, mip levels, etc).
 Like DDS but with more features and more formal specification. It supports Basis Universal transcodable formats and supercompression which can yield JPEG-sized universal textures. glTF will use Basis Universal textures in KTX v2 containers.
 
-Click to see the [latest published version of the KTX File Format Specification](https://github.khronos.org/KTX-Specification/ktxspec_v2.html)
-or [latest published version of the KTX Fragment URI](https://github.khronos.org/KTX-Specification/ktx_frag.html)
-(they look much better than the ersatz views provided by GitHub) or run
+Click to see the latest published versions of the [KTX File Format Specification](https://registry.khronos.org/KTX/specs/2.0/ktxspec.v2.html) 
+or the [KTX Fragment URI Specification](https://registry.khronos.org/KTX/specs/2.0/ktx-frag.html)
+from the Khronos KTX Registry (they look much better than the ersatz views provided by GitHub) or run
 
 ```.bash
 make
 ```
 
 in a Unix-like environment with [AsciiDoctor](https://asciidoctor.org/docs/install-toolchain/)
-installed to generate the publishable specs. They are the files `out/ktxspec_v2.html` and `out/ktx_frag.html`.
+installed to generate the publishable specs. They are the files `out/ktxspec.v2.html` and `out/ktx-frag.html`.
 Everything needed is inlined.
 
-The canonical spec. text is in the file `ktxspec.adoc`.
+The canonical KTX spec. text is in the file `ktxspec.adoc`. The canonical fragment URI spec. text is in the file `ktx-frag.html`.
 
 If you have questions or comments that don't merit creating an issue such as "why did you do
 so-and-so?" use GitHub [Discussions](https://github.com/KhronosGroup/KTX-Specification/discussions).
