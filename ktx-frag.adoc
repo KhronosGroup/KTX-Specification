@@ -35,7 +35,7 @@ Fragments syntax <<W3CMF>>.
 
 [discrete]
 === Status of this document
-Awaiting 3D Formats WG Approval
+Approved by the 3D Formats WG Dec 7th, 2022.
 
 == Introduction
 

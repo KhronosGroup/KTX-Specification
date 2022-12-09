@@ -77,9 +77,9 @@ significantly different file structure from version 1.
 [discrete]
 === Status of this document
 
-Ratified by the Khronos Board of Promoters Aug 14th, 2020.
+KTX 2.0 ratified by the Khronos Board of Promoters Aug 14th, 2020.
 
-Document Revision awaiting 3d Formats WG approval.
+Document Revision {docrev} approved by the 3D Formats WG Dec 7th, 2022.
 
 == Introduction
 
@@ -2049,7 +2049,7 @@ This metadata entry must not be used together with
 
 [.legal]
 _Permission is expressly granted to IANA to copy this section as
-necessary for managing the MIME types registry._
+necessary for managing the Media Types registry._
 
 include::ktx-media-registration.adoc[]
 
