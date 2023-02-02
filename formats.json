@@ -2399,8 +2399,8 @@
         ],
         "glWebVersion": "2.0",
         "glWebExtensions": null,
-        "dxgiFormat": "DXGI_FORMAT_D24_UNORM_S8_UINT",
-        "mtlFormat": "MTLPixelFormatDepth24Unorm_Stencil8"
+        "dxgiFormat": null,
+        "mtlFormat": null
     },
     {
         "type": "PACKED",

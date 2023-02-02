@@ -470,6 +470,12 @@ value in the eight LSBs and zeros in the eight MSBs.
 
 `VK_FORMAT_D24_UNORM_S8_UINT` is defined as one 32-bit word per texel
 with the S8 value in the eight LSBs of the word and the D24 value in the MSBs.
+[TIP]
+====
+This layout matches OpenGL's `GL_UNSIGNED_INT_24_8` type. Uploading such data
+via other GPU APIs, such as Direct3D 11 or Metal, usually requires swapping the
+components, i.e., performing right rotation by 8 bits.
+====
 
 `VK_FORMAT_X8_D24_UNORM_PACK32` is defined as one 32-bit word per texel
 with the D24 value in the LSBs of the word and zeros in the eight MSBs.
