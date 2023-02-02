@@ -1,7 +1,5 @@
 ## Home of the KTX File Format Specification
 
-**NOTE: The default branch will be renamed from `master` to `main` on Feb 1st, 2023. If you have a clone you will probably want to rename your clone's 'master' branch, following the popup instructions that will be seen when browsing the github repository after the change, or just delete 'master' and pull the new 'main', if it's purely a tracker with no local content.**
-
 [![Build Status](https://travis-ci.org/KhronosGroup/KTX-Specification.svg?branch=master)](https://travis-ci.org/KhronosGroup/KTX-Specification)
 
 KTX is a file format that can be used for storing GPU-ready texture data (with cubemaps, mip levels, etc).
