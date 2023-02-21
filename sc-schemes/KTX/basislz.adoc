@@ -11,7 +11,7 @@ processed endpoint and selector data from the block-compression and
 the Huffman tables. The global data block contains this codebook.
 
 It also contains an array of _image descriptors_ with flags for
-each image and the offset and length within the image's mip level
+each image and the offset and length within the mip level
 of the data for that image.
 
 The global data structure is designed to accommodate various
@@ -386,7 +386,7 @@ Any remaining bits may be safely ignored.
 [#etc1s_slice]
 === ETC1S Slice Decoding
 
-ETC1S slices consist of a compressed 2D array of ETC1S blocks, always compressed in top-down/left-right raster order. For an animation sequence, the previous slice's already decoded contents may be referred to when blocks are encoded using Conditional Replenishment (also known as "`skip blocks`").
+ETC1S slices consist of a compressed 2D array of ETC1S blocks, compressed in the order indicated by <<KTXorientation>> metadata (defaults to top-down/left-right raster order). For an animation sequence, the previous slice's already decoded contents may be referred to when blocks are encoded using Conditional Replenishment (also known as "`skip blocks`").
 
 Each ETC1S block is encoded by using references to the color endpoint codebook and the selector codebook. The following sections describe the helper procedures used by the decoder, and how the array of ETC1S blocks is actually decoded.
 
