@@ -1,0 +1,771 @@
+[appendix#basislz_gd]
+== BasisLZ Global Data
+
+BasisLZ combines encoding to a block-compressed format, that can
+be easily transcoded to various GPU-native block-compressed formats,
+with lossless supercompression.  Supercompression is accomplished
+by conditioning the block-compressed representation for entropy
+encoding then Huffman encoding the result. BasisLZ creates a global
+codebook referenced by each supercompressed image that contains the
+processed endpoint and selector data from the block-compression and
+the Huffman tables. The global data block contains this codebook.
+
+It also contains an array of _image descriptors_ with flags for
+each image and the offset and length within the image's mip level
+of the data for that image.
+
+The global data structure is designed to accommodate various
+transcodable block-compressed formats. The format in use is indicated
+by the <<_data_format_descriptor, Data Format Descriptor>>. Currently
+BasisLZ only supports one, <<etc1s, ETC1S>> (a subset of ETC1, see
+Section 21.1 of <<KDF13>>).  ETC1S is a common subset of many
+GPU-native formats.
+
+The bitstreams for endpoints, selectors, Huffman tables and the image
+data are specific to the transcodable format in use. Those for ETC1S
+are defined in <<BasisLZ Bitstream Specification>>. These bitstreams
+have to be decoded to reconstruct the base images.
+
+The structure of the global data is shown below.
+
+[[basislz_global_data_structure]]
+.BasisLZ Global Data Structure
+[source,c,subs="+quotes,+attributes,+replacements"]
+----
+UInt16 endpointCount;
+UInt16 selectorCount;
+UInt32 endpointsByteLength;
+UInt32 selectorsByteLength;
+UInt32 tablesByteLength;
+UInt32 extendedByteLength;
+
+ImageDesc[imageCount] imageDescs;
+
+Byte[endpointsByteLength] endpointsData
+Byte[selectorsByteLength] selectorsData
+Byte[tablesByteLength] tablesData
+Byte[extendedByteLength] extendedData
+----
+
+`ImageDesc` is the following structure.
+
+.ImageDesc
+[source,c]
+----
+UInt32 imageFlags
+UInt32 rgbSliceByteOffset
+UInt32 rgbSliceByteLength
+UInt32 alphaSliceByteOffset
+UInt32 alphaSliceByteLength
+----
+
+Descriptions in the `imageDescs` array are in the order layer, face
+and z_slice as if arranged by the following pseudo code.
+[source,c]
+----
+for each level in max(levelCount, 1)
+    for each layer in max (layerCount, 1)
+        for each face in faceCount // 1 or 6
+            for each z_slice in max((pixelDepth of level), 1)
+----
+
+`imageCount` is the total number of images in the Mip Level Array.
+
+[TIP]
+====
+`imageCount` may be calculated as follows:
+[source,c]
+----
+int imageCount = max(layerCount, 1) * faceCount * layerPixelDepth;
+
+// where layerPixelDepth can be derived as
+int layerPixelDepth = max(pixelDepth, 1);
+for(int i = 1; i < levelCount; i++)
+    layerPixelDepth += max(pixelDepth >> i, 1);
+----
+====
+
+There must be no trailing bytes in the global data section after the
+`extendedData` field, i.e., the following condition must always be true:
+[source,c]
+----
+sgdByteLength == 20 +
+                 20 * imageCount +
+                 endpointsByteLength +
+                 selectorsByteLength +
+                 tablesByteLength +
+                 extendedByteLength
+----
+
+=== endpointCount
+The number of endpoints in <<_endpointsdata,endpointsData>>.
+
+=== selectorCount
+The number of selectors in <<_selectorsdata,selectorsData>>.
+
+=== endpointsByteLength
+The length of <<_endpointsdata,endpointsData>>.
+
+=== selectorsByteLength
+The length of <<_selectorsdata,selectorsData>>.
+
+=== tablesByteLength
+The length of <<_tablesdata,tablesData>>.
+
+=== extendedByteLength
+The length of <<_extendeddata,extendedData>>. Must be 0 if the data
+format descriptor `colorModel` is `KHR_DF_MODEL_ETC1S` (= 163).
+
+=== ImageDesc
+==== imageFlags
+Flags giving information about an individual image. The following flag
+is valid:
+[source,c]
+----
+isPFrame = 0x02
+----
+
+BasisLZ/ETC1S  supports inter-frame (video) encoding for 2D slices.
+If `isPFrame` is set the image (frame) is a P frame. That is, it
+refers to the previous image of an _animation sequence_. All other
+images are I frames.  Only animation sequences can have P frames.
+See <<Animation Sequence>> for details.
+
+==== rgbSliceByteOffset, rgbSliceByteLength
+The offset of the start of the RGB slice within the
+<<levelImagesDesc,levelImages>> of its mip level and its byte length.
+The offset of <<levelImagesDesc,levelImages>> within the file is given
+in the <<_level_index,Level Index>>.
+
+`rgbSliceByteLength` must not be zero.
+
+`rgbSliceByteOffset + rgbSliceByteLength` must not be greater than the
+byte length of the corresponding mip level.
+
+==== alphaSliceByteOffset, alphaSliceByteLength
+The offset of the start of the alpha slice within the
+<<levelImagesDesc,levelImages>> of its mip level and its byte length.
+
+If there is only one slice these values must be 0. For ETC1S with the Data
+Format Descriptor color model of `KHR_DF_MODEL_ETC1S` this corresponds to
+the DFD having only one sample. (As the format is supercompressed
+`bytesPlane` fields can't be used to determine the number of planes.)
+
+If the second slice is present, `alphaSliceByteLength` must not be zero.
+
+`alphaSliceByteOffset + alphaSliceByteLength` must not be greater than the
+byte length of the corresponding mip level.
+
+=== endpointsData
+Compressed endpoints data. The bitstream of this for ETC1S is
+described in <<ETC1S Endpoint Codebooks>>.
+
+=== selectorsData
+Compressed selectors data. The bitstream of this for ETC1S is
+described in <<ETC1S Selector Codebooks>>.
+
+=== tablesData
+Huffman tables data. The format of this data for ETC1S is described
+in <<ETC1S Slice Huffman Tables>>.
+
+=== extendedData
+Extended data. This is not used for ETC1S.
+
+[appendix#basisLZ]
+== BasisLZ Bitstream Specification
+
+BasisLZ is a lossless compression scheme for ETC1S block data, which is based off https://www.sciencedirect.com/topics/engineering/vector-quantization[Vector Quantization]. VQ is applied to the ETC1S color endpoint/intensity values and texel selectors, each treated as two separate vectors. The two codebooks are global and shared across all mipmap levels, cubemap faces, animation frames, etc. There are two VQ codebook indices per block, which are compressed using a combination of canonical https://en.wikipedia.org/wiki/Huffman_coding[Huffman coding], https://en.wikipedia.org/wiki/Run-length_encoding[Run-Length Encoding], https://en.wikipedia.org/wiki/Differential_pulse-code_modulation[DPCM coding], and an approximate https://en.wikipedia.org/wiki/Move-to-front_transform[Move to Front] transform.
+
+It stores different ETC1S format fields in separately-compressed data streams thus reducing the transmission size.
+
+BasisLZ data comprises:
+
+* global endpoint array, where each element is a base color and an intensity table index pair;
+* global selectors array, where each element contains 16 values, called ETC1 "`pixel index bits`" in KDFS;
+* four global Huffman tables used for slice decoding;
+* per-slice block data encoded as references to the endpoint and selectors arrays.
+
+The following sections describe each section's payload independently. After decoding them and recovering per-block endpoint and selector values, the decoder can build ETC1S blocks. See the KDFS for ETC1S definition and bitstream.
+
+=== Compressed Huffman Tables
+
+Many BasisLZ compressed sections use multiple Huffman tables. The process described in this section defines `read_huffman_table()` routine in the subsequent sections of this specification.
+
+Huffman codes are stored in each output byte in LSB to MSB order.
+
+Huffman coding in BasisLZ is compatible with the canonical Huffman methods used by Deflate encoders/decoders. Section 3.2.2 of https://tools.ietf.org/html/rfc1951[Deflate - RFC 1951], which describes how to compute the value of each Huffman code given an array of symbol codelengths.
+
+A BasisLZ Huffman table consists of 1 to 16383 symbols. Each compressed Huffman table is described by an array of symbol code lengths in bits. The table's symbol code lengths are themselves RLE+Huffman coded, just like Deflate.
+
+Each table begins with a small fixed header followed by the code lengths for the small Huffman table which is used to send the compressed codelengths.
+
+[source]
+----
+total_used_syms                                 b(14)
+num_codelength_codes                            b(5)
+for (int i = 0; i < num_codelength_codes; i++)
+{
+    code_length_code_sizes[codes_order[i]]      b(3)
+}
+----
+
+There are a maximum of 21 symbols in a compressed Huffman code length table, so `num_codelength_codes` must be in [1..21] range.
+
+The code lengths are reordered to potentially reduce the number of used codes:
+
+[source]
+----
+codes_order = {
+    17, 18, 19, 20, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15, 16
+};
+----
+
+A canonical Huffman decoding table (of up to 21 symbols) is built from these code lengths.
+
+Immediately following this data are the Huffman symbols (sometimes intermixed with raw bits) which describe how to unpack the codelengths of each symbol in the Huffman table. This is a slightly modified version of dynamic Huffman codes described in RFC 1951, Section 3.2.7.
+
+- Symbols [0..16] indicate a specific symbol code length in bits, so maximum supported Huffman code size is 16 bits.
+
+- Symbol 17 indicates a short run of symbols with 0 bit code lengths. 3 bits are sent after this symbol, which indicates the run's size after adding the minimum size of 3, so the run has 3..10 symbols.
+
+- Symbol 18 indicates a long run of symbols with 0 bit code lengths. 7 bits are sent after this symbol, which indicates the run's size after adding the minimum size of 11, so the run has 11..138 symbols.
+
+- Symbol 19 indicates a short run of symbols that repeat the previous symbol's code length. 2 bits are sent after this symbol, which indicates the number of times to repeat the previous symbol's code length, after adding the minimum size of 3, so the run has 3..6 symbols. Cannot be the first symbol, and the previous symbol cannot have a code length of 0.
+
+- Symbol 20 indicates a short run of symbols that repeat the previous symbol's code length. 7 bits are sent after this symbol, which indicates the number of times to repeat the previous symbol's code length, after adding the minimum size of 7, so the run has 7..134 symbols. Cannot be the first symbol, and the previous symbol cannot have a code length of 0.
+
+There should be exactly `total_used_syms` code lengths stored in the compressed Huffman table. If not, the stream is either corrupted or invalid.
+
+After all the symbol codelengths are uncompressed, the symbol codes can be computed and the canonical Huffman decoding tables can be built.
+
+`decode_huffman(model)` in the sections below denotes reading the Huffman-encoded value from a current bitstream position using the table `model`.
+
+=== ETC1S Endpoint Codebooks
+
+The byte offset and the byte length (`endpointsByteLength`) of the
+endpoint codebook section (`endpointsData`) as well as the number
+of endpoint entries (called `endpointCount`) are defined by the
+<<basislz_global_data_structure,BasisLZ Global Data Structure>>.
+
+==== Header
+At the beginning of the compressed endpoint codebook section are four compressed Huffman tables, stored using the procedure outlined in <<Compressed Huffman Tables>> and a 1-bit flag signalling whether endpoints have three color channles or one.
+
+[source]
+----
+colorDeltaModel0     read_huffman_table()
+colorDeltaModel1     read_huffman_table()
+colorDeltaModel2     read_huffman_table()
+intenDeltaModel      read_huffman_table()
+isGrayscale          b(1)
+----
+
+==== Endpoints
+
+Immediately after the header is the compressed color endpoint codebook data (`inten[endpointCount]`, `red[endpointCount]`, `green[endpointCount]` and `blue[endpointCount]` arrays). A simple form of DPCM (Delta Pulse Code Modulation) coding is used to send the ETC1S intensity table indices and color values. Here is the procedure to decode the endpoint codebook:
+
+. Set initial values:
+  .. Let the previous intensity index `prevInten` be `0`.
+  .. If `isGrayscale` is `1`, let `prevLuma` be `16`.
+  .. Else, let `prevRed`, `prevGreen` and `prevBlue` be `16`.
+. For `i` from `0` to `endpointCount`:
+  .. Decode table intensity index:
+    ... Read an `intenDelta` value using the `intenDeltaModel` Huffman table.
+    ... Set `inten[i]` to `((prevInten + intenDelta) & 7)`.
+    ... Set `prevInten` to `inten[i]`.
+  .. Decode endpoint color value:
+    ... Depending on the `isGrayscale` value, read `lumaDelta` or {`redDelta`, `greenDelta` and `blueDelta`} using the Huffman tables depending on the `prevLuma` or {`prevRed`, `prevGreen` and `prevBlue`} ranges:
+         - `colorDeltaModel0` for values in [0..9];
+         - `colorDeltaModel1` for values in [10..21];
+         - `colorDeltaModel2` for values in [22..31].
+    ... Sum deltas with the previous values as `value = (prevValue + valueDelta) & 31`.
+    ... Set `red[i]`, `green[i]` and `blue[i]` from the decoded values. For grayscale endpoints, set all channels to the luma value.
+    ... Update `prevLuma` or {`prevRed`, `prevGreen` and `prevBlue`}.
+. The rest of the section's data (if any) can be ignored.
+
+=== ETC1S Selector Codebooks
+
+Selector entries contain 16 2-bit values that map to the ETC1 pixel index bits as:
+
+[options="header"]
+|====
+| Selector Value | Pixel Index MSB | Pixel Index LSB | Modifier
+|        0       |        1        |        1        |    -b
+|        1       |        1        |        0        |    -a
+|        2       |        0        |        0        |    +a
+|        3       |        0        |        1        |    +b
+|====
+
+The byte offset and the byte length (`selectorsByteLength`) of the
+selector codebook section (`selectorsData`) as well as the number
+of selector entries (called `selectorCount`) are defined by the
+<<basislz_global_data_structure,BasisLZ Global Data Structure>>.
+
+==== Header
+
+The first two bits are reserved and must always be set to `0`. The input is invalid otherwise.
+
+The third bit indicates if the selector codebook is stored in raw form (uncompressed). If it's unset, the `deltaSelectorModel` Huffman table will immediately follow the third bit.
+
+==== Selectors
+
+Each selector entry is a 4x4 grid, ordered left-to-right, top-to-bottom. Each row is packed to 8 bits, thus each selector entry could be expressed as four 8-bit bytes. Each packed row corresponds to four 2-bit values. The first (left) value of each row starts at the LSB (least significant bit) of each 8-bit group.
+
+[options="header"]
+[cols="h,1,1,1,1"]
+|====
+|    |    X0   |    X1   |    X2   |    X3
+| Y0 | s0[1:0] | s0[3:2] | s0[5:4] | s0[7:6]
+| Y1 | s1[1:0] | s1[3:2] | s1[5:4] | s1[7:6]
+| Y2 | s2[1:0] | s2[3:2] | s2[5:4] | s2[7:6]
+| Y3 | s3[1:0] | s3[3:2] | s3[5:4] | s3[7:6]
+|====
+
+When `isUncompressed` bit is set, all selectors are stored uncompressed. When that bit is unset, only the first selector entry is stored uncompressed while all subsequent entries are DPCM coded (by using four XOR-deltas for each subsequent selector entry) with Huffman coding.
+
+.Sample implementation
+[%collapsible]
+=====
+[source]
+----
+zeros                                                  b(2)
+isUncompressed                                         b(1)
+if (isUncompressed)
+{
+    for (int i = 0; i < selectorCount; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            selector[i][j]                             b(8)
+        }
+    }
+}
+else
+{
+    deltaSelectorModel                                 read_huffman_table()
+
+    for (int j = 0; j < 4; j++)
+    {
+        selector[0][j]                                 b(8)
+    }
+
+    for (int i = 1; i < selectorCount; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            selector[i][j] =
+                decode_huffman(deltaSelectorModel) ^
+                selector[i - 1][j]
+        }
+    }
+}
+----
+=====
+
+Any bytes in this section following the selector codebook bits can be safely ignored.
+
+=== ETC1S Slice Huffman Tables
+
+Each ETC1S slice is compressed with four Huffman tables (`tablesData`)
+stored using the procedure outlined in <<Compressed Huffman Tables>>.
+Their byte offset and byte length (`tablesByteLength`) are defined
+by the <<basislz_global_data_structure,BasisLZ Global Data Structure>>.
+
+Following the last Huffman table are 13-bits indicating the size of the selector history buffer.
+
+[source]
+----
+endpointPredModel               read_huffman_table()
+endpointDeltaModel              read_huffman_table()
+selectorModel                   read_huffman_table()
+selectorHistoryBufRleModel      read_huffman_table()
+selectorHistoryBufSize          b(13)
+----
+
+Any remaining bits may be safely ignored.
+
+[#etc1s_slice]
+=== ETC1S Slice Decoding
+
+ETC1S slices consist of a compressed 2D array of ETC1S blocks, always compressed in top-down/left-right raster order. For an animation sequence, the previous slice's already decoded contents may be referred to when blocks are encoded using Conditional Replenishment (also known as "`skip blocks`").
+
+Each ETC1S block is encoded by using references to the color endpoint codebook and the selector codebook. The following sections describe the helper procedures used by the decoder, and how the array of ETC1S blocks is actually decoded.
+
+==== ETC1S Approximate Move to Front Routines
+
+An approximate Move to Front (MTF) approach is used to efficiently encode the selector codebook references. Here is the C++ example class for approximate MTF decoding:
+
+.Example implementation
+[%collapsible]
+=====
+[source,cpp]
+----
+class approx_move_to_front
+{
+public:
+    approx_move_to_front(uint32_t n)
+    {
+        init(n);
+    }
+
+    void init(uint32_t n)
+    {
+        m_values.resize(n);
+        m_rover = n / 2;
+    }
+
+    size_t size() const { return m_values.size(); }
+
+    const int& operator[] (uint32_t index) const { return m_values[index]; }
+          int operator[] (uint32_t index)        { return m_values[index]; }
+
+    void add(int new_value)
+    {
+        m_values[m_rover++] = new_value;
+        if (m_rover == m_values.size())
+        {
+            m_rover = (uint32_t)m_values.size() / 2;
+        }
+    }
+
+    void use(uint32_t index)
+    {
+        if (index)
+        {
+            int x = m_values[index / 2];
+            int y = m_values[index];
+            m_values[index / 2] = y;
+            m_values[index] = x;
+        }
+    }
+
+private:
+    std::vector<int> m_values;
+    uint32_t m_rover;
+};
+----
+=====
+
+==== ETC1S VLC Decoding Procedure
+
+ETC1S slice decoding utilizes a simple Variable Length Coding (VLC) scheme that sends raw bits using chunks of 5 or 8 bits. The MSB of each chunk signals whether there's another chunk for the current encoded value.
+
+Here is the VLC decoding procedures, `get_bits(n)` extracts next `n` bits from the bitstream:
+
+.Example implementation
+[%collapsible]
+=====
+[source,cpp]
+----
+uint32_t decode_vlc4()
+{
+    uint32_t v = 0;
+    uint32_t ofs = 0;
+
+    for ( ; ; )
+    {
+        uint32_t s = get_bits(5);
+        v |= ((s & 0xF) << ofs);
+        ofs += 4;
+
+        if ((s & 0x10) == 0)
+        {
+            break;
+        }
+
+        if (ofs >= 32)
+        {
+            // Invalid encoding
+            break;
+        }
+    }
+
+    return v;
+}
+
+uint32_t decode_vlc7()
+{
+    uint32_t v = 0;
+    uint32_t ofs = 0;
+
+    for ( ; ; )
+    {
+        uint32_t s = get_bits(8);
+        v |= ((s & 0x7F) << ofs);
+        ofs += 7;
+
+        if ((s & 0x80) == 0)
+        {
+            break;
+        }
+
+        if (ofs >= 32)
+        {
+            // Invalid encoding
+            break;
+        }
+    }
+
+    return v;
+}
+----
+=====
+
+==== ETC1S Slice Block Decoding
+
+The decoder iterates through all the slice blocks in top-down, left-right raster order (`num_blocks_x` by `num_blocks_y` grid). Each block is represented by an index into the color endpoint codebook and another index into the selector endpoint codebook. The endpoint codebook contains each ETC1S block's base RGB color and intensity table information, and the selector codebook contains the 4x4 texel selector entry (which are 2-bits each) information. This is all the information needed to fully represent the texels within each block.
+
+The decoding procedure loops over all the blocks in raster order, and decodes the endpoint and selector indices used to represent each block. The decoding procedure is complex enough that commented code is best used to describe it.
+
+The compressed format allows the encoder to reuse the endpoint index used by the block to the left, the block immediately above the current block, or the block to the upper left (if the slice is not a P-frame). Alternately, the encoder can send a Huffman-coded DPCM encoded index relative to the previously used endpoint index.
+
+Which type of prediction was used by the encoder is controlled by the endpoint prediction indices, which are sent with Huffman coding (using the `endpointPredModel` table) once every 2x2 blocks.
+
+For P-frames (that have `isPFrame` flag in `imageFlags` set, matches `is_p_frame` flag in the code below) used in animation sequences (matches `is_video` flag in the code below), the endpoint prediction symbol normally used to refer to the upper left block (endpoint prediction index 2) instead indicates that both the endpoint and selector indices from the previous frame's block should be reused on the current frame's block. The endpoint prediction indices are RLE coded, so this allows the encoder to efficiently skip over a large number of unchanged blocks in a video sequence.
+
+The first frame of an animation sequence must be an I-frame.
+
+A KTX file that is not an animation sequence cannot contain P-frames.
+
+.Reference implementation
+[%collapsible]
+=====
+[source,cpp]
+----
+// Constants used by the decoder
+const uint32_t ENDPOINT_PRED_TOTAL_SYMBOLS = (4 * 4 * 4 * 4) + 1;
+const uint32_t ENDPOINT_PRED_REPEAT_LAST_SYMBOL = ENDPOINT_PRED_TOTAL_SYMBOLS - 1;
+const uint32_t ENDPOINT_PRED_MIN_REPEAT_COUNT = 3;
+
+const uint32_t NUM_ENDPOINT_PREDS = 3;
+const uint32_t CR_ENDPOINT_PRED_INDEX = NUM_ENDPOINT_PREDS - 1;
+
+// Endpoint/selector codebooks - decoded previously.
+endpoint endpoints[endpointCount];
+selector selectors[selectorCount];
+
+// Array of per-block values used for endpoint index prediction (enough for 2 rows).
+uint16_t [2][num_block_x] block_endpoint_preds;
+
+// Odd rows prediction information for two blocks packed into 4-bit values
+uint8_t block_pred_bits[(num_blocks_x + 1) >> 1]
+
+// Some constants and state used during block decoding
+const uint32_t SELECTOR_HISTORY_BUF_FIRST_SYMBOL_INDEX = selectorCount;
+const uint32_t SELECTOR_HISTORY_BUF_RLE_SYMBOL_INDEX = selectorHistoryBufSize + SELECTOR_HISTORY_BUF_FIRST_SYMBOL_INDEX;
+uint32_t cur_selector_rle_count = 0;
+
+uint32_t cur_pred_bits = 0;
+uint32_t prev_endpoint_pred_sym = 0;
+uint32_t endpoint_pred_repeat_count = 0;
+uint32_t prev_endpoint_index = 0;
+
+// These arrays are only used for texture video. They hold the previous frame's endpoint and selector indices.
+uint16_t prev_frame_endpoints[num_blocks_x][num_blocks_y];
+uint16_t prev_frame_selectors[num_blocks_x][num_blocks_y];
+
+// Selector history buffer - See Approximate Move to Front Routines
+approx_move_to_front selector_history_buf(selectorHistoryBufSize);
+
+// Loop over all slice blocks in raster order
+for (uint32_t block_y = 0; block_y < num_blocks_y; block_y++)
+{
+    // The index into the block_endpoint_preds array
+    const uint32_t cur_block_endpoint_pred_array = block_y & 1;
+
+    for (uint32_t block_x = 0; block_x < num_blocks_x; block_x++)
+    {
+        // Check if we're at the start of a 2x2 block group.
+        if ((block_x & 1) == 0)
+        {
+            // Are we on an even or odd row of blocks?
+            if ((block_y & 1) == 0)
+            {
+                // We're on an even row and column of blocks. Decode the combined endpoint index predictor symbols for 2x2 blocks.
+                // This symbol tells the decoder how the endpoints are decoded for each block in a 2x2 group of blocks.
+
+                // Are we in an RLE run?
+                if (endpoint_pred_repeat_count)
+                {
+                    // Inside a run of endpoint predictor symbols.
+                    endpoint_pred_repeat_count--;
+                    cur_pred_bits = prev_endpoint_pred_sym;
+                }
+                else
+                {
+                    // Decode the endpoint prediction symbol, using the "endpoint pred" Huffman table.
+                    cur_pred_bits = decode_huffman(endpointPredModel);
+                    if (cur_pred_bits == ENDPOINT_PRED_REPEAT_LAST_SYMBOL)
+                    {
+                        // It's a run of symbols, so decode the count using VLC decoding
+                        endpoint_pred_repeat_count = decode_vlc4() + ENDPOINT_PRED_MIN_REPEAT_COUNT - 1;
+
+                        cur_pred_bits = prev_endpoint_pred_sym;
+                    }
+                    else
+                    {
+                        // It's not a run of symbols
+                        prev_endpoint_pred_sym = cur_pred_bits;
+                    }
+                }
+
+                // The symbol has enough endpoint prediction information for 4 blocks (2 bits per block), so 8 bits total.
+                // Remember the prediction information we should use for the next row of 2 blocks beneath the current block.
+                block_pred_bits[block_x >> 1] = (uint8_t)(cur_pred_bits >> 4);
+            }
+            else
+            {
+                // We're on an odd row of blocks, so use the endpoint prediction information we previously stored on the previous even row.
+                cur_pred_bits = block_pred_bits[block_x >> 1];
+            }
+        }
+
+        // Decode the current block's endpoint and selector indices.
+        uint32_t endpoint_index, selector_index = 0;
+
+        // Get the 2-bit endpoint prediction index for this block.
+        const uint32_t pred = cur_pred_bits & 3;
+
+        // Get the next block's endpoint prediction bits ready.
+        cur_pred_bits >>= 2;
+
+        // Now check to see if we should reuse a previously encoded block's endpoints.
+        if (pred == 0)
+        {
+            // Reuse the left block's endpoint index
+            assert(block_x > 0);
+            endpoint_index = prev_endpoint_index;
+        }
+        else if (pred == 1)
+        {
+            // Reuse the upper block's endpoint index
+            assert(block_y > 0)
+            endpoint_index = block_endpoint_preds[cur_block_endpoint_pred_array ^ 1][block_x];
+        }
+        else if (pred == 2)
+        {
+            if (is_p_frame)
+            {
+                // If it's a P-frame, reuse the previous frame's endpoint index, at this block.
+                assert(pred == CR_ENDPOINT_PRED_INDEX);
+                endpoint_index = prev_frame_endpoints[block_x][block_y];
+                selector_index = prev_frame_selectors[block_x][block_y];
+            }
+            else
+            {
+                // Reuse the upper left block's endpoint index.
+                assert((block_x > 0) && (block_y > 0));
+                endpoint_index = block_endpoint_preds[cur_block_endpoint_pred_array ^ 1][block_x - 1];
+            }
+        }
+        else
+        {
+            // We need to decode and apply a DPCM encoded delta to the previously used endpoint index.
+            // This uses the delta endpoint Huffman table.
+            const uint32_t delta_sym = decode_huffman(endpointDeltaModel);
+
+            endpoint_index = delta_sym + prev_endpoint_index;
+
+            // Wrap around if the index goes beyond the end of the endpoint codebook
+            if (endpoint_index >= endpointCount)
+                endpoint_index -= endpointCount;
+        }
+
+        // Remember the endpoint index we used on this block, so the next row can potentially reuse the index.
+        block_endpoint_preds[cur_block_endpoint_pred_array][block_x] = (uint16_t)endpoint_index;
+
+        // Remember the endpoint index used
+        prev_endpoint_index = endpoint_index;
+
+        // Now we have fully decoded the ETC1S endpoint codebook index, in endpoint_index.
+
+        // Now decode the selector index.
+        const uint32_t MAX_SELECTOR_HISTORY_BUF_SIZE = 64;
+        const uint32_t SELECTOR_HISTORY_BUF_RLE_COUNT_THRESH = 3;
+        const uint32_t SELECTOR_HISTORY_BUF_RLE_COUNT_BITS = 6;
+        const uint32_t SELECTOR_HISTORY_BUF_RLE_COUNT_TOTAL = (1 << SELECTOR_HISTORY_BUF_RLE_COUNT_BITS);
+
+        // Decode selector index, unless it's a P-frame and the endpoint predictor indicated that the
+        // block's endpoints and selectors were reused from the previous frame.
+        if ((!is_p_frame) || (pred != CR_ENDPOINT_PRED_INDEX))
+        {
+            int selector_sym;
+
+            // Are we in a selector RLE run?
+            if (cur_selector_rle_count > 0)
+            {
+                // Handle selector RLE run.
+                cur_selector_rle_count--;
+
+                selector_sym = selectorCount;
+            }
+            else
+            {
+                // Decode the selector symbol, using the selector Huffman table.
+                selector_sym = decode_huffman(selectorModel);
+
+                // Is it a run?
+                if (selector_sym == static_cast<int>(SELECTOR_HISTORY_BUF_RLE_SYMBOL_INDEX))
+                {
+                    // Decode the selector run's size, using the selector history buf RLE Huffman table.
+                    int run_sym = decode_huffman(selectorHistoryBufRleModel);
+
+                    // Is it a very long run?
+                    if (run_sym == (SELECTOR_HISTORY_BUF_RLE_COUNT_TOTAL - 1))
+                        cur_selector_rle_count = decode_vlc7() + SELECTOR_HISTORY_BUF_RLE_COUNT_THRESH;
+                    else
+                        cur_selector_rle_count = run_sym + SELECTOR_HISTORY_BUF_RLE_COUNT_THRESH;
+
+                    selector_sym = selectorCount;
+
+                    cur_selector_rle_count--;
+                }
+            }
+
+            // Is it a reference into the selector history buffer?
+            if (selector_sym >= selectorCount)
+            {
+                assert(selectorHistoryBufSize > 0);
+
+                // Compute the history buffer index
+                int history_buf_index = selector_sym - selectorCount;
+
+                assert(history_buf_index < selector_history_buf.size());
+
+                // Access the history buffer
+                selector_index = selector_history_buf[history_buf_index];
+
+                // Update the history buffer
+                if (history_buf_index != 0)
+                    selector_history_buf.use(history_buf_index);
+            }
+            else
+            {
+                // It's an index into the selector codebook
+                selector_index = selector_sym;
+
+                // Add it to the selector history buffer
+                if (m_selector_history_buf_size)
+                    selector_history_buf.add(selector_index);
+            }
+        }
+
+        // For texture video, remember the endpoint and selector indices used by the block on this frame, for later reuse on the next frame.
+        if (is_video)
+        {
+            prev_frame_endpoints[block_x][block_y] = endpoint_index;
+            prev_frame_selectors[block_x][block_y] = selector_index;
+        }
+
+        // The block is fully decoded here. The codebook indices are endpoint_index and selector_index.
+        // Make sure they are valid
+        assert((endpoint_index < endpointCount) && (selector_index < selectorCount));
+
+    } // block_x
+} // block_y
+----
+=====
+
+At this point, the decoder has decoded each block's endpoint and selector codebook indices. It can now fetch the actual ETC1S endpoints/selectors from the codebooks and write out ETC1S texture data, or it can immediately transcode the ETC1S data to another GPU texture format.
+
+// vim: filetype=asciidoc ai expandtab tw=72 ts=4 sts=2 sw=2
+
