@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification of a container format for GPU textures.
-:docrev: 1
+:docrev: 2
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -34,6 +34,8 @@
 :url-khr-reg: https://registry.khronos.org
 :url-khr-vulkan: {url-khr-reg}/vulkan
 :url-khr-ktx: {url-khr-reg}/KTX
+:url-khr-github: https://github.com/KhronosGroup
+:url-spec-repo: {url-khr-github}/KTX-Specification
 
 ////
 // This part is the Preamble whose 1st 'graph is given [.lead] role
@@ -79,7 +81,9 @@ significantly different file structure from version 1.
 
 KTX 2.0 ratified by the Khronos Board of Promoters Aug 14th, 2020.
 
-Document Revision {docrev} approved by the 3D Formats WG Dec 7th, 2022.
+Document Revision 1 approved by the 3D Formats WG Dec 7th, 2022.
+
+Document Revision {docrev} awaiting approval by the 3D Formats WG.
 
 == Introduction
 
@@ -91,9 +95,9 @@ ES^™️^, Vulkan^®^ and WebGL^™️^.
 The canonical version of the specification is available in the
 Khronos Registry ({url-khr-ktx}). The source files used to generate
 the specification are stored in the KTX-Specification Repository
-(https://github.com/KhronosGroup/KTX-Specification). The source
-repository has a public issue tracker and allows the submission of
-pull requests that improve the specification.
+({url-spec-repo}). The source repository has a public issue tracker
+and allows the submission of pull requests that improve the
+specification.
 
 KTX files can contain almost any of the wide variety of image
 formats supported by GPUs. Other specifications wishing to refer
@@ -607,30 +611,43 @@ needed.
 === supercompressionScheme
 `supercompressionScheme` indicates if a supercompression scheme has
 been applied to the data in `<<levelImagesDesc, levelImages>>`.  It
-must be one of the values from <<supercompressionSchemes>>. A value
-of `0` indicates no supercompression.
+must be one of the values from <<supercompressionSchemes>> or
+<<vendorSupercompressionSchemes>>. A value of `0` indicates no
+supercompression.
 
-[width=100%,align=center,cols="^22,<18,<30,<30",options=header]
+[width=100%,align=center,cols="^22,<18,<30,<30,<30",options=header]
 [[supercompressionSchemes]]
 .Supercompression Schemes
 |===
-| Scheme Id            | Scheme Name     | Level Data Format  | Global Data Format
-| 0                    | None            |   n/a              | n/a
-| 1                    | BasisLZ         |  <<etc1s_slice,ETC1S Slice
-Decoding>>   | <<basislz_gd,BasisLZ Global Data>>
-| 2                    | Zstandard       |  <<RFC8478>>       | n/a
-| 3                    | ZLIB            |  <<RFC1950>>       | n/a
-| 4･･･0xffff           | Reserved^1^     |                    |
-| 0x10000･･･0x1ffff    | Reserved^2^     |                    |
-| 0x20000･･･0xffffffff | Reserved^3^     |                    |
+| Scheme Id            | Scheme Name     | Suggested Enumeration Name^1^ | Level Data Format  | Global Data Format
+| 0                    | None            | KTX_SS_NONE                   | n/a                | n/a
+| 1                    | BasisLZ         | KTX_SS_BASIS_LZ               | <<etc1s_slice,ETC1S Slice Decoding>>   | <<basislz_gd,BasisLZ Global Data>>
+| 2                    | Zstandard       | KTX_SS_ZSTD                   | <<RFC8478>>       | n/a
+| 3                    | ZLIB            | KTX_SS_ZLIB                   | <<RFC1950>>       | n/a
+| 4･･･0xffff           | Reserved^2^     |                               |                   |
+| 0x10000･･･0x1ffff    | Reserved^3^     |                               |                   |
+| 0x20000･･･0xffffffff | Reserved^4^     |                               |                   |
 |===
 
 [small]
-1. Reserved for KTX use.
-2. Reserved for vendor compression schemes. A registry will be
-   established from which vendors can request assignment of values
-   thus avoiding conflicts.
-3. Reserved. Do not use.
+1. For implementations.
+2. Reserved for KTX use.
+3. Reserved for vendor compression schemes.
+   See <<vendorSupercompressionSchemes>>.
+4. Reserved. Do not use.
+
+
+[width=100%,align=center,cols="^22,<18,<30,<30,<30",options=header]
+[[vendorSupercompressionSchemes]]
+.Vendor Supercompression Schemes
+|===
+| Scheme Id            | Scheme Name     | Contact Info | Suggested Enumeration Name^1^ | Level Data Format  | Global Data Format
+// 0x10000             | name            | Contact Info | TAG_SS_<name>                 | Link          | Link
+| 0x10000･･･0x1ffff    | Reserved^1^     |              |                               |                   |
+|===
+
+[small]
+1. See <<extendingSupercompressionSchemes>>.
 
 The supercompression scheme is applied independently to each mip
 level to permit streaming and random access to the levels. The
@@ -1533,9 +1550,8 @@ in a KTX file. It covers three categories: formats, supercompression
 schemes and metadata. This specification can be periodically updated
 to incorporate officially recognized additions and the document
 revision incremented. Since the KTX format itself would not change
-the KTX version and file identifier would not change. Khronos will
-establish a KTX registry to register both official and vendor
-extensions.
+the KTX version and file identifier would not change. This document
+serves as the registry for both official and vendor extensions.
 
 TIP: The document revision can be used as a parameter for validators to
 guide validation.
@@ -1566,19 +1582,59 @@ together with a Data Format Descriptor, which may or may not need
 a new color model, and format mapping metadata giving the DXGI or Metal
 format value.
 
+[#extendingSupercompressionSchemes]
 ==== Supercompression Schemes
 Supercompression schemes are identified by `supercompressionScheme` in the
 KTX header. New official schemes can be documented in updates to this
-specification and in the registry.
+specification.
 
-Vendors can register new schemes in the registry.
+Vendors can create their own supercompression schemes. To avoid
+conflicts in the Scheme Id name space, those doing so must register
+them with Khronos. Submit requests for scheme ids by proposing a
+pull request (PR) against the specification source file, ktxspec.adoc
+in the default branch (currently ` main) of the
+{url-spec-repo}[KTX-Specification] repository. The PR must add a
+row to <<vendorSupercompressionSchemes>> that uses the next available
+id. Follow the instructions found in a comment there.  Required
+information includes the scheme name, author contact information
+and a tag name implementers can use in enumeration declarations.
+Vendors are strongly encouraged to also provide the bitstream
+specification(s) but they are not required. When provided, they must be
+put in an appendix to this document with links included on the added row.
+Create an AsciiDoc file with the specifications and use the
++include::+ directive to include the appendix in this document.
+
+Registration is not complete until the repository maintainer has
+validated and merged the PR.
+
+The registration process can be split into several steps to accommodate extension number assignment prior to extension publication:
+
+* Acquire a scheme id. This is done by proposing a PR against
+  ktxspec.adoc. The id will be reserved only once this  request is
+  accepted into the default branch.
+* Develop and test the scheme using the registered id.
+* Publish the bit stream specifications to Khronos with a PR that
+  updates the row in the table for the previously registered id.
+  Publication is not required but is strongly encouraged.
 
 ==== Adding Metadata
-
 New official metadata (i.e, KTX prefixed) can be documented in updates
-to this specification and in the KTX registry.
+to this specification.
 
-Vendors can register metadata items in KTX registry.
+Vendors can register their own metadata items and are strongly
+encouraged to do so to avoid potential name space (prefix) collisions.
+Register items by proposing a pull request (PR) against the
+specification source file, ktxspec.adoc, in the default branch
+(currently `main`) of the {url-spec-repo}[KTX-Specification]
+repository.  The PR must add the metadata item(s) to <<vendorMetadata>>
+following the instructions found in a comment there.
+
+Registration is not complete until the repository maintainer has
+validated and merged the PR.
+
+==== Registering Extensions
+Khronos by creating a GitHub account and registering their FQDN to
+that account.
 
 === Animation Sequence
 The images of any array texture can be indicated to be the frames
@@ -2940,6 +2996,29 @@ for (uint32_t block_y = 0; block_y < num_blocks_y; block_y++)
 
 At this point, the decoder has decoded each block's endpoint and selector codebook indices. It can now fetch the actual ETC1S endpoints/selectors from the codebooks and write out ETC1S texture data, or it can immediately transcode the ETC1S data to another GPU texture format.
 
+[appendix#vendorMetadata]
+== Registered Vendor Key/Value Pairs
+
+CAUTION: This appendix is non-normative.
+
+There are currently no registered key/value pairs.
+// The following key/value pairs have been registered.
+
+////
+// Use this template when adding key/value pairs
+=== Acme Corporation
+
+==== ACMEfoo
+<something>  may be indicated by including a value with the key
+
+-   `ACMEfoo`
+
+The value is <explanation of value>, for example:
+
+[no-bullet]
+-   `example value`
+////
+
 [appendix]
 == Changes compared to KTX version 1
 
@@ -2985,7 +3064,7 @@ At this point, the decoder has decoded each block's endpoint and selector codebo
                                     - Bug fixes in ETC1S video spec.
                                     - Define coordinate system for
                                       cubemaps.
-|      {docrev}     |  {revdate}  | - Disallow 3D block-compressed
+|          1        | 2022-12-09  | - Disallow 3D block-compressed
                                       formats for non 3D textures.
                                     - Adjust DFD transfer function
                                       restrictions.
@@ -3018,6 +3097,9 @@ At this point, the decoder has decoded each block's endpoint and selector codebo
                                       `KTXcubemapIncomplete` metadata.
                                     - Fix `block_pred_bits` size.
                                     - Minor formatting and typo fixes.
+|      {docrev}     |  {revdate}  | - Provide detailed descriptions of
+                                      how to register supercompression
+                                      schemes and metadata.
 |===
 
 [discrete]
