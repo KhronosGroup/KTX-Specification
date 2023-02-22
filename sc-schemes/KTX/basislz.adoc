@@ -1,30 +1,13 @@
 [appendix#basislz_gd]
 == BasisLZ Global Data
 
-BasisLZ combines encoding to a block-compressed format, that can
-be easily transcoded to various GPU-native block-compressed formats,
-with lossless supercompression.  Supercompression is accomplished
-by conditioning the block-compressed representation for entropy
-encoding then Huffman encoding the result. BasisLZ creates a global
-codebook referenced by each supercompressed image that contains the
-processed endpoint and selector data from the block-compression and
-the Huffman tables. The global data block contains this codebook.
+BasisLZ combines encoding to a block-compressed format, that can be easily transcoded to various GPU-native block-compressed formats, with lossless supercompression.  Supercompression is accomplished by conditioning the block-compressed representation for entropy encoding then Huffman encoding the result. BasisLZ creates a global codebook referenced by each supercompressed image that contains the processed endpoint and selector data from the block-compression and the Huffman tables. The global data block contains this codebook.
 
-It also contains an array of _image descriptors_ with flags for
-each image and the offset and length within the mip level
-of the data for that image.
+It also contains an array of _image descriptors_ with flags for each image and the offset and length within the mip level of the data for that image.
 
-The global data structure is designed to accommodate various
-transcodable block-compressed formats. The format in use is indicated
-by the <<_data_format_descriptor, Data Format Descriptor>>. Currently
-BasisLZ only supports one, <<etc1s, ETC1S>> (a subset of ETC1, see
-Section 21.1 of <<KDF13>>).  ETC1S is a common subset of many
-GPU-native formats.
+The global data structure is designed to accommodate various transcodable block-compressed formats. The format in use is indicated by the <<_data_format_descriptor, Data Format Descriptor>>. Currently BasisLZ only supports one, <<etc1s, ETC1S>> (a subset of ETC1, see Section 21.1 of <<KDF13>>).  ETC1S is a common subset of many GPU-native formats.
 
-The bitstreams for endpoints, selectors, Huffman tables and the image
-data are specific to the transcodable format in use. Those for ETC1S
-are defined in <<BasisLZ Bitstream Specification>>. These bitstreams
-have to be decoded to reconstruct the base images.
+The bitstreams for endpoints, selectors, Huffman tables and the image data are specific to the transcodable format in use. Those for ETC1S are defined in <<BasisLZ Bitstream Specification>>. These bitstreams have to be decoded to reconstruct the base images.
 
 The structure of the global data is shown below.
 
@@ -59,8 +42,7 @@ UInt32 alphaSliceByteOffset
 UInt32 alphaSliceByteLength
 ----
 
-Descriptions in the `imageDescs` array are in the order layer, face
-and z_slice as if arranged by the following pseudo code.
+Descriptions in the `imageDescs` array are in the order layer, face and z_slice as if arranged by the following pseudo code.
 [source,c]
 ----
 for each level in max(levelCount, 1)
@@ -85,8 +67,7 @@ for(int i = 1; i < levelCount; i++)
 ----
 ====
 
-There must be no trailing bytes in the global data section after the
-`extendedData` field, i.e., the following condition must always be true:
+There must be no trailing bytes in the global data section after the `extendedData` field, i.e., the following condition must always be true:
 [source,c]
 ----
 sgdByteLength == 20 +
@@ -113,48 +94,33 @@ The length of <<_selectorsdata,selectorsData>>.
 The length of <<_tablesdata,tablesData>>.
 
 === extendedByteLength
-The length of <<_extendeddata,extendedData>>. Must be 0 if the data
-format descriptor `colorModel` is `KHR_DF_MODEL_ETC1S` (= 163).
+The length of <<_extendeddata,extendedData>>. Must be 0 if the data format descriptor `colorModel` is `KHR_DF_MODEL_ETC1S` (= 163).
 
 === ImageDesc
 ==== imageFlags
-Flags giving information about an individual image. The following flag
-is valid:
+Flags giving information about an individual image. The following flag is valid:
 [source,c]
 ----
 isPFrame = 0x02
 ----
 
-BasisLZ/ETC1S  supports inter-frame (video) encoding for 2D slices.
-If `isPFrame` is set the image (frame) is a P frame. That is, it
-refers to the previous image of an _animation sequence_. All other
-images are I frames.  Only animation sequences can have P frames.
-See <<Animation Sequence>> for details.
+BasisLZ/ETC1S  supports inter-frame (video) encoding for 2D slices.  If `isPFrame` is set the image (frame) is a P frame. That is, it refers to the previous image of an _animation sequence_. All other images are I frames.  Only animation sequences can have P frames. See <<Animation Sequence>> for details.
 
 ==== rgbSliceByteOffset, rgbSliceByteLength
-The offset of the start of the RGB slice within the
-<<levelImagesDesc,levelImages>> of its mip level and its byte length.
-The offset of <<levelImagesDesc,levelImages>> within the file is given
-in the <<_level_index,Level Index>>.
+The offset of the start of the RGB slice within the <<levelImagesDesc,levelImages>> of its mip level and its byte length. The offset of <<levelImagesDesc,levelImages>> within the file is given in the <<_level_index,Level Index>>.
 
 `rgbSliceByteLength` must not be zero.
 
-`rgbSliceByteOffset + rgbSliceByteLength` must not be greater than the
-byte length of the corresponding mip level.
+`rgbSliceByteOffset + rgbSliceByteLength` must not be greater than the byte length of the corresponding mip level.
 
 ==== alphaSliceByteOffset, alphaSliceByteLength
-The offset of the start of the alpha slice within the
-<<levelImagesDesc,levelImages>> of its mip level and its byte length.
+The offset of the start of the alpha slice within the <<levelImagesDesc,levelImages>> of its mip level and its byte length.
 
-If there is only one slice these values must be 0. For ETC1S with the Data
-Format Descriptor color model of `KHR_DF_MODEL_ETC1S` this corresponds to
-the DFD having only one sample. (As the format is supercompressed
-`bytesPlane` fields can't be used to determine the number of planes.)
+If there is only one slice these values must be 0. For ETC1S with the Data Format Descriptor color model of `KHR_DF_MODEL_ETC1S` this corresponds to the DFD having only one sample. (As the format is supercompressed `bytesPlane` fields can't be used to determine the number of planes.)
 
 If the second slice is present, `alphaSliceByteLength` must not be zero.
 
-`alphaSliceByteOffset + alphaSliceByteLength` must not be greater than the
-byte length of the corresponding mip level.
+`alphaSliceByteOffset + alphaSliceByteLength` must not be greater than the byte length of the corresponding mip level.
 
 === endpointsData
 Compressed endpoints data. The bitstream of this for ETC1S is
@@ -767,5 +733,5 @@ for (uint32_t block_y = 0; block_y < num_blocks_y; block_y++)
 
 At this point, the decoder has decoded each block's endpoint and selector codebook indices. It can now fetch the actual ETC1S endpoints/selectors from the codebooks and write out ETC1S texture data, or it can immediately transcode the ETC1S data to another GPU texture format.
 
-// vim: filetype=asciidoc ai expandtab tw=72 ts=4 sts=2 sw=2
+// vim: filetype=asciidoc ai expandtab tw=0 ts=4 sts=2 sw=2
 
