@@ -624,17 +624,16 @@ supercompression.
 | 1                    | BasisLZ         | <<etc1s_slice,ETC1S Slice Decoding>>  | <<basislz_gd,BasisLZ Global Data>>
 | 2                    | Zstandard       | <<RFC8478>>       | n/a
 | 3                    | ZLIB            | <<RFC1950>>       | n/a
-| 4･･･0xffff           | Reserved^2^     |                   |
-| 0x10000･･･0x1ffff    | Reserved^3^     |                   |
-| 0x20000･･･0xffffffff | Reserved^4^     |                   |
+| 4･･･0xffff           | Reserved^1^     |                   |
+| 0x10000･･･0x1ffff    | Reserved^2^     |                   |
+| 0x20000･･･0xffffffff | Reserved^3^     |                   |
 |===
 
 [small]
-1. For implementations.
-2. Reserved for KTX use.
-3. Reserved for vendor compression schemes.
+1. Reserved for KTX use.
+2. Reserved for vendor compression schemes.
    See <<vendorSupercompressionSchemes>>.
-4. Reserved. Do not use.
+3. Reserved. Do not use.
 
 The supercompression scheme is applied independently to each mip
 level to permit streaming and random access to the levels. The
