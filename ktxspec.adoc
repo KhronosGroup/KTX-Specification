@@ -615,18 +615,18 @@ must be one of the unreserved values from <<supercompressionSchemes>>
 or <<vendorSupercompressionSchemes>>. A value of `0` indicates no
 supercompression.
 
-[width=100%,align=center,cols="^22,<18,<30,<30,<30",options=header]
+[width=100%,align=center,cols="^22,<18,<30,<30",options=header]
 [[supercompressionSchemes]]
 .Supercompression Schemes
 |===
-| Scheme Id            | Scheme Name     | Suggested Tag^1^ | Level Data Format  | Global Data Format
-| 0                    | None            | SS_NONE          | n/a                | n/a
-| 1                    | BasisLZ         | SS_BASIS_Z       | <<etc1s_slice,ETC1S Slice Decoding>>   | <<basislz_gd,BasisLZ Global Data>>
-| 2                    | Zstandard       | SS_ZSTD          | <<RFC8478>>       | n/a
-| 3                    | ZLIB            | SS_ZLIB          | <<RFC1950>>       | n/a
-| 4･･･0xffff           | Reserved^2^     |                  |                   |
-| 0x10000･･･0x1ffff    | Reserved^3^     |                  |                   |
-| 0x20000･･･0xffffffff | Reserved^4^     |                  |                   |
+| Scheme Id            | Scheme Name     | Level Data Format | Global Data Format
+| 0                    | None            | n/a               | n/a
+| 1                    | BasisLZ         | <<etc1s_slice,ETC1S Slice Decoding>>  | <<basislz_gd,BasisLZ Global Data>>
+| 2                    | Zstandard       | <<RFC8478>>       | n/a
+| 3                    | ZLIB            | <<RFC1950>>       | n/a
+| 4･･･0xffff           | Reserved^2^     |                   |
+| 0x10000･･･0x1ffff    | Reserved^3^     |                   |
+| 0x20000･･･0xffffffff | Reserved^4^     |                   |
 |===
 
 [small]
@@ -665,18 +665,22 @@ RDO-conditioned internal format is combined with supercompression.
 Therefore it is applicable only to uncompressed images.
 ====
 
-[width=100%,align=center,cols="^22,<18,<30,<30,<30,<30,<30",options=header]
 [[vendorSupercompressionSchemes]]
 .Vendor Supercompression Schemes
 For information on registering schemes see
-<<extendingSupercompressionSchemes>>. Readers and writers may, but are
+<<registeringSupercompressionSchemes>>. Readers and writers may, but are
 not required, to support these schemes.
+[width=100%,align=center,cols="^10,<12,<12,<8,<18,<20,<20",options=header]
 |===
-| Scheme Id | Scheme Name | Suggested Tag^1^ | Author | Contact | Level Data Format  | Global Data Format
+| Scheme Id | Scheme Name | Author | Tag | Contact | Level Data Format  | Global Data Format
+//
+// Can't use comment blocks in a table except in a cell with the "a"
+// (AsciiDoc) style.
 //
 // To register a scheme submit a PR that adds a row with the following info.
 //
-//     | <id>             | <scheme name>            | <company or person name> | Contact | SS_<name>_<TAG> | Link          | Link
+//
+//     | <id>             | <scheme name>            | <company or person name> | TAG | Contact | SS_<name>_<TAG> | Link          | Link
 //
 // Pick the next available id from the reserved ids and edit the reserved
 // list values accordingly. Contact can be a GitHub handle (preferred)
@@ -689,14 +693,13 @@ not required, to support these schemes.
 //     Full Name link:++mailto:email@domain.com?subject=subject&body=Desired issue body. Use %0A for newline.[icon:mail[alt=Mail,role="black"]email,window=_blank,opts=nofollow]
 //
 // E.g.
-//| 0x10000              | Acme XP       | XP_ACME          | Acme plc |   Wile E. Coyote link:++https://github.com/Acme/XP/issues/new?body= @wileec%0A*Here describe the issue or question you have about Acme XP supercompression.*++[icon:github[role="black"]wileec,window=_blank,opts=nofollow] | |
-//| 0x10000              | Acme XP       | XP_ACME          | Acme plc |   Wile E. Coyote link:++mailto:wilee@coyote.com?body=*Here describe the issue or question you have about Acme XP supercompression.*++[icon:send[role="black"]wileec,window=_blank,opts=nofollow] | |
-| 0x10000･･･0x1ffff    | Reserved^2^     |              |  |                              |                   |
+//| 0x10000              | Acme XP       | Acme plc | ACME | Wile E.  Coyote link:++https://github.com/Acme/XP/issues/new?body= @wileec%0A*Here describe the issue or question you have about Acme XP supercompression.*++[icon:github[role="black"]wileec,window=_blank,opts=nofollow] | <<etc1s_slice,ETC1S Slice Decoding>>  | <<basislz_gd,BasisLZ Global Data>>
+//| 0x10000              | Acme XP       | Acme plc | ACME | Wile E. Coyote link:++mailto:wilee@coyote.com?body=*Here describe the issue or question you have about Acme XP supercompression.*++[icon:send[role="black"]wileec,window=_blank,opts=nofollow] | |
+| 0x10000･･･0x1ffff    | Reserved^1^   |      |          |                              |                   |
 |===
 
 [small]
-1. For implementations.
-2. Reserved for registrations yet to come.
+1. Reserved for schemes yet to come.
 
 ==== Scheme Notes (Normative)
 ===== BasisLZ
@@ -1438,66 +1441,82 @@ specification.
 
 Vendors can create their own supercompression schemes. To avoid
 conflicts in the Scheme Id name space, those doing so must register
-them with Khronos. Submit requests for scheme ids by proposing a
-pull request (PR) against the specification source file. The PR
-must add a row to <<vendorSupercompressionSchemes>> that uses the
-next available id. Follow the instructions found in a comment there.
-Required information includes the scheme name, author contact
-information and a tag name implementers can use in enumeration
-declarations.  Vendors are strongly encouraged to also provide the
-bitstream specification(s) but they are not required. When provided,
-they must be put in an appendix to this document with links included
-on the added row.  Create an AsciiDoc file in a subdirectory of
-`sc-schemes` names for your vendor tag and use the +include::+
-directive to include the appendix after the current last appendix
-in this document.
+them with Khronos as described in <<registeringExtensions>>.
 
-The registration process can be split into several steps to accommodate extension number assignment prior to extension publication:
+==== Adding Metadata Items
+New official metadata items (i.e, KTX prefixed) can be documented
+in updates to this specification.
+
+Vendors can register their own metadata items (key/value pairs) as
+described in <<registeringExtensions>> and are strongly encouraged
+to do so to avoid potential collisions in the key name space (prefix).
+
+[#registeringExtensions]
+==== Registering Extensions
+===== General Procedures
+Supercompression schemes and metadata items are registered by
+proposing a pull-request (PR) against the default branch (currently
+`main`) of the {url-spec-repo}[KTX-Specification] repository on
+GitHub. See the sections below for the specific information required.
+
+You will need to create a GitHub account, if you don't have one.
+Register your FQDN to that account. A GitHub account handle is the
+preferred way of providing the required registration contact
+information.
+
+Choose a short tag name to identify your company or yourself. Use
+the same tag you use for Vulkan, glTF, OpenGL etcetera extensions,
+if you have one. The sections below explain how the tag will be
+used. As a matter of courtesy and respect, please do not try to use
+tags which clearly belong to an existing company or project which
+may wish to develop extensions in the future. Khronos may decline
+to register extensions that are not requested in good faith.
+
+Registration is not complete until the repository maintainer has
+validated and merged the PR.
+
+[#registeringSupercompressionSchemes]
+===== Supercompression Schemes
+Submit requests for scheme ids by proposing a
+pull request (PR) against `ktxspec.adoc`. The PR must add a row to
+<<vendorSupercompressionSchemes>> that uses the next available id.
+Follow the instructions in the comment there. Required information
+includes the scheme name, author, contact information and tag name.
+The tag can be used by readers and writers as the suffix for
+supercompression scheme enumeration names to identify the vendor.
+
+Vendors are strongly encouraged to provide the bitstream and, if
+applicable, global data specifications but they are not required.
+When provided, they must be put in appendices to this document
+linked from the added row.  Create an AsciiDoc file for each in the
+`appendices` directory named using the template
+
+    KTX_SS_<tag>_<scheme-name>_{bitstream,gdata}.adoc
+
+Replace `<tag>`
+with the vendor's identifying tag and `<name>` with the scheme name.
+Use AsciiDoc's `+include::+` directive to include these appendices
+after the last similar appendix currently in this document.
+
+The registration process can be split into several steps to accommodate
+scheme id assignment prior to scheme publication:
 
 * Acquire a scheme id. This is done by proposing a PR against
-  ktxspec.adoc. The id will be reserved only once this  request is
+  ktxspec.adoc. The id will be reserved only once this request is
   accepted into the default branch.
 * Develop and test the scheme using the registered id.
 * Publish the bit stream specifications to Khronos with a PR that
-  updates the row in the table for the previously registered id.
-  Publication is not required but is strongly encouraged.
+  updates the row in the table for the previously registered id and
+  adds the scheme documentation.
 
-==== Adding Metadata
-New official metadata (i.e, KTX prefixed) can be documented in updates
-to this specification.
+[#registeringMetadata]
+==== Metadata
+Register items by proposing a pull request (PR) against
+`appendices/vendor_metadata.adoc`, the source file for <<vendorMetadata>>.
+Add the metadata item(s) following the instructions in the comment
+there.
 
-Vendors can register their own metadata items and are strongly
-encouraged to do so to avoid potential name space (prefix) collisions.
-Register items by proposing a pull request (PR) against the
-specification source file, ktxspec.adoc, in the default branch
-(currently `main`) of the {url-spec-repo}[KTX-Specification]
-repository.  The PR must add the metadata item(s) to <<vendorMetadata>>
-following the instructions found in a comment there.
-
-Registration is not complete until the repository maintainer has
-validated and merged the PR.
-
-==== Registering Extensions
-Extensions are registered by proposing a pull-request (PR) against
-the specification source file  ktxspec.adoc in the default branch
-(currently ` main) of the {url-spec-repo}[KTX-Specification]
-repository on GitHub. See the sections above for the specific
-information required in the PR.
-
-You will need to create a GitHub account, if you don't have one. You
-can use your GitHub handle as the registration contact information.
-Register your FQDN to that account. You must also choose a short tag
-name which to use as the suffix for supercompression scheme enumeration
-names and the prefix for metadata additions. Use the same tag you use
-for Vulkan, glTF and OpenGL, etc extensions, if you have one.
-
-Registration is not complete until the repository maintainer has
-validated and merged the PR.
-
-Please do not try to use tags which clearly belong to another
-existing company or project which may wish to develop extensions
-in the future, as a matter of courtesy and respect. Khronos may
-decline to register extensions that are not requested in good faith.
+Use the tag described in <<Registering Extensions>> as the key prefix.
 
 === Animation Sequence
 The images of any array texture can be indicated to be the frames
@@ -2347,9 +2366,15 @@ include::appendices/vendor-metadata.adoc[]
                                       `KTXcubemapIncomplete` metadata.
                                     - Fix `block_pred_bits` size.
                                     - Minor formatting and typo fixes.
-|      {docrev}     |  {revdate}  | - Provide detailed descriptions of
+|      {docrev}     |  {revdate}  | - Provide detailed instructions for
                                       how to register supercompression
                                       schemes and metadata.
+                                    - Fix error in description of block
+                                      ordering in ETC1S slices.
+                                    - Clarify level data layout for
+                                      BasisLz/ETC1S.
+                                    - Increase document width from
+                                      55em to 60em.
 |===
 
 [discrete]
