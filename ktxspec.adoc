@@ -1492,10 +1492,11 @@ linked from the added row.  Create an AsciiDoc file for each in the
 
     KTX_SS_<tag>_<scheme-name>_{bitstream,gdata}.adoc
 
-Replace `<tag>`
-with the vendor's identifying tag and `<name>` with the scheme name.
-Use AsciiDoc's `+include::+` directive to include these appendices
-after the last similar appendix currently in this document.
+Replace `<tag>` with the vendor's identifying tag and `<name>` with
+the scheme name.  Use AsciiDoc's `+include::+` directive to include
+these appendices after the last similar appendix currently in this
+document. Add the new files to the PR as well as edits to `Makefile`
+that add the new files to the `ktx_sources` variable.
 
 The registration process can be split into several steps to accommodate
 scheme id assignment prior to scheme publication:
