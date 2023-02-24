@@ -21,6 +21,7 @@ appendices=appendices
 ktx_sources := ktxspec.adoc \
            $(appendices)/basislz-gdata.adoc \
            $(appendices)/basislz-bitstream.adoc \
+		   $(appendices)/vendor-metadata.adoc \
            ktx-media-registration.adoc \
            license.adoc \
            khronos.css \
