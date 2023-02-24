@@ -2273,7 +2273,8 @@ include::appendices/basislz-bitstream.adoc[]
 CAUTION: This appendix is non-normative.
 
 There are currently no registered key/value pairs.
-// The following key/value pairs have been registered.
+// The following key/value pairs have been registered. Readers and
+// writers may, but are not required, to support these keys.
 
 ////
 // Use this template when adding key/value pairs
