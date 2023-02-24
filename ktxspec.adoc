@@ -2263,7 +2263,9 @@ CAUTION: Some vendor-specific extensions (e.g. `GL_NV_depth_buffer_float`) defin
 include::formats.json[]
 =====
 
-include::sc-schemes/KTX/basislz.adoc[]
+include::appendices/basislz-gdata.adoc[]
+
+include::appendices/basislz-bitstream.adoc[]
 
 [appendix#vendorMetadata]
 == Registered Vendor Key/Value Pairs

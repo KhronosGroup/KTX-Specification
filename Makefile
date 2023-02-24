@@ -16,8 +16,11 @@ ktx_inlined_images := icons/ktx_favicon.ico \
                   images/ktx.svg \
                   images/logo-spec.svg
 
+appendices=appendices
+
 ktx_sources := ktxspec.adoc \
-           sc-schemes/KTX/basislz.adoc \
+           $(appendices)/basislz-gdata.adoc \
+           $(appendices)/basislz-bitstream.adoc \
            ktx-media-registration.adoc \
            license.adoc \
            khronos.css \
