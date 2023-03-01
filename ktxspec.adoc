@@ -2366,7 +2366,8 @@ include::appendices/vendor-metadata.adoc[]
                                       `KTXcubemapIncomplete` metadata.
                                     - Fix `block_pred_bits` size.
                                     - Minor formatting and typo fixes.
-|      {docrev}     |  {revdate}  | - Provide detailed instructions for
+|      {docrev}     |  {revdate}  | - Adjust D24_UNORM_S8_UINT description
+                                    - Provide detailed instructions for
                                       how to register supercompression
                                       schemes and metadata.
                                     - Fix error in description of block
