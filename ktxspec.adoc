@@ -825,9 +825,9 @@ for mip level _p_. It is the offset of the first byte after any
 The total size of the data for supercompressed mip level _p_.
 
 `levels[p].byteLength` is the number of bytes of pixel data in
-LOD stem:[level_p]. This includes all z slices, all faces, all rows
-(or rows of blocks) and all pixels (or blocks) in each row for the
-mip level.
+LOD stem:[level_p]. This includes all layers, all z slices, all
+faces, all rows (or rows of blocks) and all pixels (or blocks) in
+each row for the mip level.
 
 The total size of the image data from
 stem:[levels[numLevels-1\].byteOffset] (i.e., after the first
@@ -859,12 +859,12 @@ _texel_block_size_ is defined in <<mipPadding>>.
 
 `levels[p].uncompressedByteLength` is the number of bytes of pixel
 data in LOD stem:[level_p] after reflation from supercompression.
-This includes all z slices, all faces, all rows (or rows of blocks)
-and all pixels (or blocks) in each row for the mipmap level. When
-`supercompressionScheme == 0`,
+This includes all layers, all z slices, all faces, all rows (or
+rows of blocks) and all pixels (or blocks) in each row for the mip
+level. When `supercompressionScheme == 0`,
 `<<_levelsp_bytelength,levels[p].byteLength>>` must have the same
-value as this.   When `supercompressionScheme == 1`, BasisLZ,
-the value must be 0.
+value as this.   When `supercompressionScheme == 1`, BasisLZ, the
+value must be 0.
 
 The value of a level's `uncompressedByteLength` must satisfy the
 following condition:
@@ -2366,14 +2366,17 @@ include::appendices/vendor-metadata.adoc[]
                                       `KTXcubemapIncomplete` metadata.
                                     - Fix `block_pred_bits` size.
                                     - Minor formatting and typo fixes.
-|      {docrev}     |  {revdate}  | - Adjust D24_UNORM_S8_UINT description
-                                    - Provide detailed instructions for
+|      {docrev}     |  {revdate}  | - Provide detailed instructions for
                                       how to register supercompression
                                       schemes and metadata.
+                                    - Adjust D24_UNORM_S8_UINT
+                                      description.
                                     - Fix error in description of block
                                       ordering in ETC1S slices.
                                     - Clarify level data layout for
                                       BasisLz/ETC1S.
+                                    - Fix list of data that comprises a
+                                      mip level.
                                     - Increase document width from
                                       55em to 60em.
 |===
