@@ -1,0 +1,24 @@
+[appendix#vendorMetadata]
+== Registered Vendor Key/Value Pairs
+
+CAUTION: This appendix is non-normative.
+
+There are currently no registered key/value pairs.
+// The following key/value pairs have been registered. Readers and
+// writers may, but are not required, to support these keys.
+
+////
+// Use this template when adding key/value pairs
+=== Acme Corporation
+
+==== ACMEfoo
+<something>  may be indicated by including a value with the key
+
+-   `ACMEfoo`
+
+The value is <explanation of value>, for example:
+
+[no-bullet]
+-   `example value`
+////
+
