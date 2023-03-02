@@ -694,7 +694,7 @@ not required, to support these schemes.
 // E.g.
 //| 0x10000              | Acme XP       | Acme plc | ACME | Wile E.  Coyote link:++https://github.com/Acme/XP/issues/new?body= @wileec%0A*Here describe the issue or question you have about Acme XP supercompression.*++[icon:github[role="black"]wileec,window=_blank,opts=nofollow] | <<etc1s_slice,ETC1S Slice Decoding>>  | <<basislz_gd,BasisLZ Global Data>>
 //| 0x10000              | Acme XP       | Acme plc | ACME | Wile E. Coyote link:++mailto:wilee@coyote.com?body=*Here describe the issue or question you have about Acme XP supercompression.*++[icon:send[role="black"]wileec,window=_blank,opts=nofollow] | |
-| 0x10000              | Asobo         | Asobo Studio | ASOBO | Julien Vernay link:++mailto:jvernay@asobostudio.com?subject=(KTX2-Asobo)%20...question...&body=...who%20are%20you%20and%20your%20question...++[icon:mail[alt=Mail,role="black"]email,window=_blank,opts=nofollow] | SS_PROPRIETARY_ASOBO | Yes, proprietary
+| 0x10000              | Asobo         | Asobo Studio | ASOBO | Julien Vernay link:mailto:jvernay@asobostudio.com?subject=(KTX2-Asobo)%20...question...&body=...who%20are%20you%20and%20your%20question...[jvernay@asobostudio.com,window=_blank,opts=nofollow] | SS_PROPRIETARY_ASOBO | Yes, proprietary
 | 0x10001･･･0x1ffff    | Reserved^1^   |      |          |                              |                   |
 |===
 
