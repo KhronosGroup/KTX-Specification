@@ -707,7 +707,8 @@ not required, to support these schemes.
 // E.g.
 //| 0x10000              | Acme XP       | KTX_SS_XP_ACME | Acme plc | Wile E.  Coyote link:++https://github.com/Acme/XP/issues/new?body= @wileec%0A*Here describe the issue or question you have about Acme XP supercompression.*++[icon:github[role="black"]wileec,window=_blank,opts=nofollow] | <<etc1s_slice,ETC1S Slice Decoding>>  | <<basislz_gd,BasisLZ Global Data>>
 //| 0x10000              | Acme XP       | KTX_SS_XP_ACME | Acme plc | Wile E. Coyote link:++mailto:wilee@coyote.com?body=*Here describe the issue or question you have about Acme XP supercompression.*++[icon:send[role="black"]wileec,window=_blank,opts=nofollow] | Proprietary | Required
-| 0x10000･･･0x1ffff    | Reserved^1^   |      |          |                              |                   |
+| 0x10000              | Asobo         | KTX_SS_PROPRIETARY_ASOBO | Asobo Studio | Julien Vernay link:mailto:jvernay@asobostudio.com?subject=(KTX2-Asobo)%20...question...&body=...who%20are%20you%20and%20your%20question...[icon:send[role="black"]jvernay@asobostudio.com,window=_blank,opts=nofollow] | Proprietary | Required
+| 0x10001･･･0x1ffff    | Reserved^1^   |      |          |                              |                   |
 |===
 
 [small]
