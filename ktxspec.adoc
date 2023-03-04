@@ -669,20 +669,24 @@ Therefore it is applicable only to uncompressed images.
 For information on registering schemes see
 <<registeringSupercompressionSchemes>>. Readers and writers may, but are
 not required, to support these schemes.
-[width=100%,align=center,cols="^10,<12,<12,<8,<18,<20,<20",options=header]
+[width=100%,align=center,cols="^10,<10,<10,<12,<18,<20,<20",options=header]
 |===
-| Scheme Id | Scheme Name | Author | Tag | Contact | Level Data Format  | Global Data Format
+| Scheme Id | Scheme Name | Token | Author | Contact | Level Data Format  | Global Data Format
 //
 // Can't use comment blocks in a table except in a cell with the "a"
 // (AsciiDoc) style.
 //
 // To register a scheme submit a PR that adds a row with the following info.
 //
-//
-//     | <id>             | <scheme name>            | <company or person name> | TAG | Contact | SS_<name>_<TAG> | Link          | Link
+//| <id> | <scheme name> | KTX_SS_<name>_<TAG> | <company or person name> | Contact | Link | Link
 //
 // Pick the next available id from the reserved ids and edit the reserved
-// list values accordingly. Contact can be a GitHub handle (preferred)
+// list values accordingly.
+//
+// Token is a name that can be used in code to refer to the scheme.
+// Follow this template: KTX_SS_<name>_<TAG>.
+//
+// Contact can be a GitHub handle (preferred)
 // or an email address. For a GitHub handle, the Contact cell must be
 //
 //     Full Name link:++<GitHub repo URL>/issues/new?body=Desired issue body. Include GitHub handle in message body. Use %0A for a newline.++[icon:github[alt=GitHub,role="black"]<GitHub handle without @>,window=_blank,opts=nofollow]
@@ -691,9 +695,18 @@ not required, to support these schemes.
 //
 //     Full Name link:++mailto:email@domain.com?subject=subject&body=Desired issue body. Use %0A for newline.[icon:mail[alt=Mail,role="black"]email,window=_blank,opts=nofollow]
 //
+// If publishing the specifications, Level Data Format must be a
+// link to an anchor in the related specification appendix. Global
+// Data Format must be a link to an anchor in the related specification
+// appendix or "n/a" if the scheme does not use global data.
+//
+// If not publishing the specifications, Level Data Format must be
+// "Proprietary" and Global Data Format must one of "n/a" or "Required",
+// as appropriate.
+//
 // E.g.
-//| 0x10000              | Acme XP       | Acme plc | ACME | Wile E.  Coyote link:++https://github.com/Acme/XP/issues/new?body= @wileec%0A*Here describe the issue or question you have about Acme XP supercompression.*++[icon:github[role="black"]wileec,window=_blank,opts=nofollow] | <<etc1s_slice,ETC1S Slice Decoding>>  | <<basislz_gd,BasisLZ Global Data>>
-//| 0x10000              | Acme XP       | Acme plc | ACME | Wile E. Coyote link:++mailto:wilee@coyote.com?body=*Here describe the issue or question you have about Acme XP supercompression.*++[icon:send[role="black"]wileec,window=_blank,opts=nofollow] | |
+//| 0x10000              | Acme XP       | KTX_SS_XP_ACME | Acme plc | Wile E.  Coyote link:++https://github.com/Acme/XP/issues/new?body= @wileec%0A*Here describe the issue or question you have about Acme XP supercompression.*++[icon:github[role="black"]wileec,window=_blank,opts=nofollow] | <<etc1s_slice,ETC1S Slice Decoding>>  | <<basislz_gd,BasisLZ Global Data>>
+//| 0x10000              | Acme XP       | KTX_SS_XP_ACME | Acme plc | Wile E. Coyote link:++mailto:wilee@coyote.com?body=*Here describe the issue or question you have about Acme XP supercompression.*++[icon:send[role="black"]wileec,window=_blank,opts=nofollow] | Proprietary | Required
 | 0x10000･･･0x1ffff    | Reserved^1^   |      |          |                              |                   |
 |===
 
@@ -1398,8 +1411,8 @@ other combination of these parameters makes the KTX file invalid.
 The following sections describe ways to extend what can be contained
 in a KTX file. It covers three categories: formats, supercompression
 schemes and metadata. This specification can be periodically updated
-to incorporate officially recognized additions and the document
-revision incremented. Since the KTX format itself would not change
+to incorporate officially recognized additions and the Document
+Revision incremented. Since the KTX format itself would not change
 the KTX version and file identifier would not change. This document
 serves as the registry for both official and vendor extensions.
 
@@ -1409,6 +1422,9 @@ guide validation.
 Consumers of KTX files must fail gracefully when encountering formats or
 supercompression schemes they are not prepared to handle. They must
 ignore or report metadata items they are not prepared to handle.
+
+In the following, _vendor_ encompasses independent software and
+hardware vendors and open source developers.
 
 ==== Carrying New Formats
 Formats are identified by one or more of the following:
@@ -1458,43 +1474,44 @@ proposing a pull-request (PR) against the default branch (currently
 `main`) of the {url-spec-repo}[KTX-Specification] repository on
 GitHub. See the sections below for the specific information required.
 
-You will need to create a GitHub account, if you don't have one.
-Register your FQDN to that account. A GitHub account handle is the
-preferred way of providing the required registration contact
-information.
+The vendor will need to create a GitHub account, if it doesn't have
+one.  Register the vendor's FQDN to that account. A GitHub account
+handle is the preferred way of providing the required registration
+contact information.
 
-Choose a short tag name to identify your company or yourself. Use
-the same tag you use for Vulkan, glTF, OpenGL etcetera extensions,
-if you have one. The sections below explain how the tag will be
-used. As a matter of courtesy and respect, please do not try to use
-tags which clearly belong to an existing company or project which
-may wish to develop extensions in the future. Khronos may decline
-to register extensions that are not requested in good faith.
+Choose a short tag name to identify the vendor. Use the same tag
+the vendor uses for Vulkan, glTF, OpenGL etcetera extensions, if
+there is one. The sections below explain how the tag will be used.
+As a matter of courtesy and respect, please do not try to use tags
+which clearly belong to an existing company or project which may
+wish to develop extensions in the future. Khronos may decline to
+register extensions that are not requested in good faith.
 
 Registration is not complete until the repository maintainer has
 validated and merged the PR.
 
 [#registeringSupercompressionSchemes]
 ===== Supercompression Schemes
-Submit requests for scheme ids by proposing a
-pull request (PR) against `ktxspec.adoc`. The PR must add a row to
+Submit requests for scheme ids by proposing a pull request (PR)
+against `ktxspec.adoc`. The PR must add a row to
 <<vendorSupercompressionSchemes>> that uses the next available id.
 Follow the instructions in the comment there. Required information
-includes the scheme name, author, contact information and tag name.
-The tag can be used by readers and writers as the suffix for
-supercompression scheme enumeration names to identify the vendor.
+includes the scheme name, author, contact information and a token
+name that must incorporate the chosen tag name. The token can be
+used by readers and writers to identify the scheme and vendor in
+enumerations, etc.
 
 Vendors are strongly encouraged to provide the bitstream and, if
 applicable, global data specifications but they are not required.
-When provided, they must be put in appendices to this document
-linked from the added row.  Create an AsciiDoc file for each in the
-`appendices` directory named using the template
+When provided, they must be put in appendices to this document and
+contain anchors linked from the added row. Create an AsciiDoc file
+for each in the `appendices` directory named using the template
 
-    KTX_SS_<tag>_<scheme-name>_{bitstream,gdata}.adoc
+    KTX_<TAG>_<name>_{bitstream,gdata}.adoc
 
-Replace `<tag>` with the vendor's identifying tag and `<name>` with
+Replace `<TAG>` with the vendor's identifying tag and `<name>` with
 the scheme name.  Use AsciiDoc's `+include::+` directive to include
-these appendices after the last similar appendix currently in this
+these appendices after the last similar include currently in this
 document. Add the new files to the PR as well as edits to `Makefile`
 that add the new files to the `ktx_sources` variable.
 
