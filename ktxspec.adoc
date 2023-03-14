@@ -250,7 +250,7 @@ num\_blocks\_y = \max\left(1, \left\lceil{\frac{\left\lfloor{{pixelHeight}*{2^{-
 [stem]
 // num_blocks_x = ceil(level_width / block_width)
 +++++
-num\_blocks\_x = \left\lceil{\frac{\left\lfloor{{pixelWidth}*{2^{-p}}}\right\rfloor}{block\_width}}\right\rceil
+num\_blocks\_x = \max\left(1, \left\lceil{\frac{\left\lfloor{{pixelWidth}*{2^{-p}}}\right\rfloor}{block\_width}}\right\rceil\right)
 +++++
 
 where _p_ is the level index (see <<levelCount>>) and _block_depth_,
@@ -2395,6 +2395,8 @@ include::appendices/vendor-metadata.adoc[]
                                       BasisLz/ETC1S.
                                     - Fix list of data that comprises a
                                       mip level.
+                                    - Fix missing max(1, ...) in
+                                      num_blocks_x calculation.
                                     - Increase document width from
                                       55em to 60em.
 |===
