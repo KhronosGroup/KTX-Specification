@@ -5613,5 +5613,43 @@
         "glWebExtensions": null,
         "dxgiFormat": null,
         "mtlFormat": null
+    },
+    {
+        "type": "PACKED",
+        "vkFormat": "VK_FORMAT_A1B5G5R5_UNORM_PACK16_KHR",
+        "typeSize": 2,
+        "blockWidth": 1,
+        "blockHeight": 1,
+        "blockDepth": 1,
+        "glInternalFormat": "GL_RGB5_A1",
+        "glFormat": "GL_RGBA",
+        "glType": "GL_UNSIGNED_SHORT_1_5_5_5_REV",
+        "glVersion": "1.2",
+        "glExtensions": null,
+        "glEsVersion": null,
+        "glEsExtensions": null,
+        "glWebVersion": null,
+        "glWebExtensions": null,
+        "dxgiFormat": null,
+        "mtlFormat": null
+    },
+    {
+        "type": "RAW",
+        "vkFormat": "VK_FORMAT_A8_UNORM_KHR",
+        "typeSize": 1,
+        "blockWidth": 1,
+        "blockHeight": 1,
+        "blockDepth": 1,
+        "glInternalFormat": "GL_ALPHA8",
+        "glFormat": "GL_ALPHA",
+        "glType": "GL_UNSIGNED_BYTE",
+        "glVersion": "1.2",
+        "glExtensions": null,
+        "glEsVersion": "1.0",
+        "glEsExtensions": null,
+        "glWebVersion": "1.0",
+        "glWebExtensions": null,
+        "dxgiFormat": "DXGI_FORMAT_A8_UNORM",
+        "mtlFormat": "MTLPixelFormatA8Unorm"
     }
 ]

@@ -41,6 +41,7 @@
                 "type": ["string", "null"],
                 "enum": [
                     null,
+                    "GL_ALPHA",
                     "GL_BGR",
                     "GL_BGR_INTEGER",
                     "GL_BGRA",
