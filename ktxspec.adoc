@@ -1812,8 +1812,9 @@ by a different tool.
 
 === KTXwriterScParams
 KTX file writers may, and are strongly encouraged to, identify any
-non-default Basis Universal encoding and supercompression options
-specified when the file is created by including a value with the key
+non-default Basis Universal, ASTC & other block-compression encoding
+and supercompression options specified when the file is created by
+including a value with the key
 
 -    `KTXwriterScParams`
 
