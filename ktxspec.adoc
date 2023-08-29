@@ -2390,14 +2390,20 @@ include::appendices/vendor-metadata.adoc[]
                                       schemes and metadata.
                                     - Adjust D24_UNORM_S8_UINT
                                       description.
-                                    - Fix error in description of block
-                                      ordering in ETC1S slices.
+                                    - Fix description of block ordering
+                                      in ETC1S slices and clarify that
+                                      decoder has no knowledge of image
+                                      orientation.
                                     - Clarify level data layout for
                                       BasisLz/ETC1S.
                                     - Fix list of data that comprises a
                                       mip level.
                                     - Fix missing max(1, ...) in
                                       num_blocks_x calculation.
+                                    - Clarify that `KTXwriterScParams`
+                                      can be used for ASTC and other
+                                      block-compression scheme encoding
+                                      parameters.
                                     - Increase document width from
                                       55em to 60em.
 |===
