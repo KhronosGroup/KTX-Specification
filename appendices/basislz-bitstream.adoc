@@ -213,7 +213,7 @@ Any remaining bits may be safely ignored.
 [#etc1s_slice]
 === ETC1S Slice Decoding
 
-The data for each mip level is a set of ETC1S slices. The corresponding element of the imageDescs array in the <<basislz_global_data_structure>> provides the location of a slice within its mip level.
+The data for each mip level is a set of ETC1S slices. The corresponding element of the `imageDescs` array in the <<basislz_global_data_structure>> provides slice locations within the mip level data.
 
 ETC1S slices consist of a compressed 2D array of ETC1S blocks, compressed in the order indicated by <<KTXorientation>> metadata (defaults to top-down/left-right raster order). For an animation sequence, the previous slice's already decoded contents may be referred to when blocks are encoded using Conditional Replenishment (also known as "`skip blocks`").
 
