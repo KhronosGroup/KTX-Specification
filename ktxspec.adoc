@@ -665,10 +665,7 @@ Therefore it is applicable only to uncompressed images.
 ====
 
 [[vendorSupercompressionSchemes]]
-.Vendor Supercompression Schemes
-For information on registering schemes see
-<<registeringSupercompressionSchemes>>. Readers and writers may, but are
-not required, to support these schemes.
+.Vendor Supercompression Schemes^1^
 [width=100%,align=center,cols="^10,<10,<10,<12,<18,<20,<20",options=header]
 |===
 | Scheme Id | Scheme Name | Token | Author | Contact | Level Data Format  | Global Data Format
@@ -707,13 +704,19 @@ not required, to support these schemes.
 // E.g.
 //| 0x10000              | Acme XP       | KTX_SS_XP_ACME | Acme plc | Wile E. Coyote link:++https://github.com/Acme/XP/issues/new?body= @wileec%0A*Here describe the issue or question you have about Acme XP supercompression.*++[icon:github[role="black"]wileec,window=_blank,opts=nofollow] | <<etc1s_slice,ETC1S Slice Decoding>>  | <<basislz_gd,BasisLZ Global Data>>
 //| 0x10000              | Acme XP       | KTX_SS_XP_ACME | Acme plc | Wile E. Coyote link:++mailto:wilee@coyote.com?body=*Here describe the issue or question you have about Acme XP supercompression.*++[icon:send[role="black"]wileec,window=_blank,opts=nofollow] | Proprietary | Required
+//
+// The PR must also add a note to Scheme Note below.
 | 0x10000              | Asobo         | KTX_SS_PROPRIETARY_ASOBO | Asobo Studio | Julien Vernay link:mailto:jvernay@asobostudio.com?subject=(KTX2-Asobo)%20...question...&body=...who%20are%20you%20and%20your%20question...[icon:send[role="black"]jvernay@asobostudio.com,window=_blank,opts=nofollow] | Proprietary | Required
-| 0x10001･･･0x1ffff    | Reserved^1^   |      |          |                              |                   |
+| 0x10001･･･0x1ffff    | Reserved^2^   |      |          |                              |                   |
 |===
 
 [small]
-1. Reserved for schemes yet to come.
+1. For information on registering schemes see
+<<registeringSupercompressionSchemes>>. Readers and writers may, but are
+not required, to support these schemes.
+2. Reserved for schemes yet to come.
 
+[#schemeNotes]
 ==== Scheme Notes (Normative)
 ===== BasisLZ
 * <<ETC1S Slice Decoding>> describes the bitstream for a single
@@ -767,6 +770,18 @@ transcode target format is selected.
 
 * With Deflate <<RFC1951>> compression scheme.
 
+* `<<_vkformat,vkFormat>>` must retain the pre-deflation value.
+  The <<_data_format_descriptor,_Data Format Descriptor_>> must
+  retain pre-deflation color space information and indicate which
+  components are present. See <<DFD for Supercompressed Data>>.
+
+////
+// A PR registering a new supercompression scheme must add a note
+// detailing, at a miminum, handling of the vkFormat field and the
+// DFD's color space information.
+////
+
+===== Asobo
 * `<<_vkformat,vkFormat>>` must retain the pre-deflation value.
   The <<_data_format_descriptor,_Data Format Descriptor_>> must
   retain pre-deflation color space information and indicate which
@@ -1495,12 +1510,15 @@ validated and merged the PR.
 ===== Supercompression Schemes
 Submit requests for scheme ids by proposing a pull request (PR)
 against `ktxspec.adoc`. The PR must add a row to
-<<vendorSupercompressionSchemes>> that uses the next available id.
-Follow the instructions in the comment there. Required information
-includes the scheme name, author, contact information and a token
-name that must incorporate the chosen tag name. The token can be
-used by readers and writers to identify the scheme and vendor in
-enumerations, etc.
+<<vendorSupercompressionSchemes>>, that uses the next available id,
+and a note to <<schemeNotes>>.  Follow the instructions in the
+comments at those locations. Required information includes the
+scheme name, author, contact information and a token name that must
+incorporate the chosen tag name. The token can be used by readers
+and writers to identify the scheme and vendor in enumerations, etc.
+Required information for the scheme note includes whether to retain
+post compression the `vkFormat` value and the DFD's color space
+information.
 
 Vendors are strongly encouraged to provide the bitstream and, if
 applicable, global data specifications but they are not required.
