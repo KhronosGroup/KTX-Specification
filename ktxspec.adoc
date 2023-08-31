@@ -248,7 +248,7 @@ num\_blocks\_y = \max\left(1, \left\lceil{\frac{\left\lfloor{{pixelHeight}*{2^{-
 +++++
 
 [stem]
-// num_blocks_x = ceil(level_width / block_width)
+// num_blocks_x = max(1, ceil(level_width / block_width))
 +++++
 num\_blocks\_x = \max\left(1, \left\lceil{\frac{\left\lfloor{{pixelWidth}*{2^{-p}}}\right\rfloor}{block\_width}}\right\rceil\right)
 +++++
