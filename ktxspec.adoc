@@ -248,7 +248,7 @@ num\_blocks\_y = \max\left(1, \left\lceil{\frac{\left\lfloor{{pixelHeight}*{2^{-
 +++++
 
 [stem]
-// num_blocks_x = ceil(level_width / block_width)
+// num_blocks_x = max(1, ceil(level_width / block_width))
 +++++
 num\_blocks\_x = \max\left(1, \left\lceil{\frac{\left\lfloor{{pixelWidth}*{2^{-p}}}\right\rfloor}{block\_width}}\right\rceil\right)
 +++++
@@ -665,10 +665,7 @@ Therefore it is applicable only to uncompressed images.
 ====
 
 [[vendorSupercompressionSchemes]]
-.Vendor Supercompression Schemes
-For information on registering schemes see
-<<registeringSupercompressionSchemes>>. Readers and writers may, but are
-not required, to support these schemes.
+.Vendor Supercompression Schemes^1^
 [width=100%,align=center,cols="^10,<10,<10,<12,<18,<20,<20",options=header]
 |===
 | Scheme Id | Scheme Name | Token | Author | Contact | Level Data Format  | Global Data Format
@@ -705,15 +702,21 @@ not required, to support these schemes.
 // as appropriate.
 //
 // E.g.
-//| 0x10000              | Acme XP       | KTX_SS_XP_ACME | Acme plc | Wile E.  Coyote link:++https://github.com/Acme/XP/issues/new?body= @wileec%0A*Here describe the issue or question you have about Acme XP supercompression.*++[icon:github[role="black"]wileec,window=_blank,opts=nofollow] | <<etc1s_slice,ETC1S Slice Decoding>>  | <<basislz_gd,BasisLZ Global Data>>
+//| 0x10000              | Acme XP       | KTX_SS_XP_ACME | Acme plc | Wile E. Coyote link:++https://github.com/Acme/XP/issues/new?body= @wileec%0A*Here describe the issue or question you have about Acme XP supercompression.*++[icon:github[role="black"]wileec,window=_blank,opts=nofollow] | <<etc1s_slice,ETC1S Slice Decoding>>  | <<basislz_gd,BasisLZ Global Data>>
 //| 0x10000              | Acme XP       | KTX_SS_XP_ACME | Acme plc | Wile E. Coyote link:++mailto:wilee@coyote.com?body=*Here describe the issue or question you have about Acme XP supercompression.*++[icon:send[role="black"]wileec,window=_blank,opts=nofollow] | Proprietary | Required
+//
+// The PR must also add a note to Vendor Scheme Notes below.
 | 0x10000              | Asobo         | KTX_SS_PROPRIETARY_ASOBO | Asobo Studio | Julien Vernay link:mailto:jvernay@asobostudio.com?subject=(KTX2-Asobo)%20...question...&body=...who%20are%20you%20and%20your%20question...[icon:send[role="black"]jvernay@asobostudio.com,window=_blank,opts=nofollow] | Proprietary | Required
-| 0x10001･･･0x1ffff    | Reserved^1^   |      |          |                              |                   |
+| 0x10001･･･0x1ffff    | Reserved^2^   |      |          |                              |                   |
 |===
 
 [small]
-1. Reserved for schemes yet to come.
+1. For information on registering schemes see
+<<registeringSupercompressionSchemes>>. Readers and writers may, but are
+not required, to support these schemes.
+2. Reserved for schemes yet to come.
 
+[#schemeNotes]
 ==== Scheme Notes (Normative)
 ===== BasisLZ
 * <<ETC1S Slice Decoding>> describes the bitstream for a single
@@ -724,7 +727,7 @@ not required, to support these schemes.
   used by multiple `ImageDesc` structures within the mip level.
 * An image bitstream refers to the endpoint and selector codebooks
   described in in <<basislz_gd>>.
-* `<<_vkformat,vkFormat>>` must be `VK_FORMAT_UNDEFINED` (0x00).
+* <<_vkformat,`vkFormat`>> must be `VK_FORMAT_UNDEFINED` (0x00).
   The <<_data_format_descriptor,_Data Format Descriptor_>> must
   retain the pre-deflation color space information and indicate
   which color and alpha components are present.
@@ -756,7 +759,7 @@ transcode target format is selected.
 * Checksums are optional. If a checksum is present, inflators should
   verify it.
 
-* `<<_vkformat,vkFormat>>` must retain the pre-deflation value.
+* <<_vkformat,`vkFormat`>> must retain the pre-deflation value.
   The <<_data_format_descriptor,_Data Format Descriptor_>> must
   retain pre-deflation color space information and indicate which
   components are present. See <<DFD for Supercompressed Data>>.
@@ -767,7 +770,20 @@ transcode target format is selected.
 
 * With Deflate <<RFC1951>> compression scheme.
 
-* `<<_vkformat,vkFormat>>` must retain the pre-deflation value.
+* <<_vkformat,`vkFormat`>> must retain the pre-deflation value.
+  The <<_data_format_descriptor,_Data Format Descriptor_>> must
+  retain pre-deflation color space information and indicate which
+  components are present. See <<DFD for Supercompressed Data>>.
+
+[#vendorSchemeNotes]
+////
+// A PR registering a new vendor supercompression scheme must add
+// a note detailing, at a miminum, handling of the vkFormat field
+// and the DFD's color space information.
+////
+==== Vendor Scheme Notes (Normative)
+===== Asobo
+* <<_vkformat,`vkFormat`>> must retain the pre-deflation value.
   The <<_data_format_descriptor,_Data Format Descriptor_>> must
   retain pre-deflation color space information and indicate which
   components are present. See <<DFD for Supercompressed Data>>.
@@ -935,7 +951,7 @@ A _dfDescriptor_ is useful in the following cases:
 The following restrictions must be obeyed when setting the fields of a
 _dfDescriptorBlock_.
 
-* If `<<_vkformat,vkFormat>>` is not `VK_FORMAT_UNDEFINED`, the DFD's
+* If <<_vkformat,`vkFormat`>> is not `VK_FORMAT_UNDEFINED`, the DFD's
   `texelBlockDimension*`, `bytesPlane*` and sample information fields
   must match the format's definition. The `colorModel` must be
   `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA` or the matching block
@@ -943,18 +959,18 @@ _dfDescriptorBlock_.
   successors, currently `KHR_DF_MODEL_BC1A` to `KHR_DF_MODEL_UASTC`.
   `KHR_DF_MODEL_YUVSDA` should be used for all non-prohibited
   `+*_422_*+` formats.
-* If `<<_vkformat,vkFormat>>` is one of the `+*_SRGB{,_*}+` formats,
+* If <<_vkformat,`vkFormat`>> is one of the `+*_SRGB{,_*}+` formats,
   `transferFunction` must be `KHR_DF_TRANSFER_SRGB`.
-* If `<<_vkformat,vkFormat>>` is not one of the `+*_SRGB{,_*}+` formats
+* If <<_vkformat,`vkFormat`>> is not one of the `+*_SRGB{,_*}+` formats
   and an sRGB variant of that format exists, `transferFunction` should not
   be `KHR_DF_TRANSFER_SRGB`.
 * If formats for other transfer functions are added to GPU APIs in the
   future similar restrictions to those just described apply. For
   example, if formats for the HLG transfer function which have the
   the suffix `_HLG` are added then
-    - If `<<_vkformat,vkFormat>>` is one of the `+*_HLG{,_*}+` formats
+    - If <<_vkformat,`vkFormat`>> is one of the `+*_HLG{,_*}+` formats
       `transferFunction` must be `KHR_DF_TRANSFER_HLG`.
-    - If `<<_vkformat,vkFormat>>` is not one of the `+*_HLG{,_*}+`
+    - If <<_vkformat,`vkFormat`>> is not one of the `+*_HLG{,_*}+`
       formats and an HLG variant of that format exists,
       `transferFunction` should not be `KHR_DF_TRANSFER_HLG`.
 
@@ -969,7 +985,7 @@ On the other hand, `VK_FORMAT_A2B10G10R10_UNORM_PACK32` may be used with
 
 [NOTE]
 ====
-When `<<_vkformat,vkFormat>>` is not one of the `+*_SRGB{,_*}+` formats and the
+When <<_vkformat,`vkFormat`>> is not one of the `+*_SRGB{,_*}+` formats and the
 transfer function is not linear, the KTX file may be much less portable due to
 limited hardware support of such inputs.
 ====
@@ -986,7 +1002,7 @@ for standard dynamic range, standard gamut images.
 
 ==== Providing additional information
 There are several cases where the _dfDescriptorBlock_ is used to
-provide information beyond that given by <<_vkformat,vkFormat>>.
+provide information beyond that given by <<_vkformat,`vkFormat`>>.
 
 Premultiplied Alpha::
   `KHR_DF_FLAG_ALPHA_PREMULTIPLIED` (= 1) can be set in the `flags`
@@ -1495,12 +1511,16 @@ validated and merged the PR.
 ===== Supercompression Schemes
 Submit requests for scheme ids by proposing a pull request (PR)
 against `ktxspec.adoc`. The PR must add a row to
-<<vendorSupercompressionSchemes>> that uses the next available id.
-Follow the instructions in the comment there. Required information
+<<vendorSupercompressionSchemes>>, that uses the next available id,
+and a note to <<vendorSchemeNotes>>.  Follow the instructions in
+the comments at those locations. Required information for the first
 includes the scheme name, author, contact information and a token
 name that must incorporate the chosen tag name. The token can be
 used by readers and writers to identify the scheme and vendor in
-enumerations, etc.
+enumerations, etc.  Required information for the second includes
+whether to retain post compression the <<_vkformat,`vkFormat`>>
+value and the <<_data_format_descriptor,_Data Format Descriptor's_>>
+color space information.
 
 Vendors are strongly encouraged to provide the bitstream and, if
 applicable, global data specifications but they are not required.
@@ -1812,8 +1832,9 @@ by a different tool.
 
 === KTXwriterScParams
 KTX file writers may, and are strongly encouraged to, identify any
-non-default Basis Universal encoding and supercompression options
-specified when the file is created by including a value with the key
+non-default Basis Universal, ASTC & other block-compression encoding
+and supercompression options specified when the file is created by
+including a value with the key
 
 -    `KTXwriterScParams`
 
@@ -2389,14 +2410,20 @@ include::appendices/vendor-metadata.adoc[]
                                       schemes and metadata.
                                     - Adjust D24_UNORM_S8_UINT
                                       description.
-                                    - Fix error in description of block
-                                      ordering in ETC1S slices.
+                                    - Fix description of block ordering
+                                      in ETC1S slices and clarify that
+                                      decoder has no knowledge of image
+                                      orientation.
                                     - Clarify level data layout for
                                       BasisLz/ETC1S.
                                     - Fix list of data that comprises a
                                       mip level.
                                     - Fix missing max(1, ...) in
                                       num_blocks_x calculation.
+                                    - Clarify that `KTXwriterScParams`
+                                      can be used for ASTC and other
+                                      block-compression scheme encoding
+                                      parameters.
                                     - Increase document width from
                                       55em to 60em.
 |===

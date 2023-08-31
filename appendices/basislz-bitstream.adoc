@@ -213,7 +213,7 @@ Any remaining bits may be safely ignored.
 [#etc1s_slice]
 === ETC1S Slice Decoding
 
-The data for each mip level is a set of ETC1S slices. The corresponding element of the imageDescs array in the <<basislz_global_data_structure>> provides slice locations within the mip level.
+The data for each mip level is a set of ETC1S slices. The corresponding element of the `imageDescs` array in the <<basislz_global_data_structure>> provides slice locations within the mip level data.
 
 ETC1S slices consist of a compressed 2D array of ETC1S blocks, compressed in the order indicated by <<KTXorientation>> metadata (defaults to top-down/left-right raster order). For an animation sequence, the previous slice's already decoded contents may be referred to when blocks are encoded using Conditional Replenishment (also known as "`skip blocks`").
 
@@ -341,9 +341,9 @@ uint32_t decode_vlc7()
 
 ==== ETC1S Slice Block Decoding
 
-The decoder iterates through all the slice blocks in top-down, left-right raster order (`num_blocks_x` by `num_blocks_y` grid). Each block is represented by an index into the color endpoint codebook and another index into the selector endpoint codebook. The endpoint codebook contains each ETC1S block's base RGB color and intensity table information, and the selector codebook contains the 4x4 texel selector entry (which are 2-bits each) information. This is all the information needed to fully represent the texels within each block.
+The decoder has no knowledge of the orientation of the image it is decoding. It iterates through all the slice blocks in order of increasing memory. The blocks form a `num_blocks_x` by `num_blocks_y` grid. The block at `num_blocks_x * y` starts row `y` where `0 \<= y < num_blocks_y`. To simplify the following description, a top-down, left-right raster order is assumed. _Left_ refers to the previous block in memory and _above_ to the block `num_blocks_x * 8` bytes earlier in memory. Each block is represented by an index into the color endpoint codebook and another index into the selector endpoint codebook. The endpoint codebook contains each ETC1S block's base RGB color and intensity table information, and the selector codebook contains the 4x4 texel selector entry (which are 2-bits each) information. This is all the information needed to fully represent the texels within each block.
 
-The decoding procedure loops over all the blocks in raster order, and decodes the endpoint and selector indices used to represent each block. The decoding procedure is complex enough that commented code is best used to describe it.
+The decoding procedure loops over all the blocks in memory order, and decodes the endpoint and selector indices used to represent each block. The decoding procedure is complex enough that commented code is best used to describe it.
 
 The compressed format allows the encoder to reuse the endpoint index used by the block to the left, the block immediately above the current block, or the block to the upper left (if the slice is not a P-frame). Alternately, the encoder can send a Huffman-coded DPCM encoded index relative to the previously used endpoint index.
 
@@ -409,8 +409,9 @@ for (uint32_t block_y = 0; block_y < num_blocks_y; block_y++)
             // Are we on an even or odd row of blocks?
             if ((block_y & 1) == 0)
             {
-                // We're on an even row and column of blocks. Decode the combined endpoint index predictor symbols for 2x2 blocks.
-                // This symbol tells the decoder how the endpoints are decoded for each block in a 2x2 group of blocks.
+                // We're on an even row and column of blocks. Decode the combined endpoint index predictor
+                // symbols for 2x2 blocks. This symbol tells the decoder how the endpoints are decoded for
+                // each block in a 2x2 group of blocks.
 
                 // Are we in an RLE run?
                 if (endpoint_pred_repeat_count)
@@ -437,13 +438,15 @@ for (uint32_t block_y = 0; block_y < num_blocks_y; block_y++)
                     }
                 }
 
-                // The symbol has enough endpoint prediction information for 4 blocks (2 bits per block), so 8 bits total.
-                // Remember the prediction information we should use for the next row of 2 blocks beneath the current block.
+                // The symbol has enough endpoint prediction information for 4 blocks (2 bits per block),
+                // so 8 bits total. Remember the prediction information we should use for the next row of
+                // 2 blocks beneath the current block.
                 block_pred_bits[block_x >> 1] = (uint8_t)(cur_pred_bits >> 4);
             }
             else
             {
-                // We're on an odd row of blocks, so use the endpoint prediction information we previously stored on the previous even row.
+                // We're on an odd row of blocks, so use the endpoint prediction information we previously
+                // stored on the previous even row.
                 cur_pred_bits = block_pred_bits[block_x >> 1];
             }
         }
@@ -578,7 +581,8 @@ for (uint32_t block_y = 0; block_y < num_blocks_y; block_y++)
             }
         }
 
-        // For texture video, remember the endpoint and selector indices used by the block on this frame, for later reuse on the next frame.
+        // For texture video, remember the endpoint and selector indices used by the block on this frame,
+        // for later reuse on the next frame.
         if (is_video)
         {
             prev_frame_endpoints[block_x][block_y] = endpoint_index;
