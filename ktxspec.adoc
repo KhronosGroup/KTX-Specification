@@ -2424,6 +2424,8 @@ include::appendices/vendor-metadata.adoc[]
                                       can be used for ASTC and other
                                       block-compression scheme encoding
                                       parameters.
+                                    - Add VK_KHR_maintenance5 formats to
+                                      GL formats mapping.
                                     - Increase document width from
                                       55em to 60em.
 |===
