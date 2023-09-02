@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.18">
+<meta name="generator" content="Asciidoctor 2.0.20">
 <meta name="description" content="Specification of a container format for GPU textures.">
 <meta name="author" content="Mark Callow">
 <title>KTX File Format Specification</title>
@@ -739,7 +739,7 @@ body {
   background-repeat: no-repeat/*, no-repeat*/;
   /* Override default Asciidoctor margin settings to center the page. */
   margin: 2em auto 2em auto;
-  max-width: 55em;
+  max-width: 60em;
 }
 
 div.legal p {
@@ -771,7 +771,7 @@ div.legal p {
 }
 
 table.dfdexample td, th {
-  font-size: 65%;
+  font-size: 70%;
   padding-top: 0;
   padding-bottom: 0;
 }
@@ -782,8 +782,8 @@ table.dfdexample td, th {
 <h1>KTX File Format Specification</h1>
 <div class="details">
 <span id="author" class="author">Mark Callow</span><br>
-<span id="revnumber">version 2.0.1,</span>
-<span id="revdate">2022-12-09</span>
+<span id="revnumber">version 2.0.2,</span>
+<span id="revdate">2023-09-02</span>
 </div>
 </div>
 <div id="content">
@@ -793,7 +793,7 @@ table.dfdexample td, th {
 <p><strong>Format Version:</strong> 2.0</p>
 </div>
 <div class="paragraph lead">
-<p><strong>Document Revision:</strong> 1</p>
+<p><strong>Document Revision:</strong> 2</p>
 </div>
 <div class="paragraph lead">
 <p><strong>Editor:</strong> Mark Callow (Edgewise Consulting)</p>
@@ -924,6 +924,9 @@ significantly different file structure from version 1.</p>
 <div class="paragraph">
 <p>Document Revision 1 approved by the 3D Formats WG Dec 7th, 2022.</p>
 </div>
+<div class="paragraph">
+<p>Document Revision 2 awaiting approval by the 3D Formats WG.</p>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -939,9 +942,9 @@ ES<sup>™️</sup>, Vulkan<sup>®</sup> and WebGL<sup>™️</sup>.</p>
 <p>The canonical version of the specification is available in the
 Khronos Registry (<a href="https://registry.khronos.org/KTX" class="bare">https://registry.khronos.org/KTX</a>). The source files used to generate
 the specification are stored in the KTX-Specification Repository
-(<a href="https://github.com/KhronosGroup/KTX-Specification" class="bare">https://github.com/KhronosGroup/KTX-Specification</a>). The source
-repository has a public issue tracker and allows the submission of
-pull requests that improve the specification.</p>
+(<a href="https://github.com/KhronosGroup/KTX-Specification" class="bare">https://github.com/KhronosGroup/KTX-Specification</a>). The source repository has a public issue tracker
+and allows the submission of pull requests that improve the
+specification.</p>
 </div>
 <div class="paragraph">
 <p>KTX files can contain almost any of the wide variety of image
@@ -1195,7 +1198,7 @@ equivalent to a <code>GL_UNPACK_ALIGNMENT</code> of 1.</td>
 </div>
 <div class="stemblock">
 <div class="content">
-\[num\_blocks\_x = \left\lceil{\frac{\left\lfloor{{pixelWidth}*{2^{-p}}}\right\rfloor}{block\_width}}\right\rceil\]
+\[num\_blocks\_x = \max\left(1, \left\lceil{\frac{\left\lfloor{{pixelWidth}*{2^{-p}}}\right\rfloor}{block\_width}}\right\rceil\right)\]
 </div>
 </div>
 <div class="paragraph">
@@ -1687,6 +1690,22 @@ value in the eight LSBs and zeros in the eight MSBs.</p>
 <p><code>VK_FORMAT_D24_UNORM_S8_UINT</code> is defined as one 32-bit word per texel
 with the S8 value in the eight LSBs of the word and the D24 value in the MSBs.</p>
 </div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>This layout matches OpenGL&#8217;s <code>GL_UNSIGNED_INT_24_8</code> type. Uploading such data
+via other GPU APIs, such as Direct3D 11 or Metal, usually requires swapping the
+components, i.e., performing right rotation by 8 bits.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p><code>VK_FORMAT_X8_D24_UNORM_PACK32</code> is defined as one 32-bit word per texel
 with the D24 value in the LSBs of the word and zeros in the eight MSBs.</p>
@@ -1880,8 +1899,9 @@ needed.</p>
 <div class="paragraph">
 <p><code>supercompressionScheme</code> indicates if a supercompression scheme has
 been applied to the data in <code><a href="#levelImagesDesc">levelImages</a></code>.  It
-must be one of the values from <a href="#supercompressionSchemes">Table 2, &#8220;Supercompression Schemes&#8221;</a>. A value
-of <code>0</code> indicates no supercompression.</p>
+must be one of the unreserved values from <a href="#supercompressionSchemes">Table 2, &#8220;Supercompression Schemes&#8221;</a>
+or <a href="#vendorSupercompressionSchemes">Table 3, &#8220;Vendor Supercompression Schemes<sup>1</sup>&#8221;</a>. A value of <code>0</code> indicates no
+supercompression.</p>
 </div>
 <table id="supercompressionSchemes" class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 2. Supercompression Schemes</caption>
@@ -1909,8 +1929,7 @@ of <code>0</code> indicates no supercompression.</p>
 <tr>
 <td class="tableblock halign-center valign-top"><p class="tableblock">1</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">BasisLZ</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#etc1s_slice">ETC1S Slice
-Decoding</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#etc1s_slice">ETC1S Slice Decoding</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#basislz_gd">BasisLZ Global Data</a></p></td>
 </tr>
 <tr>
@@ -1951,9 +1970,8 @@ Decoding</a></p></td>
 <p>Reserved for KTX use.</p>
 </li>
 <li>
-<p>Reserved for vendor compression schemes. A registry will be
-established from which vendors can request assignment of values
-thus avoiding conflicts.</p>
+<p>Reserved for vendor compression schemes.
+See <a href="#vendorSupercompressionSchemes">Table 3, &#8220;Vendor Supercompression Schemes<sup>1</sup>&#8221;</a>.</p>
 </li>
 <li>
 <p>Reserved. Do not use.</p>
@@ -2002,14 +2020,69 @@ Therefore it is applicable only to uncompressed images.</p>
 </tr>
 </table>
 </div>
+<table id="vendorSupercompressionSchemes" class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 3. Vendor Supercompression Schemes<sup>1</sup></caption>
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 12%;">
+<col style="width: 18%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-center valign-top">Scheme Id</th>
+<th class="tableblock halign-left valign-top">Scheme Name</th>
+<th class="tableblock halign-left valign-top">Token</th>
+<th class="tableblock halign-left valign-top">Author</th>
+<th class="tableblock halign-left valign-top">Contact</th>
+<th class="tableblock halign-left valign-top">Level Data Format</th>
+<th class="tableblock halign-left valign-top">Global Data Format</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0x10000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Asobo</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">KTX_SS_PROPRIETARY_ASOBO</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Asobo Studio</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Julien Vernay <a href="mailto:jvernay@asobostudio.com?subject=(KTX2-Asobo)%20&#8230;&#8203;question&#8230;&#8203;&amp;body=&#8230;&#8203;who%20are%20you%20and%20your%20question&#8230;&#8203;" target="_blank" rel="nofollow noopener"><span class="icon black"><i class="fa fa-send"></i></span>jvernay@asobostudio.com</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Proprietary</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Required</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0x10001･･･0x1ffff</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reserved<sup>2</sup></p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+</tbody>
+</table>
+<div class="olist small">
+<ol class="small">
+<li>
+<p>For information on registering schemes see
+<a href="#registeringSupercompressionSchemes">Section 4.3.4.2, &#8220;Supercompression Schemes&#8221;</a>. Readers and writers may, but are
+not required, to support these schemes.</p>
+</li>
+<li>
+<p>Reserved for schemes yet to come.</p>
+</li>
+</ol>
+</div>
 <div class="sect3">
-<h4 id="_scheme_notes_normative">3.8.1. Scheme Notes (Normative)</h4>
+<h4 id="schemeNotes">3.8.1. Scheme Notes (Normative)</h4>
 <div class="sect4">
 <h5 id="_basislz">BasisLZ</h5>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="#etc1s_slice">Section C.5, &#8220;ETC1S Slice Decoding&#8221;</a> describes the bitstream for a single
+<p><a href="#etc1s_slice">Section D.5, &#8220;ETC1S Slice Decoding&#8221;</a> describes the bitstream for a single
 image (slice).</p>
 </li>
 <li>
@@ -2020,10 +2093,10 @@ used by multiple <code>ImageDesc</code> structures within the mip level.</p>
 </li>
 <li>
 <p>An image bitstream refers to the endpoint and selector codebooks
-described in in <a href="#basislz_gd">Section 3.12.2, &#8220;BasisLZ Global Data&#8221;</a>.</p>
+described in in <a href="#basislz_gd">Appendix C, <em>BasisLZ Global Data</em></a>.</p>
 </li>
 <li>
-<p><code><a href="#_vkformat">vkFormat</a></code> must be <code>VK_FORMAT_UNDEFINED</code> (0x00).
+<p><a href="#_vkformat"><code>vkFormat</code></a> must be <code>VK_FORMAT_UNDEFINED</code> (0x00).
 The <a href="#_data_format_descriptor"><em>Data Format Descriptor</em></a> must
 retain the pre-deflation color space information and indicate
 which color and alpha components are present.
@@ -2076,7 +2149,7 @@ frames.</p>
 verify it.</p>
 </li>
 <li>
-<p><code><a href="#_vkformat">vkFormat</a></code> must retain the pre-deflation value.
+<p><a href="#_vkformat"><code>vkFormat</code></a> must retain the pre-deflation value.
 The <a href="#_data_format_descriptor"><em>Data Format Descriptor</em></a> must
 retain pre-deflation color space information and indicate which
 components are present. See <a href="#_dfd_for_supercompressed_data">Section 3.10.2.1, &#8220;DFD for Supercompressed Data&#8221;</a>.</p>
@@ -2096,7 +2169,23 @@ specified in the <a href="#levelImages">levelImages structure</a>.</p>
 <p>With Deflate <a href="#RFC1951">[RFC1951]</a> compression scheme.</p>
 </li>
 <li>
-<p><code><a href="#_vkformat">vkFormat</a></code> must retain the pre-deflation value.
+<p><a href="#_vkformat"><code>vkFormat</code></a> must retain the pre-deflation value.
+The <a href="#_data_format_descriptor"><em>Data Format Descriptor</em></a> must
+retain pre-deflation color space information and indicate which
+components are present. See <a href="#_dfd_for_supercompressed_data">Section 3.10.2.1, &#8220;DFD for Supercompressed Data&#8221;</a>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="vendorSchemeNotes">3.8.2. Vendor Scheme Notes (Normative)</h4>
+<div class="sect4">
+<h5 id="_asobo">Asobo</h5>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#_vkformat"><code>vkFormat</code></a> must retain the pre-deflation value.
 The <a href="#_data_format_descriptor"><em>Data Format Descriptor</em></a> must
 retain pre-deflation color space information and indicate which
 components are present. See <a href="#_dfd_for_supercompressed_data">Section 3.10.2.1, &#8220;DFD for Supercompressed Data&#8221;</a>.</p>
@@ -2208,9 +2297,9 @@ for mip level <em>p</em>. It is the offset of the first byte after any
 </div>
 <div class="paragraph">
 <p><code>levels[p].byteLength</code> is the number of bytes of pixel data in
-LOD \(level_p\). This includes all z slices, all faces, all rows
-(or rows of blocks) and all pixels (or blocks) in each row for the
-mip level.</p>
+LOD \(level_p\). This includes all layers, all z slices, all
+faces, all rows (or rows of blocks) and all pixels (or blocks) in
+each row for the mip level.</p>
 </div>
 <div class="paragraph">
 <p>The total size of the image data from
@@ -2254,12 +2343,12 @@ mip level.</p>
 <div class="paragraph">
 <p><code>levels[p].uncompressedByteLength</code> is the number of bytes of pixel
 data in LOD \(level_p\) after reflation from supercompression.
-This includes all z slices, all faces, all rows (or rows of blocks)
-and all pixels (or blocks) in each row for the mipmap level. When
-<code>supercompressionScheme == 0</code>,
+This includes all layers, all z slices, all faces, all rows (or
+rows of blocks) and all pixels (or blocks) in each row for the mip
+level. When <code>supercompressionScheme == 0</code>,
 <code><a href="#_levelsp_bytelength">levels[p].byteLength</a></code> must have the same
-value as this.   When <code>supercompressionScheme == 1</code>, BasisLZ,
-the value must be 0.</p>
+value as this.   When <code>supercompressionScheme == 1</code>, BasisLZ, the
+value must be 0.</p>
 </div>
 <div class="paragraph">
 <p>The value of a level&#8217;s <code>uncompressedByteLength</code> must satisfy the
@@ -2359,7 +2448,7 @@ There will be no need for large tables to interpret format enums.</p>
 <div class="ulist">
 <ul>
 <li>
-<p>If <code><a href="#_vkformat">vkFormat</a></code> is not <code>VK_FORMAT_UNDEFINED</code>, the DFD&#8217;s
+<p>If <a href="#_vkformat"><code>vkFormat</code></a> is not <code>VK_FORMAT_UNDEFINED</code>, the DFD&#8217;s
 <code>texelBlockDimension*</code>, <code>bytesPlane*</code> and sample information fields
 must match the format&#8217;s definition. The <code>colorModel</code> must be
 <code>KHR_DF_MODEL_RGBSDA</code>, <code>KHR_DF_MODEL_YUVSDA</code> or the matching block
@@ -2369,11 +2458,11 @@ successors, currently <code>KHR_DF_MODEL_BC1A</code> to <code>KHR_DF_MODEL_UASTC
 <code>*_422_*</code> formats.</p>
 </li>
 <li>
-<p>If <code><a href="#_vkformat">vkFormat</a></code> is one of the <code>*_SRGB{,_*}</code> formats,
+<p>If <a href="#_vkformat"><code>vkFormat</code></a> is one of the <code>*_SRGB{,_*}</code> formats,
 <code>transferFunction</code> must be <code>KHR_DF_TRANSFER_SRGB</code>.</p>
 </li>
 <li>
-<p>If <code><a href="#_vkformat">vkFormat</a></code> is not one of the <code>*_SRGB{,_*}</code> formats
+<p>If <a href="#_vkformat"><code>vkFormat</code></a> is not one of the <code>*_SRGB{,_*}</code> formats
 and an sRGB variant of that format exists, <code>transferFunction</code> should not
 be <code>KHR_DF_TRANSFER_SRGB</code>.</p>
 </li>
@@ -2385,11 +2474,11 @@ the suffix <code>_HLG</code> are added then</p>
 <div class="ulist">
 <ul>
 <li>
-<p>If <code><a href="#_vkformat">vkFormat</a></code> is one of the <code>*_HLG{,_*}</code> formats
+<p>If <a href="#_vkformat"><code>vkFormat</code></a> is one of the <code>*_HLG{,_*}</code> formats
 <code>transferFunction</code> must be <code>KHR_DF_TRANSFER_HLG</code>.</p>
 </li>
 <li>
-<p>If <code><a href="#_vkformat">vkFormat</a></code> is not one of the <code>*_HLG{,_*}</code>
+<p>If <a href="#_vkformat"><code>vkFormat</code></a> is not one of the <code>*_HLG{,_*}</code>
 formats and an HLG variant of that format exists,
 <code>transferFunction</code> should not be <code>KHR_DF_TRANSFER_HLG</code>.</p>
 </li>
@@ -2425,7 +2514,7 @@ formats and an HLG variant of that format exists,
 </td>
 <td class="content">
 <div class="paragraph">
-<p>When <code><a href="#_vkformat">vkFormat</a></code> is not one of the <code>*_SRGB{,_*}</code> formats and the
+<p>When <a href="#_vkformat"><code>vkFormat</code></a> is not one of the <code>*_SRGB{,_*}</code> formats and the
 transfer function is not linear, the KTX file may be much less portable due to
 limited hardware support of such inputs.</p>
 </div>
@@ -2458,7 +2547,7 @@ for standard dynamic range, standard gamut images.</p>
 <h4 id="_providing_additional_information">3.10.2. Providing additional information</h4>
 <div class="paragraph">
 <p>There are several cases where the <em>dfDescriptorBlock</em> is used to
-provide information beyond that given by <a href="#_vkformat">vkFormat</a>.</p>
+provide information beyond that given by <a href="#_vkformat"><code>vkFormat</code></a>.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -2758,12 +2847,12 @@ most of which have only one or two components.</p>
 </table>
 </div>
 <div class="paragraph">
-<p><a href="#example_rg">Table 3, &#8220;Example Unsigned R + G descriptor for BasisLZ/ETC1S&#8221;</a> shows a DFD for images that were <code>VK_FORMAT_R8G8_UNORM</code>,
+<p><a href="#example_rg">Table 4, &#8220;Example Unsigned R + G descriptor for BasisLZ/ETC1S&#8221;</a> shows a DFD for images that were <code>VK_FORMAT_R8G8_UNORM</code>,
 before encoding and deflation, i.e. they have two
 unsigned 8-bit components.</p>
 </div>
 <table id="example_rg" class="tableblock frame-all grid-all dfdexample" style="width: 75%;">
-<caption class="title">Table 3. Example Unsigned R + G descriptor for BasisLZ/ETC1S</caption>
+<caption class="title">Table 4. Example Unsigned R + G descriptor for BasisLZ/ETC1S</caption>
 <colgroup>
 <col style="width: 3.125%;">
 <col style="width: 3.125%;">
@@ -2950,11 +3039,11 @@ unsigned 8-bit components.</p>
 </tbody>
 </table>
 <div class="paragraph">
-<p><a href="#example_rgb">Table 4, &#8220;Example Signed RGB descriptor for Zstandard/ZLIB&#8221;</a> shows a DFD for images that were <code>VK_FORMAT_R8G8B8_SNORM</code>,
+<p><a href="#example_rgb">Table 5, &#8220;Example Signed RGB descriptor for Zstandard/ZLIB&#8221;</a> shows a DFD for images that were <code>VK_FORMAT_R8G8B8_SNORM</code>,
 before deflation, i.e. have 3 signed 8-bit components.</p>
 </div>
 <table id="example_rgb" class="tableblock frame-all grid-all dfdexample" style="width: 75%;">
-<caption class="title">Table 4. Example Signed RGB descriptor for Zstandard/ZLIB</caption>
+<caption class="title">Table 5. Example Signed RGB descriptor for Zstandard/ZLIB</caption>
 <colgroup>
 <col style="width: 3.125%;">
 <col style="width: 3.125%;">
@@ -3324,249 +3413,11 @@ individual <code>keyAndValueByteLength</code> fields.</p>
 <div class="paragraph">
 <p>An array of data used by certain supercompression schemes that must
 be available before any mip level can be inflated. Must start on
-the next 8-byte boundary following the key/value data. For some
-schemes, the specification for this data block is given below.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="basislz_gd">3.12.2. BasisLZ Global Data</h4>
-<div class="paragraph">
-<p>BasisLZ combines encoding to a block-compressed format, that can
-be easily transcoded to various GPU-native block-compressed formats,
-with lossless supercompression.  Supercompression is accomplished
-by conditioning the block-compressed representation for entropy
-encoding then Huffman encoding the result. BasisLZ creates a global
-codebook referenced by each supercompressed image that contains the
-processed endpoint and selector data from the block-compression and
-the Huffman tables. The global data block contains this codebook.</p>
+the next 8-byte boundary following the key/value data.</p>
 </div>
 <div class="paragraph">
-<p>It also contains an array of <em>image descriptors</em> with flags for
-each image and the offset and length within the image&#8217;s mip level
-of the data for that image.</p>
-</div>
-<div class="paragraph">
-<p>The global data structure is designed to accommodate various
-transcodable block-compressed formats. The format in use is indicated
-by the <a href="#_data_format_descriptor">Data Format Descriptor</a>. Currently
-BasisLZ only supports one, <a href="#etc1s">ETC1S</a> (a subset of ETC1, see
-Section 21.1 of <a href="#KDF13">[KDF13]</a>).  ETC1S is a common subset of many
-GPU-native formats.</p>
-</div>
-<div class="paragraph">
-<p>The bitstreams for endpoints, selectors, Huffman tables and the image
-data are specific to the transcodable format in use. Those for ETC1S
-are defined in <a href="#basisLZ">Appendix C, <em>BasisLZ Bitstream Specification</em></a>. These bitstreams
-have to be decoded to reconstruct the base images.</p>
-</div>
-<div class="paragraph">
-<p>The structure of the global data is shown below.</p>
-</div>
-<div id="basislz_global_data_structure" class="listingblock">
-<div class="title">BasisLZ Global Data Structure</div>
-<div class="content">
-<pre class="prettyprint highlight"><code data-lang="c">UInt16 endpointCount;
-UInt16 selectorCount;
-UInt32 endpointsByteLength;
-UInt32 selectorsByteLength;
-UInt32 tablesByteLength;
-UInt32 extendedByteLength;
-
-ImageDesc[imageCount] imageDescs;
-
-Byte[endpointsByteLength] endpointsData
-Byte[selectorsByteLength] selectorsData
-Byte[tablesByteLength] tablesData
-Byte[extendedByteLength] extendedData</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><code>ImageDesc</code> is the following structure.</p>
-</div>
-<div class="listingblock">
-<div class="title">ImageDesc</div>
-<div class="content">
-<pre class="prettyprint highlight"><code data-lang="c">UInt32 imageFlags
-UInt32 rgbSliceByteOffset
-UInt32 rgbSliceByteLength
-UInt32 alphaSliceByteOffset
-UInt32 alphaSliceByteLength</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Descriptions in the <code>imageDescs</code> array are in the order layer, face
-and z_slice as if arranged by the following pseudo code.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code data-lang="c">for each level in max(levelCount, 1)
-    for each layer in max (layerCount, 1)
-        for each face in faceCount // 1 or 6
-            for each z_slice in max((pixelDepth of level), 1)</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><code>imageCount</code> is the total number of images in the Mip Level Array.</p>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p><code>imageCount</code> may be calculated as follows:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code data-lang="c">int imageCount = max(layerCount, 1) * faceCount * layerPixelDepth;
-
-// where layerPixelDepth can be derived as
-int layerPixelDepth = max(pixelDepth, 1);
-for(int i = 1; i &lt; levelCount; i++)
-    layerPixelDepth += max(pixelDepth &gt;&gt; i, 1);</code></pre>
-</div>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>There must be no trailing bytes in the global data section after the
-<code>extendedData</code> field, i.e., the following condition must always be true:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code data-lang="c">sgdByteLength == 20 +
-                 20 * imageCount +
-                 endpointsByteLength +
-                 selectorsByteLength +
-                 tablesByteLength +
-                 extendedByteLength</code></pre>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_endpointcount">endpointCount</h5>
-<div class="paragraph">
-<p>The number of endpoints in <a href="#_endpointsdata">endpointsData</a>.</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_selectorcount">selectorCount</h5>
-<div class="paragraph">
-<p>The number of selectors in <a href="#_selectorsdata">selectorsData</a>.</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_endpointsbytelength">endpointsByteLength</h5>
-<div class="paragraph">
-<p>The length of <a href="#_endpointsdata">endpointsData</a>.</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_selectorsbytelength">selectorsByteLength</h5>
-<div class="paragraph">
-<p>The length of <a href="#_selectorsdata">selectorsData</a>.</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_tablesbytelength">tablesByteLength</h5>
-<div class="paragraph">
-<p>The length of <a href="#_tablesdata">tablesData</a>.</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_extendedbytelength">extendedByteLength</h5>
-<div class="paragraph">
-<p>The length of <a href="#_extendeddata">extendedData</a>. Must be 0 if the data
-format descriptor <code>colorModel</code> is <code>KHR_DF_MODEL_ETC1S</code> (= 163).</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_imagedesc">ImageDesc</h5>
-<div class="sect5">
-<h6 id="_imageflags">imageFlags</h6>
-<div class="paragraph">
-<p>Flags giving information about an individual image. The following flag
-is valid:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code data-lang="c">isPFrame = 0x02</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>BasisLZ/ETC1S  supports inter-frame (video) encoding for 2D slices.
-If <code>isPFrame</code> is set the image (frame) is a P frame. That is, it
-refers to the previous image of an <em>animation sequence</em>. All other
-images are I frames.  Only animation sequences can have P frames.
-See <a href="#_animation_sequence">Section 4.4, &#8220;Animation Sequence&#8221;</a> for details.</p>
-</div>
-</div>
-<div class="sect5">
-<h6 id="_rgbslicebyteoffset_rgbslicebytelength">rgbSliceByteOffset, rgbSliceByteLength</h6>
-<div class="paragraph">
-<p>The offset of the start of the RGB slice within the
-<a href="#levelImagesDesc">levelImages</a> of its mip level and its byte length.
-The offset of <a href="#levelImagesDesc">levelImages</a> within the file is given
-in the <a href="#_level_index">Level Index</a>.</p>
-</div>
-<div class="paragraph">
-<p><code>rgbSliceByteLength</code> must not be zero.</p>
-</div>
-<div class="paragraph">
-<p><code>rgbSliceByteOffset + rgbSliceByteLength</code> must not be greater than the
-byte length of the corresponding mip level.</p>
-</div>
-</div>
-<div class="sect5">
-<h6 id="_alphaslicebyteoffset_alphaslicebytelength">alphaSliceByteOffset, alphaSliceByteLength</h6>
-<div class="paragraph">
-<p>The offset of the start of the alpha slice within the
-<a href="#levelImagesDesc">levelImages</a> of its mip level and its byte length.</p>
-</div>
-<div class="paragraph">
-<p>If there is only one slice these values must be 0. For ETC1S with the Data
-Format Descriptor color model of <code>KHR_DF_MODEL_ETC1S</code> this corresponds to
-the DFD having only one sample. (As the format is supercompressed
-<code>bytesPlane</code> fields can&#8217;t be used to determine the number of planes.)</p>
-</div>
-<div class="paragraph">
-<p>If the second slice is present, <code>alphaSliceByteLength</code> must not be zero.</p>
-</div>
-<div class="paragraph">
-<p><code>alphaSliceByteOffset + alphaSliceByteLength</code> must not be greater than the
-byte length of the corresponding mip level.</p>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_endpointsdata">endpointsData</h5>
-<div class="paragraph">
-<p>Compressed endpoints data. The bitstream of this for ETC1S is
-described in <a href="#_etc1s_endpoint_codebooks">Section C.2, &#8220;ETC1S Endpoint Codebooks&#8221;</a>.</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_selectorsdata">selectorsData</h5>
-<div class="paragraph">
-<p>Compressed selectors data. The bitstream of this for ETC1S is
-described in <a href="#_etc1s_selector_codebooks">Section C.3, &#8220;ETC1S Selector Codebooks&#8221;</a>.</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_tablesdata">tablesData</h5>
-<div class="paragraph">
-<p>Huffman tables data. The format of this data for ETC1S is described
-in <a href="#_etc1s_slice_huffman_tables">Section C.4, &#8220;ETC1S Slice Huffman Tables&#8221;</a>.</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_extendeddata">extendedData</h5>
-<div class="paragraph">
-<p>Extended data. This is not used for ETC1S.</p>
-</div>
+<p>The specification of this data block for the BasisLZ scheme is given
+in <a href="#basislz_gd">Appendix C, <em>BasisLZ Global Data</em></a>.</p>
 </div>
 </div>
 </div>
@@ -3813,11 +3664,10 @@ recorded in a format metadata item.</p>
 <p>The following sections describe ways to extend what can be contained
 in a KTX file. It covers three categories: formats, supercompression
 schemes and metadata. This specification can be periodically updated
-to incorporate officially recognized additions and the document
-revision incremented. Since the KTX format itself would not change
-the KTX version and file identifier would not change. Khronos will
-establish a KTX registry to register both official and vendor
-extensions.</p>
+to incorporate officially recognized additions and the Document
+Revision incremented. Since the KTX format itself would not change
+the KTX version and file identifier would not change. This document
+serves as the registry for both official and vendor extensions.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -3836,6 +3686,10 @@ guide validation.
 <p>Consumers of KTX files must fail gracefully when encountering formats or
 supercompression schemes they are not prepared to handle. They must
 ignore or report metadata items they are not prepared to handle.</p>
+</div>
+<div class="paragraph">
+<p>In the following, <em>vendor</em> encompasses independent software and
+hardware vendors and open source developers.</p>
 </div>
 <div class="sect3">
 <h4 id="_carrying_new_formats">4.3.1. Carrying New Formats</h4>
@@ -3880,24 +3734,128 @@ format value.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_supercompression_schemes">4.3.2. Supercompression Schemes</h4>
+<h4 id="extendingSupercompressionSchemes">4.3.2. Supercompression Schemes</h4>
 <div class="paragraph">
 <p>Supercompression schemes are identified by <code>supercompressionScheme</code> in the
 KTX header. New official schemes can be documented in updates to this
-specification and in the registry.</p>
+specification.</p>
 </div>
 <div class="paragraph">
-<p>Vendors can register new schemes in the registry.</p>
+<p>Vendors can create their own supercompression schemes. To avoid
+conflicts in the Scheme Id name space, those doing so must register
+them with Khronos as described in <a href="#registeringExtensions">Section 4.3.4, &#8220;Registering Extensions&#8221;</a>.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_adding_metadata">4.3.3. Adding Metadata</h4>
+<h4 id="_adding_metadata_items">4.3.3. Adding Metadata Items</h4>
 <div class="paragraph">
-<p>New official metadata (i.e, KTX prefixed) can be documented in updates
-to this specification and in the KTX registry.</p>
+<p>New official metadata items (i.e, KTX prefixed) can be documented
+in updates to this specification.</p>
 </div>
 <div class="paragraph">
-<p>Vendors can register metadata items in KTX registry.</p>
+<p>Vendors can register their own metadata items (key/value pairs) as
+described in <a href="#registeringExtensions">Section 4.3.4, &#8220;Registering Extensions&#8221;</a> and are strongly encouraged
+to do so to avoid potential collisions in the key name space (prefix).</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="registeringExtensions">4.3.4. Registering Extensions</h4>
+<div class="sect4">
+<h5 id="_general_procedures">General Procedures</h5>
+<div class="paragraph">
+<p>Supercompression schemes and metadata items are registered by
+proposing a pull-request (PR) against the default branch (currently
+<code>main</code>) of the <a href="https://github.com/KhronosGroup/KTX-Specification">KTX-Specification</a> repository on
+GitHub. See the sections below for the specific information required.</p>
+</div>
+<div class="paragraph">
+<p>The vendor will need to create a GitHub account, if it doesn&#8217;t have
+one.  Register the vendor&#8217;s FQDN to that account. A GitHub account
+handle is the preferred way of providing the required registration
+contact information.</p>
+</div>
+<div class="paragraph">
+<p>Choose a short tag name to identify the vendor. Use the same tag
+the vendor uses for Vulkan, glTF, OpenGL etcetera extensions, if
+there is one. The sections below explain how the tag will be used.
+As a matter of courtesy and respect, please do not try to use tags
+which clearly belong to an existing company or project which may
+wish to develop extensions in the future. Khronos may decline to
+register extensions that are not requested in good faith.</p>
+</div>
+<div class="paragraph">
+<p>Registration is not complete until the repository maintainer has
+validated and merged the PR.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="registeringSupercompressionSchemes">Supercompression Schemes</h5>
+<div class="paragraph">
+<p>Submit requests for scheme ids by proposing a pull request (PR)
+against <code>ktxspec.adoc</code>. The PR must add a row to
+<a href="#vendorSupercompressionSchemes">Table 3, &#8220;Vendor Supercompression Schemes<sup>1</sup>&#8221;</a>, that uses the next available id,
+and a note to <a href="#vendorSchemeNotes">Section 3.8.2, &#8220;Vendor Scheme Notes (Normative)&#8221;</a>.  Follow the instructions in
+the comments at those locations. Required information for the first
+includes the scheme name, author, contact information and a token
+name that must incorporate the chosen tag name. The token can be
+used by readers and writers to identify the scheme and vendor in
+enumerations, etc.  Required information for the second includes
+whether to retain post compression the <a href="#_vkformat"><code>vkFormat</code></a>
+value and the <a href="#_data_format_descriptor"><em>Data Format Descriptor&#8217;s</em></a>
+color space information.</p>
+</div>
+<div class="paragraph">
+<p>Vendors are strongly encouraged to provide the bitstream and, if
+applicable, global data specifications but they are not required.
+When provided, they must be put in appendices to this document and
+contain anchors linked from the added row. Create an AsciiDoc file
+for each in the <code>appendices</code> directory named using the template</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>KTX_&lt;TAG&gt;_&lt;name&gt;_{bitstream,gdata}.adoc</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Replace <code>&lt;TAG&gt;</code> with the vendor&#8217;s identifying tag and <code>&lt;name&gt;</code> with
+the scheme name.  Use AsciiDoc&#8217;s <code>include::</code> directive to include
+these appendices after the last similar include currently in this
+document. Add the new files to the PR as well as edits to <code>Makefile</code>
+that add the new files to the <code>ktx_sources</code> variable.</p>
+</div>
+<div class="paragraph">
+<p>The registration process can be split into several steps to accommodate
+scheme id assignment prior to scheme publication:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Acquire a scheme id. This is done by proposing a PR against
+ktxspec.adoc. The id will be reserved only once this request is
+accepted into the default branch.</p>
+</li>
+<li>
+<p>Develop and test the scheme using the registered id.</p>
+</li>
+<li>
+<p>Publish the bit stream specifications to Khronos with a PR that
+updates the row in the table for the previously registered id and
+adds the scheme documentation.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="registeringMetadata">4.3.5. Metadata</h4>
+<div class="paragraph">
+<p>Register items by proposing a pull request (PR) against
+<code>appendices/vendor_metadata.adoc</code>, the source file for <a href="#vendorMetadata">Appendix E, <em>Registered Vendor Key/Value Pairs</em></a>.
+Add the metadata item(s) following the instructions in the comment
+there.</p>
+</div>
+<div class="paragraph">
+<p>Use the tag described in <a href="#registeringExtensions">Section 4.3.4, &#8220;Registering Extensions&#8221;</a> as the key prefix.</p>
 </div>
 </div>
 </div>
@@ -4338,8 +4296,9 @@ by a different tool.</p>
 <h3 id="_ktxwriterscparams">5.6. KTXwriterScParams</h3>
 <div class="paragraph">
 <p>KTX file writers may, and are strongly encouraged to, identify any
-non-default Basis Universal encoding and supercompression options
-specified when the file is created by including a value with the key</p>
+non-default Basis Universal, ASTC &amp; other block-compression encoding
+and supercompression options specified when the file is created by
+including a value with the key</p>
 </div>
 <div class="ulist">
 <ul>
@@ -13538,7 +13497,7 @@ Some vendor-specific extensions (e.g. <code>GL_NV_depth_buffer_float</code>) def
 <div class="ulist">
 <ul>
 <li>
-<p><code>DXGI_FORMAT</code>: <a href="https://docs.microsoft.com/en-us/windows/desktop/api/dxgiformat/ne-dxgiformat-dxgi_format">DXGI_FORMAT_D24_UNORM_S8_UINT</a>.</p>
+<p>No mapping available.</p>
 </li>
 </ul>
 </div>
@@ -13548,7 +13507,7 @@ Some vendor-specific extensions (e.g. <code>GL_NV_depth_buffer_float</code>) def
 <div class="ulist">
 <ul>
 <li>
-<p><code>MTLPixelFormat</code>: <a href="https://developer.apple.com/documentation/metal/mtlpixelformat/MTLPixelFormatDepth24Unorm_Stencil8">MTLPixelFormatDepth24Unorm_Stencil8</a>.</p>
+<p>No mapping available.</p>
 </li>
 </ul>
 </div>
@@ -23150,6 +23109,186 @@ Some vendor-specific extensions (e.g. <code>GL_NV_depth_buffer_float</code>) def
 </dl>
 </div>
 </dd>
+<dt class="hdlist1">VK_FORMAT_A1B5G5R5_UNORM_PACK16_KHR</dt>
+<dd>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Layout</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Type Size: 2.</p>
+</li>
+<li>
+<p>Texel Block Dimensions: 1x1x1.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">OpenGL</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>glInternalFormat</code>: GL_RGB5_A1.</p>
+</li>
+<li>
+<p><code>glFormat</code>: GL_RGBA.</p>
+</li>
+<li>
+<p><code>glType</code>: GL_UNSIGNED_SHORT_1_5_5_5_REV.</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">OpenGL Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Core 1.2+.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">OpenGL ES Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>None.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">WebGL Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>None.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">Direct3D</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>No mapping available.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">Metal</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>No mapping available.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1">VK_FORMAT_A8_UNORM_KHR</dt>
+<dd>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Layout</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Type Size: 1.</p>
+</li>
+<li>
+<p>Texel Block Dimensions: 1x1x1.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">OpenGL</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>glInternalFormat</code>: GL_ALPHA8.</p>
+</li>
+<li>
+<p><code>glFormat</code>: GL_ALPHA.</p>
+</li>
+<li>
+<p><code>glType</code>: GL_UNSIGNED_BYTE.</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">OpenGL Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Core 1.2+.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">OpenGL ES Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Core 1.0+.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">WebGL Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Core 1.0+.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">Direct3D</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>DXGI_FORMAT</code>: <a href="https://docs.microsoft.com/en-us/windows/desktop/api/dxgiformat/ne-dxgiformat-dxgi_format">DXGI_FORMAT_A8_UNORM</a>.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">Metal</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>MTLPixelFormat</code>: <a href="https://developer.apple.com/documentation/metal/mtlpixelformat/MTLPixelFormatA8Unorm">MTLPixelFormatA8Unorm</a>.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</dd>
 </dl>
 </div>
 </div>
@@ -23157,7 +23296,218 @@ Some vendor-specific extensions (e.g. <code>GL_NV_depth_buffer_float</code>) def
 </div>
 </div>
 <div class="sect1">
-<h2 id="basisLZ">Appendix C: BasisLZ Bitstream Specification</h2>
+<h2 id="basislz_gd">Appendix C: BasisLZ Global Data</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>BasisLZ combines encoding to a block-compressed format, that can be easily transcoded to various GPU-native block-compressed formats, with lossless supercompression.  Supercompression is accomplished by conditioning the block-compressed representation for entropy encoding then Huffman encoding the result. BasisLZ creates a global codebook referenced by each supercompressed image that contains the processed endpoint and selector data from the block-compression and the Huffman tables. The global data block contains this codebook.</p>
+</div>
+<div class="paragraph">
+<p>It also contains an array of <em>image descriptors</em> with flags for each image and the offset and length within the mip level of the data for that image.</p>
+</div>
+<div class="paragraph">
+<p>The global data structure is designed to accommodate various transcodable block-compressed formats. The format in use is indicated by the <a href="#_data_format_descriptor">Data Format Descriptor</a>. Currently BasisLZ only supports one, <a href="#etc1s">ETC1S</a> (a subset of ETC1, see Section 21.1 of <a href="#KDF13">[KDF13]</a>).  ETC1S is a common subset of many GPU-native formats.</p>
+</div>
+<div class="paragraph">
+<p>The bitstreams for endpoints, selectors, Huffman tables and the image
+data are specific to the transcodable format in use. Those for ETC1S are
+defined in <a href="#basisLZ/etc1s">Appendix D, <em>BasisLZ/ETC1S Bitstream Specification</em></a>. These bitstreams have to be decoded to reconstruct the base images.</p>
+</div>
+<div class="paragraph">
+<p>The structure of the global data is shown below.</p>
+</div>
+<div id="basislz_global_data_structure" class="listingblock">
+<div class="title">BasisLZ Global Data Structure</div>
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="c">UInt16 endpointCount;
+UInt16 selectorCount;
+UInt32 endpointsByteLength;
+UInt32 selectorsByteLength;
+UInt32 tablesByteLength;
+UInt32 extendedByteLength;
+
+ImageDesc[imageCount] imageDescs;
+
+Byte[endpointsByteLength] endpointsData
+Byte[selectorsByteLength] selectorsData
+Byte[tablesByteLength] tablesData
+Byte[extendedByteLength] extendedData</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>ImageDesc</code> is the following structure.</p>
+</div>
+<div class="listingblock">
+<div class="title">ImageDesc</div>
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="c">UInt32 imageFlags
+UInt32 rgbSliceByteOffset
+UInt32 rgbSliceByteLength
+UInt32 alphaSliceByteOffset
+UInt32 alphaSliceByteLength</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Descriptions in the <code>imageDescs</code> array are in the order layer, face and z_slice as if arranged by the following pseudo code.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="c">for each level in max(levelCount, 1)
+    for each layer in max (layerCount, 1)
+        for each face in faceCount // 1 or 6
+            for each z_slice in max((pixelDepth of level), 1)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>imageCount</code> is the total number of images in the Mip Level Array.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><code>imageCount</code> may be calculated as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="c">int imageCount = max(layerCount, 1) * faceCount * layerPixelDepth;
+
+// where layerPixelDepth can be derived as
+int layerPixelDepth = max(pixelDepth, 1);
+for(int i = 1; i &lt; levelCount; i++)
+    layerPixelDepth += max(pixelDepth &gt;&gt; i, 1);</code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>There must be no trailing bytes in the global data section after the <code>extendedData</code> field, i.e., the following condition must always be true:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="c">sgdByteLength == 20 +
+                 20 * imageCount +
+                 endpointsByteLength +
+                 selectorsByteLength +
+                 tablesByteLength +
+                 extendedByteLength</code></pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_endpointcount">C.1. endpointCount</h3>
+<div class="paragraph">
+<p>The number of endpoints in <a href="#_endpointsdata">endpointsData</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_selectorcount">C.2. selectorCount</h3>
+<div class="paragraph">
+<p>The number of selectors in <a href="#_selectorsdata">selectorsData</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_endpointsbytelength">C.3. endpointsByteLength</h3>
+<div class="paragraph">
+<p>The length of <a href="#_endpointsdata">endpointsData</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_selectorsbytelength">C.4. selectorsByteLength</h3>
+<div class="paragraph">
+<p>The length of <a href="#_selectorsdata">selectorsData</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_tablesbytelength">C.5. tablesByteLength</h3>
+<div class="paragraph">
+<p>The length of <a href="#_tablesdata">tablesData</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_extendedbytelength">C.6. extendedByteLength</h3>
+<div class="paragraph">
+<p>The length of <a href="#_extendeddata">extendedData</a>. Must be 0 if the data format descriptor <code>colorModel</code> is <code>KHR_DF_MODEL_ETC1S</code> (= 163).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_imagedesc">C.7. ImageDesc</h3>
+<div class="sect3">
+<h4 id="_imageflags">C.7.1. imageFlags</h4>
+<div class="paragraph">
+<p>Flags giving information about an individual image. The following flag is valid:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="c">isPFrame = 0x02</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>BasisLZ/ETC1S  supports inter-frame (video) encoding for 2D slices.  If <code>isPFrame</code> is set the image (frame) is a P frame. That is, it refers to the previous image of an <em>animation sequence</em>. All other images are I frames.  Only animation sequences can have P frames. See <a href="#_animation_sequence">Section 4.4, &#8220;Animation Sequence&#8221;</a> for details.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_rgbslicebyteoffset_rgbslicebytelength">C.7.2. rgbSliceByteOffset, rgbSliceByteLength</h4>
+<div class="paragraph">
+<p>The offset of the start of the RGB slice within the <a href="#levelImagesDesc">levelImages</a> of its mip level and its byte length. The offset of <a href="#levelImagesDesc">levelImages</a> within the file is given in the <a href="#_level_index">Level Index</a>.</p>
+</div>
+<div class="paragraph">
+<p><code>rgbSliceByteLength</code> must not be zero.</p>
+</div>
+<div class="paragraph">
+<p><code>rgbSliceByteOffset + rgbSliceByteLength</code> must not be greater than the byte length of the corresponding mip level.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_alphaslicebyteoffset_alphaslicebytelength">C.7.3. alphaSliceByteOffset, alphaSliceByteLength</h4>
+<div class="paragraph">
+<p>The offset of the start of the alpha slice within the <a href="#levelImagesDesc">levelImages</a> of its mip level and its byte length.</p>
+</div>
+<div class="paragraph">
+<p>If there is only one slice these values must be 0. For ETC1S with the Data Format Descriptor color model of <code>KHR_DF_MODEL_ETC1S</code> this corresponds to the DFD having only one sample. (As the format is supercompressed <code>bytesPlane</code> fields can&#8217;t be used to determine the number of planes.)</p>
+</div>
+<div class="paragraph">
+<p>If the second slice is present, <code>alphaSliceByteLength</code> must not be zero.</p>
+</div>
+<div class="paragraph">
+<p><code>alphaSliceByteOffset + alphaSliceByteLength</code> must not be greater than the byte length of the corresponding mip level.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_endpointsdata">C.8. endpointsData</h3>
+<div class="paragraph">
+<p>Compressed endpoints data. The bitstream of this for ETC1S is
+described in <a href="#_etc1s_endpoint_codebooks">Section D.2, &#8220;ETC1S Endpoint Codebooks&#8221;</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_selectorsdata">C.9. selectorsData</h3>
+<div class="paragraph">
+<p>Compressed selectors data. The bitstream of this for ETC1S is
+described in <a href="#_etc1s_selector_codebooks">Section D.3, &#8220;ETC1S Selector Codebooks&#8221;</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_tablesdata">C.10. tablesData</h3>
+<div class="paragraph">
+<p>Huffman tables data. The format of this data for ETC1S is described
+in <a href="#_etc1s_slice_huffman_tables">Section D.4, &#8220;ETC1S Slice Huffman Tables&#8221;</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_extendeddata">C.11. extendedData</h3>
+<div class="paragraph">
+<p>Extended data. This is not used for ETC1S.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="basisLZ/etc1s">Appendix D: BasisLZ/ETC1S Bitstream Specification</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>BasisLZ is a lossless compression scheme for ETC1S block data, which is based off <a href="https://www.sciencedirect.com/topics/engineering/vector-quantization">Vector Quantization</a>. VQ is applied to the ETC1S color endpoint/intensity values and texel selectors, each treated as two separate vectors. The two codebooks are global and shared across all mipmap levels, cubemap faces, animation frames, etc. There are two VQ codebook indices per block, which are compressed using a combination of canonical <a href="https://en.wikipedia.org/wiki/Huffman_coding">Huffman coding</a>, <a href="https://en.wikipedia.org/wiki/Run-length_encoding">Run-Length Encoding</a>, <a href="https://en.wikipedia.org/wiki/Differential_pulse-code_modulation">DPCM coding</a>, and an approximate <a href="https://en.wikipedia.org/wiki/Move-to-front_transform">Move to Front</a> transform.</p>
@@ -23188,7 +23538,7 @@ Some vendor-specific extensions (e.g. <code>GL_NV_depth_buffer_float</code>) def
 <p>The following sections describe each section&#8217;s payload independently. After decoding them and recovering per-block endpoint and selector values, the decoder can build ETC1S blocks. See the KDFS for ETC1S definition and bitstream.</p>
 </div>
 <div class="sect2">
-<h3 id="_compressed_huffman_tables">C.1. Compressed Huffman Tables</h3>
+<h3 id="_compressed_huffman_tables">D.1. Compressed Huffman Tables</h3>
 <div class="paragraph">
 <p>Many BasisLZ compressed sections use multiple Huffman tables. The process described in this section defines <code>read_huffman_table()</code> routine in the subsequent sections of this specification.</p>
 </div>
@@ -23263,7 +23613,7 @@ for (int i = 0; i &lt; num_codelength_codes; i++)
 </div>
 </div>
 <div class="sect2">
-<h3 id="_etc1s_endpoint_codebooks">C.2. ETC1S Endpoint Codebooks</h3>
+<h3 id="_etc1s_endpoint_codebooks">D.2. ETC1S Endpoint Codebooks</h3>
 <div class="paragraph">
 <p>The byte offset and the byte length (<code>endpointsByteLength</code>) of the
 endpoint codebook section (<code>endpointsData</code>) as well as the number
@@ -23271,9 +23621,9 @@ of endpoint entries (called <code>endpointCount</code>) are defined by the
 <a href="#basislz_global_data_structure">BasisLZ Global Data Structure</a>.</p>
 </div>
 <div class="sect3">
-<h4 id="_header">C.2.1. Header</h4>
+<h4 id="_header">D.2.1. Header</h4>
 <div class="paragraph">
-<p>At the beginning of the compressed endpoint codebook section are four compressed Huffman tables, stored using the procedure outlined in <a href="#_compressed_huffman_tables">Section C.1, &#8220;Compressed Huffman Tables&#8221;</a> and a 1-bit flag signalling whether endpoints have three color channles or one.</p>
+<p>At the beginning of the compressed endpoint codebook section are four compressed Huffman tables, stored using the procedure outlined in <a href="#_compressed_huffman_tables">Section D.1, &#8220;Compressed Huffman Tables&#8221;</a> and a 1-bit flag signalling whether endpoints have three color channles or one.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -23286,7 +23636,7 @@ isGrayscale          b(1)</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_endpoints">C.2.2. Endpoints</h4>
+<h4 id="_endpoints">D.2.2. Endpoints</h4>
 <div class="paragraph">
 <p>Immediately after the header is the compressed color endpoint codebook data (<code>inten[endpointCount]</code>, <code>red[endpointCount]</code>, <code>green[endpointCount]</code> and <code>blue[endpointCount]</code> arrays). A simple form of DPCM (Delta Pulse Code Modulation) coding is used to send the ETC1S intensity table indices and color values. Here is the procedure to decode the endpoint codebook:</p>
 </div>
@@ -23371,7 +23721,7 @@ isGrayscale          b(1)</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_etc1s_selector_codebooks">C.3. ETC1S Selector Codebooks</h3>
+<h3 id="_etc1s_selector_codebooks">D.3. ETC1S Selector Codebooks</h3>
 <div class="paragraph">
 <p>Selector entries contain 16 2-bit values that map to the ETC1 pixel index bits as:</p>
 </div>
@@ -23424,7 +23774,7 @@ of selector entries (called <code>selectorCount</code>) are defined by the
 <a href="#basislz_global_data_structure">BasisLZ Global Data Structure</a>.</p>
 </div>
 <div class="sect3">
-<h4 id="_header_2">C.3.1. Header</h4>
+<h4 id="_header_2">D.3.1. Header</h4>
 <div class="paragraph">
 <p>The first two bits are reserved and must always be set to <code>0</code>. The input is invalid otherwise.</p>
 </div>
@@ -23433,7 +23783,7 @@ of selector entries (called <code>selectorCount</code>) are defined by the
 </div>
 </div>
 <div class="sect3">
-<h4 id="_selectors">C.3.2. Selectors</h4>
+<h4 id="_selectors">D.3.2. Selectors</h4>
 <div class="paragraph">
 <p>Each selector entry is a 4x4 grid, ordered left-to-right, top-to-bottom. Each row is packed to 8 bits, thus each selector entry could be expressed as four 8-bit bytes. Each packed row corresponds to four 2-bit values. The first (left) value of each row starts at the LSB (least significant bit) of each 8-bit group.</p>
 </div>
@@ -23534,10 +23884,10 @@ else
 </div>
 </div>
 <div class="sect2">
-<h3 id="_etc1s_slice_huffman_tables">C.4. ETC1S Slice Huffman Tables</h3>
+<h3 id="_etc1s_slice_huffman_tables">D.4. ETC1S Slice Huffman Tables</h3>
 <div class="paragraph">
 <p>Each ETC1S slice is compressed with four Huffman tables (<code>tablesData</code>)
-stored using the procedure outlined in <a href="#_compressed_huffman_tables">Section C.1, &#8220;Compressed Huffman Tables&#8221;</a>.
+stored using the procedure outlined in <a href="#_compressed_huffman_tables">Section D.1, &#8220;Compressed Huffman Tables&#8221;</a>.
 Their byte offset and byte length (<code>tablesByteLength</code>) are defined
 by the <a href="#basislz_global_data_structure">BasisLZ Global Data Structure</a>.</p>
 </div>
@@ -23558,15 +23908,18 @@ selectorHistoryBufSize          b(13)</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="etc1s_slice">C.5. ETC1S Slice Decoding</h3>
+<h3 id="etc1s_slice">D.5. ETC1S Slice Decoding</h3>
 <div class="paragraph">
-<p>ETC1S slices consist of a compressed 2D array of ETC1S blocks, always compressed in top-down/left-right raster order. For an animation sequence, the previous slice&#8217;s already decoded contents may be referred to when blocks are encoded using Conditional Replenishment (also known as &#8220;skip blocks&#8221;).</p>
+<p>The data for each mip level is a set of ETC1S slices. The corresponding element of the <code>imageDescs</code> array in the <a href="#basislz_global_data_structure">BasisLZ Global Data Structure</a> provides slice locations within the mip level data.</p>
+</div>
+<div class="paragraph">
+<p>ETC1S slices consist of a compressed 2D array of ETC1S blocks, compressed in the order indicated by <a href="#_ktxorientation">Section 5.2, &#8220;KTXorientation&#8221;</a> metadata (defaults to top-down/left-right raster order). For an animation sequence, the previous slice&#8217;s already decoded contents may be referred to when blocks are encoded using Conditional Replenishment (also known as &#8220;skip blocks&#8221;).</p>
 </div>
 <div class="paragraph">
 <p>Each ETC1S block is encoded by using references to the color endpoint codebook and the selector codebook. The following sections describe the helper procedures used by the decoder, and how the array of ETC1S blocks is actually decoded.</p>
 </div>
 <div class="sect3">
-<h4 id="_etc1s_approximate_move_to_front_routines">C.5.1. ETC1S Approximate Move to Front Routines</h4>
+<h4 id="_etc1s_approximate_move_to_front_routines">D.5.1. ETC1S Approximate Move to Front Routines</h4>
 <div class="paragraph">
 <p>An approximate Move to Front (MTF) approach is used to efficiently encode the selector codebook references. Here is the C++ example class for approximate MTF decoding:</p>
 </div>
@@ -23624,7 +23977,7 @@ private:
 </details>
 </div>
 <div class="sect3">
-<h4 id="_etc1s_vlc_decoding_procedure">C.5.2. ETC1S VLC Decoding Procedure</h4>
+<h4 id="_etc1s_vlc_decoding_procedure">D.5.2. ETC1S VLC Decoding Procedure</h4>
 <div class="paragraph">
 <p>ETC1S slice decoding utilizes a simple Variable Length Coding (VLC) scheme that sends raw bits using chunks of 5 or 8 bits. The MSB of each chunk signals whether there&#8217;s another chunk for the current encoded value.</p>
 </div>
@@ -23693,12 +24046,12 @@ uint32_t decode_vlc7()
 </details>
 </div>
 <div class="sect3">
-<h4 id="_etc1s_slice_block_decoding">C.5.3. ETC1S Slice Block Decoding</h4>
+<h4 id="_etc1s_slice_block_decoding">D.5.3. ETC1S Slice Block Decoding</h4>
 <div class="paragraph">
-<p>The decoder iterates through all the slice blocks in top-down, left-right raster order (<code>num_blocks_x</code> by <code>num_blocks_y</code> grid). Each block is represented by an index into the color endpoint codebook and another index into the selector endpoint codebook. The endpoint codebook contains each ETC1S block&#8217;s base RGB color and intensity table information, and the selector codebook contains the 4x4 texel selector entry (which are 2-bits each) information. This is all the information needed to fully represent the texels within each block.</p>
+<p>The decoder has no knowledge of the orientation of the image it is decoding. It iterates through all the slice blocks in order of increasing memory. The blocks form a <code>num_blocks_x</code> by <code>num_blocks_y</code> grid. The block at <code>num_blocks_x * y</code> starts row <code>y</code> where <code>0 &lt;= y &lt; num_blocks_y</code>. To simplify the following description, a top-down, left-right raster order is assumed. <em>Left</em> refers to the previous block in memory and <em>above</em> to the block <code>num_blocks_x * 8</code> bytes earlier in memory. Each block is represented by an index into the color endpoint codebook and another index into the selector endpoint codebook. The endpoint codebook contains each ETC1S block&#8217;s base RGB color and intensity table information, and the selector codebook contains the 4x4 texel selector entry (which are 2-bits each) information. This is all the information needed to fully represent the texels within each block.</p>
 </div>
 <div class="paragraph">
-<p>The decoding procedure loops over all the blocks in raster order, and decodes the endpoint and selector indices used to represent each block. The decoding procedure is complex enough that commented code is best used to describe it.</p>
+<p>The decoding procedure loops over all the blocks in memory order, and decodes the endpoint and selector indices used to represent each block. The decoding procedure is complex enough that commented code is best used to describe it.</p>
 </div>
 <div class="paragraph">
 <p>The compressed format allows the encoder to reuse the endpoint index used by the block to the left, the block immediately above the current block, or the block to the upper left (if the slice is not a P-frame). Alternately, the encoder can send a Huffman-coded DPCM encoded index relative to the previously used endpoint index.</p>
@@ -23769,8 +24122,9 @@ for (uint32_t block_y = 0; block_y &lt; num_blocks_y; block_y++)
             // Are we on an even or odd row of blocks?
             if ((block_y &amp; 1) == 0)
             {
-                // We're on an even row and column of blocks. Decode the combined endpoint index predictor symbols for 2x2 blocks.
-                // This symbol tells the decoder how the endpoints are decoded for each block in a 2x2 group of blocks.
+                // We're on an even row and column of blocks. Decode the combined endpoint index predictor
+                // symbols for 2x2 blocks. This symbol tells the decoder how the endpoints are decoded for
+                // each block in a 2x2 group of blocks.
 
                 // Are we in an RLE run?
                 if (endpoint_pred_repeat_count)
@@ -23797,13 +24151,15 @@ for (uint32_t block_y = 0; block_y &lt; num_blocks_y; block_y++)
                     }
                 }
 
-                // The symbol has enough endpoint prediction information for 4 blocks (2 bits per block), so 8 bits total.
-                // Remember the prediction information we should use for the next row of 2 blocks beneath the current block.
+                // The symbol has enough endpoint prediction information for 4 blocks (2 bits per block),
+                // so 8 bits total. Remember the prediction information we should use for the next row of
+                // 2 blocks beneath the current block.
                 block_pred_bits[block_x &gt;&gt; 1] = (uint8_t)(cur_pred_bits &gt;&gt; 4);
             }
             else
             {
-                // We're on an odd row of blocks, so use the endpoint prediction information we previously stored on the previous even row.
+                // We're on an odd row of blocks, so use the endpoint prediction information we previously
+                // stored on the previous even row.
                 cur_pred_bits = block_pred_bits[block_x &gt;&gt; 1];
             }
         }
@@ -23938,7 +24294,8 @@ for (uint32_t block_y = 0; block_y &lt; num_blocks_y; block_y++)
             }
         }
 
-        // For texture video, remember the endpoint and selector indices used by the block on this frame, for later reuse on the next frame.
+        // For texture video, remember the endpoint and selector indices used by the block on this frame,
+        // for later reuse on the next frame.
         if (is_video)
         {
             prev_frame_endpoints[block_x][block_y] = endpoint_index;
@@ -23963,7 +24320,27 @@ for (uint32_t block_y = 0; block_y &lt; num_blocks_y; block_y++)
 </div>
 </div>
 <div class="sect1">
-<h2 id="_changes_compared_to_ktx_version_1">Appendix D: Changes compared to KTX version 1</h2>
+<h2 id="vendorMetadata">Appendix E: Registered Vendor Key/Value Pairs</h2>
+<div class="sectionbody">
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-caution" title="Caution"></i>
+</td>
+<td class="content">
+This appendix is non-normative.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>There are currently no registered key/value pairs.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_changes_compared_to_ktx_version_1">Appendix F: Changes compared to KTX version 1</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
@@ -24157,6 +24534,55 @@ mapping and
 </ul>
 </div></div></td>
 </tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">2023-09-02</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>Provide detailed instructions for
+how to register supercompression
+schemes and metadata.</p>
+</li>
+<li>
+<p>Adjust D24_UNORM_S8_UINT
+description.</p>
+</li>
+<li>
+<p>Fix description of block ordering
+in ETC1S slices and clarify that
+decoder has no knowledge of image
+orientation.</p>
+</li>
+<li>
+<p>Clarify level data layout for
+BasisLz/ETC1S.</p>
+</li>
+<li>
+<p>Fix list of data that comprises a
+mip level.</p>
+</li>
+<li>
+<p>Fix missing max(1, &#8230;&#8203;) in
+num_blocks_x calculation.</p>
+</li>
+<li>
+<p>Clarify that <code>KTXwriterScParams</code>
+can be used for ASTC and other
+block-compression scheme encoding
+parameters.</p>
+</li>
+<li>
+<p>Add VK_KHR_maintenance5 formats to
+GL formats mapping.</p>
+</li>
+<li>
+<p>Increase document width from
+55em to 60em.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
 </tbody>
 </table>
 <h2 id="_acknowledgements" class="discrete">Acknowledgements</h2>
@@ -24180,8 +24606,8 @@ conflicts.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.0.1<br>
-Last updated 2022-12-09 12:46:54 UTC
+Version 2.0.2<br>
+Last updated 2023-09-02 07:10:16 UTC
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/run_prettify.min.js"></script>
