@@ -83,7 +83,7 @@ KTX 2.0 ratified by the Khronos Board of Promoters Aug 14th, 2020.
 
 Document Revision 1 approved by the 3D Formats WG Dec 7th, 2022.
 
-Document Revision {docrev} awaiting approval by the 3D Formats WG.
+Document Revision {docrev} approved by the 3D Formats WG Sep 6th, 2023.
 
 == Introduction
 
