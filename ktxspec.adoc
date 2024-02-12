@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification of a container format for GPU textures.
-:docrev: 2
+:docrev: 3
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -83,7 +83,9 @@ KTX 2.0 ratified by the Khronos Board of Promoters Aug 14th, 2020.
 
 Document Revision 1 approved by the 3D Formats WG Dec 7th, 2022.
 
-Document Revision {docrev} approved by the 3D Formats WG Sep 6th, 2023.
+Document Revision 2 approved by the 3D Formats WG Sep 6th, 2023.
+
+Document Revision {docrev} awaiting approval by the 3D Formats WG.
 
 == Introduction
 
@@ -416,6 +418,10 @@ device.
 | VK_FORMAT_G16_B16_R16_3PLANE_422_UNORM | 1000156031
 | VK_FORMAT_G16_B16R16_2PLANE_422_UNORM | 1000156032
 | VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM | 1000156033
+| VK_FORMAT_G8_B8R8_2PLANE_444_UNORM | 1000330000
+| VK_FORMAT_G10X6_B10X6R10X6_2PLANE_444_UNORM_3PACK16 | 1000330001
+| VK_FORMAT_G12X4_B12X4R12X4_2PLANE_444_UNORM_3PACK16 | 1000330002
+| VK_FORMAT_G16_B16R16_2PLANE_444_UNORM | 1000330003
 |===
 
 [NOTE]
@@ -499,15 +505,14 @@ upload the data to a graphics API. When `typeSize` is greater than
 data since it is little-endian. When format is `VK_FORMAT_UNDEFINED`,
 `typeSize` must equal 1. For formats whose Vulkan names have the
 suffix `_BLOCK` it must equal 1. For formats with the suffix `_PACKxx`
-it must equal the value of stem:[xx / 8]. For formats with the suffix
-`_nPACKxx` it must equal the value of stem:[n * xx / 8]. For unpacked formats,
-except combined depth/stencil formats, it must equal the number of
-bytes needed for a single component which can be derived from the
-format name. E.g for `VK_FORMAT_R16G16B16_UNORM` it will be stem:[16
-/ 8].  This means it will equal 1 for any format with 8-bit components.
-For `VK_FORMAT_D16_UNORM_S8_UINT`, using the layout defined in this
-specification, the value will be 2 and for the other combined
-depth/stencil formats the value will be 4.
+or `_nPACKxx` it must equal the value of stem:[xx / 8]. For unpacked
+formats, except combined depth/stencil formats, it must equal the
+number of bytes needed for a single component which can be derived
+from the format name. E.g for `VK_FORMAT_R16G16B16_UNORM` it will
+be stem:[16 / 8].  This means it will equal 1 for any format with
+8-bit components.  For `VK_FORMAT_D16_UNORM_S8_UINT`, using the
+layout defined in this specification, the value will be 2 and for
+the other combined depth/stencil formats the value will be 4.
 
 [NOTE]
 .Rationale
@@ -2405,7 +2410,7 @@ include::appendices/vendor-metadata.adoc[]
                                       `KTXcubemapIncomplete` metadata.
                                     - Fix `block_pred_bits` size.
                                     - Minor formatting and typo fixes.
-|      {docrev}     |  {revdate}  | - Provide detailed instructions for
+|          2        | 2023-09-07  | - Provide detailed instructions for
                                       how to register supercompression
                                       schemes and metadata.
                                     - Adjust D24_UNORM_S8_UINT
@@ -2428,6 +2433,10 @@ include::appendices/vendor-metadata.adoc[]
                                       GL formats mapping.
                                     - Increase document width from
                                       55em to 60em.
+|      {docrev}     |  {revdate}  | - Fix `typeSize` for formats with
+                                      `_nPACKxx` suffix.
+                                    - Prohibit YCbCr 2-plane 444 formats
+                                      recently added to Vulkan.
 |===
 
 [discrete]
