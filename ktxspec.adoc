@@ -362,16 +362,21 @@ compression features and format defining extensions when creating a
 device.
 ====
 
+[NOTE]
+.Packed A8B8G8R8 Formats
+====
+The `A8B8G8R8*PACK32` formats are supported but the end result
+is the same regardless of whether the data is treated as packed
+into 32 bits or as the equivalent `R8G8B8A8` format, i.e., as an array
+of 4 bytes; a Data Format Descriptor cannot distinguish between
+these cases.
+====
+
 [width=50%,align=center,cols="<,^",options=header]
 [[prohibitedFormats]]
 .Prohibited Formats
 |===
 | Format Name                          | Value
-| VK_FORMAT_A8B8G8R8_UNORM_PACK32      | 51
-| VK_FORMAT_A8B8G8R8_SNORM_PACK32      | 52
-| VK_FORMAT_A8B8G8R8_UINT_PACK32       | 55
-| VK_FORMAT_A8B8G8R8_SINT_PACK32       | 56
-| VK_FORMAT_A8B8G8R8_SRGB_PACK32       | 57
 | VK_FORMAT_R8_USCALED                 | 11
 | VK_FORMAT_R8_SSCALED                 | 12
 | VK_FORMAT_R8G8_USCALED               | 18
@@ -427,12 +432,6 @@ device.
 [NOTE]
 .Rationale
 ====
-The A8B8G8R8*PACK32 formats are prohibited because the end result
-is the same regardless of whether the data is treated as packed
-into 32-bits or as the equivalent R8G8B8A8 format, i.e. as an array
-of 4 bytes, so a Data Format Descriptor cannot distinguish between
-these cases.
-
 The \*SCALED* formats are prohibited because they are intended for
 vertex data, very few, if any, implementations support using them
 for texturing and a Data Format Descriptor cannot distinguish
@@ -2437,6 +2436,7 @@ include::appendices/vendor-metadata.adoc[]
                                       `_nPACKxx` suffix.
                                     - Prohibit YCbCr 2-plane 444 formats
                                       recently added to Vulkan.
+                                    - Allow `A8B8G8R8*PACK32` formats.
 |===
 
 [discrete]
