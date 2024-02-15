@@ -782,8 +782,8 @@ table.dfdexample td, th {
 <h1>KTX File Format Specification</h1>
 <div class="details">
 <span id="author" class="author">Mark Callow</span><br>
-<span id="revnumber">version 2.0.2,</span>
-<span id="revdate">2023-09-07</span>
+<span id="revnumber">version 2.0.3,</span>
+<span id="revdate">2024-02-15</span>
 </div>
 </div>
 <div id="content">
@@ -793,7 +793,7 @@ table.dfdexample td, th {
 <p><strong>Format Version:</strong> 2.0</p>
 </div>
 <div class="paragraph lead">
-<p><strong>Document Revision:</strong> 2</p>
+<p><strong>Document Revision:</strong> 3</p>
 </div>
 <div class="paragraph lead">
 <p><strong>Editor:</strong> Mark Callow (Edgewise Consulting)</p>
@@ -926,6 +926,9 @@ significantly different file structure from version 1.</p>
 </div>
 <div class="paragraph">
 <p>Document Revision 2 approved by the 3D Formats WG Sep 6th, 2023.</p>
+</div>
+<div class="paragraph">
+<p>Document Revision 3 approved by the 3D Formats WG Feb 14th, 2024.</p>
 </div>
 </div>
 </div>
@@ -1365,6 +1368,25 @@ device.</p>
 </tr>
 </table>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Packed A8B8G8R8 Formats</div>
+<div class="paragraph">
+<p>The <code>A8B8G8R8*PACK32</code> formats are supported but the end result
+is the same regardless of whether the data is treated as packed
+into 32 bits or as the equivalent <code>R8G8B8A8</code> format, i.e., as an array
+of 4 bytes; a Data Format Descriptor cannot distinguish between
+these cases.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 <table id="prohibitedFormats" class="tableblock frame-all grid-all" style="width: 50%;">
 <caption class="title">Table 1. Prohibited Formats</caption>
 <colgroup>
@@ -1378,26 +1400,6 @@ device.</p>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">VK_FORMAT_A8B8G8R8_UNORM_PACK32</p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock">51</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">VK_FORMAT_A8B8G8R8_SNORM_PACK32</p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock">52</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">VK_FORMAT_A8B8G8R8_UINT_PACK32</p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock">55</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">VK_FORMAT_A8B8G8R8_SINT_PACK32</p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock">56</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">VK_FORMAT_A8B8G8R8_SRGB_PACK32</p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock">57</p></td>
-</tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">VK_FORMAT_R8_USCALED</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">11</p></td>
@@ -1582,6 +1584,22 @@ device.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">1000156033</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">VK_FORMAT_G8_B8R8_2PLANE_444_UNORM</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">1000330000</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">VK_FORMAT_G10X6_B10X6R10X6_2PLANE_444_UNORM_3PACK16</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">1000330001</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">VK_FORMAT_G12X4_B12X4R12X4_2PLANE_444_UNORM_3PACK16</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">1000330002</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">VK_FORMAT_G16_B16R16_2PLANE_444_UNORM</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">1000330003</p></td>
+</tr>
 </tbody>
 </table>
 <div class="admonitionblock note">
@@ -1592,13 +1610,6 @@ device.</p>
 </td>
 <td class="content">
 <div class="title">Rationale</div>
-<div class="paragraph">
-<p>The A8B8G8R8*PACK32 formats are prohibited because the end result
-is the same regardless of whether the data is treated as packed
-into 32-bits or as the equivalent R8G8B8A8 format, i.e. as an array
-of 4 bytes, so a Data Format Descriptor cannot distinguish between
-these cases.</p>
-</div>
 <div class="paragraph">
 <p>The *SCALED* formats are prohibited because they are intended for
 vertex data, very few, if any, implementations support using them
@@ -1731,15 +1742,14 @@ upload the data to a graphics API. When <code>typeSize</code> is greater than
 data since it is little-endian. When format is <code>VK_FORMAT_UNDEFINED</code>,
 <code>typeSize</code> must equal 1. For formats whose Vulkan names have the
 suffix <code>_BLOCK</code> it must equal 1. For formats with the suffix <code>_PACKxx</code>
-it must equal the value of \(xx / 8\). For formats with the suffix
-<code>_nPACKxx</code> it must equal the value of \(n * xx / 8\). For unpacked formats,
-except combined depth/stencil formats, it must equal the number of
-bytes needed for a single component which can be derived from the
-format name. E.g for <code>VK_FORMAT_R16G16B16_UNORM</code> it will be \(16
-/ 8\).  This means it will equal 1 for any format with 8-bit components.
-For <code>VK_FORMAT_D16_UNORM_S8_UINT</code>, using the layout defined in this
-specification, the value will be 2 and for the other combined
-depth/stencil formats the value will be 4.</p>
+or <code>_nPACKxx</code> it must equal the value of \(xx / 8\). For unpacked
+formats, except combined depth/stencil formats, it must equal the
+number of bytes needed for a single component which can be derived
+from the format name. E.g for <code>VK_FORMAT_R16G16B16_UNORM</code> it will
+be \(16 / 8\).  This means it will equal 1 for any format with
+8-bit components.  For <code>VK_FORMAT_D16_UNORM_S8_UINT</code>, using the
+layout defined in this specification, the value will be 2 and for
+the other combined depth/stencil formats the value will be 4.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -8615,6 +8625,474 @@ Some vendor-specific extensions (e.g. <code>GL_NV_depth_buffer_float</code>) def
 <ul>
 <li>
 <p><code>MTLPixelFormat</code>: <a href="https://developer.apple.com/documentation/metal/mtlpixelformat/MTLPixelFormatBGRA8Unorm_sRGB">MTLPixelFormatBGRA8Unorm_sRGB</a>.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1">VK_FORMAT_A8B8G8R8_UNORM_PACK32</dt>
+<dd>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Layout</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Type Size: 4.</p>
+</li>
+<li>
+<p>Texel Block Dimensions: 1x1x1.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">OpenGL</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>glInternalFormat</code>: GL_RGBA8.</p>
+</li>
+<li>
+<p><code>glFormat</code>: GL_RGBA.</p>
+</li>
+<li>
+<p><code>glType</code>: GL_UNSIGNED_BYTE.</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">OpenGL Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Core 1.0+.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">OpenGL ES Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Core 1.0+.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">WebGL Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Core 1.0+.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">Direct3D</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>DXGI_FORMAT</code>: <a href="https://docs.microsoft.com/en-us/windows/desktop/api/dxgiformat/ne-dxgiformat-dxgi_format">DXGI_FORMAT_R8G8B8A8_UNORM</a>.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">Metal</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>MTLPixelFormat</code>: <a href="https://developer.apple.com/documentation/metal/mtlpixelformat/MTLPixelFormatRGBA8Unorm">MTLPixelFormatRGBA8Unorm</a>.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1">VK_FORMAT_A8B8G8R8_SNORM_PACK32</dt>
+<dd>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Layout</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Type Size: 4.</p>
+</li>
+<li>
+<p>Texel Block Dimensions: 1x1x1.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">OpenGL</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>glInternalFormat</code>: GL_RGBA8_SNORM.</p>
+</li>
+<li>
+<p><code>glFormat</code>: GL_RGBA.</p>
+</li>
+<li>
+<p><code>glType</code>: GL_BYTE.</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">OpenGL Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Core 3.1+.</p>
+</li>
+<li>
+<p><code>GL_EXT_texture_snorm</code>.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">OpenGL ES Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Core 3.0+.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">WebGL Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Core 2.0+.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">Direct3D</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>DXGI_FORMAT</code>: <a href="https://docs.microsoft.com/en-us/windows/desktop/api/dxgiformat/ne-dxgiformat-dxgi_format">DXGI_FORMAT_R8G8B8A8_SNORM</a>.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">Metal</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>MTLPixelFormat</code>: <a href="https://developer.apple.com/documentation/metal/mtlpixelformat/MTLPixelFormatRGBA8Snorm">MTLPixelFormatRGBA8Snorm</a>.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1">VK_FORMAT_A8B8G8R8_UINT_PACK32</dt>
+<dd>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Layout</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Type Size: 4.</p>
+</li>
+<li>
+<p>Texel Block Dimensions: 1x1x1.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">OpenGL</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>glInternalFormat</code>: GL_RGBA8UI.</p>
+</li>
+<li>
+<p><code>glFormat</code>: GL_RGBA_INTEGER.</p>
+</li>
+<li>
+<p><code>glType</code>: GL_UNSIGNED_BYTE.</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">OpenGL Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Core 3.0+.</p>
+</li>
+<li>
+<p><code>GL_EXT_texture_integer</code>.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">OpenGL ES Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Core 3.0+.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">WebGL Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Core 2.0+.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">Direct3D</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>DXGI_FORMAT</code>: <a href="https://docs.microsoft.com/en-us/windows/desktop/api/dxgiformat/ne-dxgiformat-dxgi_format">DXGI_FORMAT_R8G8B8A8_UINT</a>.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">Metal</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>MTLPixelFormat</code>: <a href="https://developer.apple.com/documentation/metal/mtlpixelformat/MTLPixelFormatRGBA8Uint">MTLPixelFormatRGBA8Uint</a>.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1">VK_FORMAT_A8B8G8R8_SINT_PACK32</dt>
+<dd>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Layout</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Type Size: 4.</p>
+</li>
+<li>
+<p>Texel Block Dimensions: 1x1x1.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">OpenGL</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>glInternalFormat</code>: GL_RGBA8I.</p>
+</li>
+<li>
+<p><code>glFormat</code>: GL_RGBA_INTEGER.</p>
+</li>
+<li>
+<p><code>glType</code>: GL_BYTE.</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">OpenGL Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Core 3.0+.</p>
+</li>
+<li>
+<p><code>GL_EXT_texture_integer</code>.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">OpenGL ES Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Core 3.0+.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">WebGL Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Core 2.0+.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">Direct3D</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>DXGI_FORMAT</code>: <a href="https://docs.microsoft.com/en-us/windows/desktop/api/dxgiformat/ne-dxgiformat-dxgi_format">DXGI_FORMAT_R8G8B8A8_SINT</a>.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">Metal</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>MTLPixelFormat</code>: <a href="https://developer.apple.com/documentation/metal/mtlpixelformat/MTLPixelFormatRGBA8Sint">MTLPixelFormatRGBA8Sint</a>.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1">VK_FORMAT_A8B8G8R8_SRGB_PACK32</dt>
+<dd>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Layout</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Type Size: 4.</p>
+</li>
+<li>
+<p>Texel Block Dimensions: 1x1x1.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">OpenGL</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>glInternalFormat</code>: GL_SRGB8_ALPHA8.</p>
+</li>
+<li>
+<p><code>glFormat</code>: GL_RGBA.</p>
+</li>
+<li>
+<p><code>glType</code>: GL_UNSIGNED_BYTE.</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">OpenGL Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Core 2.1+.</p>
+</li>
+<li>
+<p><code>GL_EXT_texture_sRGB</code>.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">OpenGL ES Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Core 3.0+.</p>
+</li>
+<li>
+<p><code>GL_EXT_sRGB</code>.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">WebGL Support</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Core 2.0+.</p>
+</li>
+<li>
+<p><a href="https://www.khronos.org/registry/webgl/extensions/EXT_sRGB"><code>EXT_sRGB</code></a>.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">Direct3D</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>DXGI_FORMAT</code>: <a href="https://docs.microsoft.com/en-us/windows/desktop/api/dxgiformat/ne-dxgiformat-dxgi_format">DXGI_FORMAT_R8G8B8A8_UNORM_SRGB</a>.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">Metal</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>MTLPixelFormat</code>: <a href="https://developer.apple.com/documentation/metal/mtlpixelformat/MTLPixelFormatRGBA8Unorm_sRGB">MTLPixelFormatRGBA8Unorm_sRGB</a>.</p>
 </li>
 </ul>
 </div>
@@ -24583,6 +25061,25 @@ GL formats mapping.</p>
 </ul>
 </div></div></td>
 </tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">2024-02-15</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>Fix <code>typeSize</code> for formats with
+<code>_nPACKxx</code> suffix.</p>
+</li>
+<li>
+<p>Prohibit YCbCr 2-plane 444 formats
+recently added to Vulkan.</p>
+</li>
+<li>
+<p>Allow <code>A8B8G8R8*PACK32</code> formats.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
 </tbody>
 </table>
 <h2 id="_acknowledgements" class="discrete">Acknowledgements</h2>
@@ -24606,8 +25103,8 @@ conflicts.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.0.2<br>
-Last updated 2023-09-07 05:17:12 UTC
+Version 2.0.3<br>
+Last updated 2024-02-15 06:22:11 UTC
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/run_prettify.min.js"></script>
