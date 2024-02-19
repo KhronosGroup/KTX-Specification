@@ -2,6 +2,7 @@
 # See https://docs.travis-ci.com/user/multi-os/ for more info.
 
 os: osx
+osx_image: xcode14.2
 
 language: ruby
 
@@ -21,6 +22,8 @@ before_script:
 
 script:
   - make
+  # Test switch generator and generated switches.
+  - cd switch_test; make
 
 deploy:
   provider: pages
