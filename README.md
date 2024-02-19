@@ -29,6 +29,7 @@ To ensure correct mappings from Vulkan's `VkFormat` to other GPU APIs, this repo
 - [JSON database](formats.json) ([schema](formats.schema.json)) with mappings to OpenGL, Direct3D, and Metal enums.
 - [Switch-case generator](generate_format_switches.rb) that produces 5 files with simple C-like case-return statements.
   > **Usage:** `./generate_format_switches.rb [<out_dir>]`
+- [Compile test of the case statements](switch_test_vk2gl.c) that serves as an example of use.
 
 ### <a id="kwexpansion"></a>$Date$ keyword expansion
 

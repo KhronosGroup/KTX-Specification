@@ -21,6 +21,8 @@ before_script:
 
 script:
   - make
+  # Test switch generator and generated switches.
+  - cd switch_test; make
 
 deploy:
   provider: pages
