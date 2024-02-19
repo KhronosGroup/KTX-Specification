@@ -39,6 +39,9 @@ CFLAGS := -I $(dest) -Werror -c
 $(dest)/vk2gl.o: inlines headers
 	$(CC) $(CFLAGS) -o $@ vk2gl.c
 
+# &: is the "grouping separator" added in GNU make 4.3 to tell Make that
+# the command generates all listed targets. Earlier versionsa treat this
+# the same as the : separator and will issue the command for each target.
 $(inlines) &: $(dest) $(depth)/formats.json $(depth)/generate_format_switches.rb
 	cd $(depth); ./generate_format_switches.rb $(mkfile_dir)/$(dest)
 
