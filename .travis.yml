@@ -23,7 +23,7 @@ before_script:
 script:
   - make
   # Test switch generator and generated switches.
-  - cd switch_test; make
+  - pushd switch_test; make; popd
 
 deploy:
   provider: pages
