@@ -112,6 +112,14 @@
 #endif
 
 
+/**
+ * @brief Return the glInternalFormat equivalent to the vkFormat.
+ *
+ * @param[in] vkFormat VkFormat enumerator value to look up.
+ *
+ * @return a GLenum with the equivalent internal format value.
+ *         GL_INVALID_VALUE if none found.
+ */
 GLenum vkFormat2glInternalFormat( VkFormat vkFormat )
 {
     switch ( vkFormat )
@@ -122,6 +130,22 @@ GLenum vkFormat2glInternalFormat( VkFormat vkFormat )
 }
 
 
+/**
+ * @brief Return the glFormat equivalent to the vkFormat.
+ *
+ * Only non-block compressed vkFormats have an equivalent glFormat as
+ * only the glInternalformat is needed for loading compressed
+ * textures. GL_INVALID_VALUE is returned for block-compressed formats.
+ *
+ * It is not possible to tell from the vkFormat token value when the
+ * format is block compressed. If operating in the context of a KTX
+ * file the embedded DFD's @c colorModel can be used to distinguish.
+ *
+ * @param[in] vkFormat VkFormat enumerator value to look up.
+ *
+ * @return a GLenum with the equivalent format value. GL_INVALID_VALUE
+ *         if none found.
+ */
 GLenum vkFormat2glFormat( VkFormat vkFormat )
 {
     switch ( vkFormat )
@@ -132,6 +156,18 @@ GLenum vkFormat2glFormat( VkFormat vkFormat )
 }
 
 
+/**
+ * @brief Return the glType equivalent to the vkFormat.
+ *
+ * Only non-block compressed vkFormats have an equivalent glType as
+ * only the glInternalformat is needed for loading compressed
+ * textures. @see vkFormat2glFormat for more details.
+ *
+ * @param[in] vkFormat VkFormat enumerator value to look up.
+ *
+ * @return a GLenum with the equivalent format value. GL_INVALID_VALUE
+ *         if none found.
+ */
 GLenum vkFormat2glType( VkFormat vkFormat )
 {
     switch ( vkFormat )
