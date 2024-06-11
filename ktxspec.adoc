@@ -1247,7 +1247,7 @@ of <<KDF13>>.
 
 ==== dfdBlock
 A `Descriptor Block` as defined in Section 4.1 of <<KDF13>>. The
-high-order 16 bits of its first UInt32 are the `descriptor_type`
+high-order 15 bits of its first UInt32 are the `descriptor_type`
 and the high-order 16 bits of the second UInt32 are the
 `descriptor_block_size`.  `descriptor_block_size` is mandated to
 be a multiple of 4 which guarantees that the following
