@@ -977,6 +977,9 @@ _dfDescriptorBlock_.
     - If <<_vkformat,`vkFormat`>> is not one of the `+*_HLG{,_*}+`
       formats and an HLG variant of that format exists,
       `transferFunction` should not be `KHR_DF_TRANSFER_HLG`.
+* If <<_vkformat,`vkFormat`>> is one of the `+*_[SU]INT{,*}+` formats
+  or one of the depth/stencil formats `transferFunction` must be
+  `KHR_DF_TRANSFER_UNSPECIFIED`.
 
 [NOTE]
 ====
@@ -985,6 +988,12 @@ For example, `VK_FORMAT_R8G8B8A8_UNORM` should not be used with
 
 On the other hand, `VK_FORMAT_A2B10G10R10_UNORM_PACK32` may be used with
 `KHR_DF_TRANSFER_SRGB` because there is no sRGB variant of this format.
+====
+
+[NOTE]
+====
+The `+*ASTC_*_SRGB_BLOCK+` formats are not variants of the
+`+*ASTC_*_SFLOAT_BLOCK+` formats.
 ====
 
 [NOTE]
