@@ -977,9 +977,10 @@ _dfDescriptorBlock_.
     - If <<_vkformat,`vkFormat`>> is not one of the `+*_HLG{,_*}+`
       formats and an HLG variant of that format exists,
       `transferFunction` should not be `KHR_DF_TRANSFER_HLG`.
-* If <<_vkformat,`vkFormat`>> is one of the `+*_[SU]INT{,*}+` formats
+* If <<_vkformat,`vkFormat`>> is one of the `+*_[SU]INT{,_*}+` formats
   or one of the depth, stencil, or combined depth/stencil formats
-  `transferFunction` must be `KHR_DF_TRANSFER_UNSPECIFIED`.
+  `colorPrimaries` must be `KHR_DF_PRIMARIES_UNSPECIFIED` and `transferFunction`
+  must be `KHR_DF_TRANSFER_UNSPECIFIED`.
 
 [NOTE]
 ====
@@ -1005,9 +1006,9 @@ limited hardware support of such inputs.
 
 [NOTE]
 ====
-`colorPrimaries` may be any of the available values since conversion
-of the selected primaries and white point to a display's can be done
-simply with a 3x3 matrix multiply.
+Except for the formats for which it is specified above, `colorPrimaries` may
+be any of the available values since conversion of the selected primaries
+and white point to a display's can be done simply with a 3x3 matrix multiply.
 
 Still, `KHR_DF_PRIMARIES_BT709` / `KHR_DF_PRIMARIES_SRGB` is recommended
 for standard dynamic range, standard gamut images.
