@@ -978,8 +978,8 @@ _dfDescriptorBlock_.
       formats and an HLG variant of that format exists,
       `transferFunction` should not be `KHR_DF_TRANSFER_HLG`.
 * If <<_vkformat,`vkFormat`>> is one of the `+*_[SU]INT{,*}+` formats
-  or one of the depth/stencil formats `transferFunction` must be
-  `KHR_DF_TRANSFER_UNSPECIFIED`.
+  or one of the depth, stencil, or combined depth/stencil formats
+  `transferFunction` must be `KHR_DF_TRANSFER_UNSPECIFIED`.
 
 [NOTE]
 ====
