@@ -539,7 +539,7 @@ If `faceCount` is equal to 6, `pixelHeight` must be equal to
 `pixelWidth`, and `pixelDepth` must be 0.
 
 `pixelHeight` must not be 0 for block-compressed formats, including
-BasisLZ/ETC1S and UASTC.
+BasisLZ/ETC1S, UASTC and UASTC HDR.
 
 `pixelDepth` must not be 0 for block-compressed formats that have
 block depth greater than 1.
@@ -968,7 +968,7 @@ _dfDescriptorBlock_.
   be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA` or the matching
   block compressed color model listed in <<KDF14>>
   {url-df-spec}#CompressedFormatModels[Section 5.6] or its successors,
-  currently `KHR_DF_MODEL_BC1A` to `KHR_DF_MODEL_UASTC`.
+  currently `KHR_DF_MODEL_BC1A` to `KHR_DF_MODEL_UASTC_HDR`.
   `KHR_DF_MODEL_YUVSDA` should be used for all non-prohibited
   `+*_422_*+` formats.
 * If <<_vkformat,`vkFormat`>> is one of the `+*_SRGB{,_*}+` formats,
@@ -1133,6 +1133,21 @@ have shaders that understand this channel layout.
 The bitstream of the UASTC data is described in Chapter 25
 {url-df-spec}#UASTC[_UASTC Compressed Texture Image Format_] of
 <<KDF14>>.
+
+Basis Universal UASTC HDR Format::
+The Universal ASTC HDR image format (UASTC HDR) is indicated by
+`colorModel` `KHR_DF_MODEL_UASTC_HDR` (= 167) together with `vkFormat`
+`VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK` (= 1000066000). The DFD must be
+as described in Section ??? of <<KDF13>>. Images in this format are
+a strict RGB-only ASTC subset that must be transcoded to BC6h before
+being uploaded to and sampled by a GPU that does not support ASTC.
+UASTC HDR images can be supercompressed with Zstandard
+(`supercompressionScheme` = 2).  If supercompression is used, the
+DFD's `bytesPlane[0-7]` must be set to 0 as described in the next
+subsection.
++
+This color model provides a single channel id `KHR_DF_CHANNEL_UASTC_HDR_RGB`
+(= 0, the same value as `KHR_DF_CHANNEL_ASTC_DATA`).
 
 [[etc1s]]
 Basis Universal ETC1S Format::
