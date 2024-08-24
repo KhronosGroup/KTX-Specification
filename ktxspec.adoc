@@ -1139,15 +1139,15 @@ The Universal ASTC HDR image format (UASTC HDR) is indicated by
 `colorModel` `KHR_DF_MODEL_UASTC_HDR` (= 167) together with `vkFormat`
 `VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK` (= 1000066000). The DFD must be
 as described in Section ??? of <<KDF13>>. Images in this format are
-a strict RGB-only ASTC subset that must be transcoded to BC6h before
-being uploaded to and sampled by a GPU that does not support ASTC.
-UASTC HDR images can be supercompressed with Zstandard
-(`supercompressionScheme` = 2).  If supercompression is used, the
-DFD's `bytesPlane[0-7]` must be set to 0 as described in the next
-subsection.
+a strict RGB-only ASTC HDR subset that must be transcoded to BC6H
+or decoded to raw 16-bit floating-point values before being uploaded
+to and sampled by a GPU that does not support ASTC.  UASTC HDR
+images can be supercompressed with Zstandard (`supercompressionScheme`
+= 2).  If supercompression is used, the DFD's `bytesPlane[0-7]`
+must be set to 0 as described in the next subsection.
 +
 This color model provides a single channel id `KHR_DF_CHANNEL_UASTC_HDR_RGB`
-(= 0, the same value as `KHR_DF_CHANNEL_ASTC_DATA`).
+(= 0).
 
 [[etc1s]]
 Basis Universal ETC1S Format::
