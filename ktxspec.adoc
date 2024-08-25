@@ -1098,7 +1098,7 @@ can be supercompressed with Zstandard (`supercompressionScheme` =
 Optimization. If supercompression is used, the DFD must follow the
 rules described in the next subsection.
 +
-This color model provides channel Ids, e.g. `KHR_DF_CHANNEL_UASTC_RGB`
+This color model provides channel types, e.g. `KHR_DF_CHANNEL_UASTC_RGB`
 that must be used to indicate the effective number of components
 in the data.  Consumers use this information to help select a
 transcode target. The following ids are valid and must be used for
@@ -1126,7 +1126,7 @@ the type of data indicated.
 [TIP]
 ====
 _UASTC_RRRG cannot be transcoded to the RG channels of an ASTC or BC7
-texture. Applications using this channel id will have to use swizzles or
+texture. Applications using this channel type will have to use swizzles or
 have shaders that understand this channel layout.
 ====
 +
@@ -1146,8 +1146,9 @@ images can be supercompressed with Zstandard (`supercompressionScheme`
 = 2). If supercompression is used, the DFD's `bytesPlane[0-7]`
 must be set to 0 as described in the next subsection.
 +
-This color model provides a single channel id `KHR_DF_CHANNEL_UASTC_HDR_RGB`
-(= 0).
+This color model provides a single channel with type
+`KHR_DF_CHANNEL_UASTC_HDR_RGB` (= 0) for which the
+`KHR_DF_SAMPLE_DATATYPE_FLOAT` flag (= 0x80) must be set.
 
 [[etc1s]]
 Basis Universal ETC1S Format::
@@ -1177,7 +1178,7 @@ For better compression results, non-RGB slices may have the same value
 replicated in all 3 slice components.
 +
 Whether there are 1 or 2 slices depends on the pre-deflation components
-as detailed in the following table of valid channel id combinations.
+as detailed in the following table of valid channel type combinations.
 +
 [width=100%,align=center,cols="<65,<35",options=header]
 |===
