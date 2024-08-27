@@ -327,12 +327,12 @@ in {url-vk-docs-sp-chapters}/formats.html[Formats] on <<VULKAN-DOCS>>.
 
 Use of the value `VK_FORMAT_UNDEFINED` (0) is only permissible when
 the format of the data is a not a recognized Vulkan format, such
-as in the case of the universal texture formats. In this case
-information about the format must be provided by the Data Format
-Descriptor and, in cases where the format is known to another GPU
-API, the KTX writer must include one or more of the metadata items
-described in <<formatMappingMetadata>>.  Some permissible uses are
-outlined within this specification and summarized in
+as in the case of some of the universal texture formats. In this
+case information about the format must be provided by the Data
+Format Descriptor and, in cases where the format is known to another
+GPU API, the KTX writer must include one or more of the metadata
+items described in <<formatMappingMetadata>>.  Some permissible
+uses are outlined within this specification and summarized in
 <<Use of `VK_FORMAT_UNDEFINED`>>.
 
 The table in <<formatMapping>> gives the mapping for all `VkFormat`
