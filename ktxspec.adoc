@@ -1150,6 +1150,12 @@ This color model has a single channel with id
 `KHR_DF_CHANNEL_UASTC_HDR_RGB` (= 0) for which the
 `KHR_DF_SAMPLE_DATATYPE_FLOAT` flag (= 0x80) must be set.
 
+[NOTE]
+====
+Although the Vulkan format names for ASTC HDR use `SFLOAT`, ASTC HDR and
+therefore UASTC HDR values cannot be < 0.
+====
+
 [[etc1s]]
 Basis Universal ETC1S Format::
 The ETC1S image format is indicated by `colorModel` `KHR_DF_MODEL_ETC1S`
