@@ -656,10 +656,11 @@ uses global data. The format of the global data for a scheme
 is specified in the reference given in the _Global Data Format_
 column of <<supercompressionSchemes>>.
 
-Image data may be conditioned with Rate-distortion Optimization prior to
-supercompression to further reduce the final size. This is transparent
-to the user of the texture so KTX provides no indication that RDO has
-been used.
+Image data may be conditioned with Rate-Distortion Optimization
+prior to supercompression to improve compressibility, further
+reducing the final size. This is an encoding detail which is
+transparent to the user of the texture so KTX provides no indication
+that RDO has been used.
 
 When a supercompression scheme is used, the image data must be
 inflated from the scheme prior to GPU sampling.
