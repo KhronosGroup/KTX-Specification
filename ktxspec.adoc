@@ -656,6 +656,11 @@ uses global data. The format of the global data for a scheme
 is specified in the reference given in the _Global Data Format_
 column of <<supercompressionSchemes>>.
 
+Image data may be conditioned with Rate-distortion Optimization prior to
+supercompression to further reduce the final size. This is transparent
+to the user of the texture so KTX provides no indication that RDO has
+been used.
+
 When a supercompression scheme is used, the image data must be
 inflated from the scheme prior to GPU sampling.
 
@@ -1092,11 +1097,11 @@ The Universal ASTC image format (UASTC) is indicated by `colorModel`
 {url-df-spec}#KHR_DF_MODEL_UASTC[_KHR_DF_MODEL_UASTC_] of
 <<KDF14>>. Images in this format must be transcoded to a GPU-supported
 block-compressed format or decoded to a GPU-supported uncompressed
-format before being uploaded to and sampled by a GPU.  UASTC images
-can be supercompressed with Zstandard (`supercompressionScheme` =
-2) with or without first conditioning the data with Rate-distortion
-Optimization. If supercompression is used, the DFD must follow the
-rules described in the next subsection.
+format before being uploaded to and sampled by a GPU. UASTC images
+can be supercompressed with any scheme except BasisLZ
+(`supercompressionScheme` = 1). If supercompression is used, the
+DFD must follow the rules described in the next subsection.
+subsection.
 +
 This color model has a single channel with several possible ids,
 e.g. `KHR_DF_CHANNEL_UASTC_RGB`, that are used to indicate the
@@ -1142,9 +1147,10 @@ as described in Section ??? of <<KDF13>>. Images in this format are
 a strict RGB-only ASTC HDR subset that must be transcoded to BC6H
 or decoded to raw 16-bit floating-point values before being uploaded
 to and sampled by a GPU that does not support ASTC HDR. UASTC HDR
-images can be supercompressed with Zstandard (`supercompressionScheme`
-= 2). If supercompression is used, the DFD's `bytesPlane[0-7]`
-must be set to 0 as described in the next subsection.
+images can be supercompressed with any scheme except BasisLZ
+(`supercompressionScheme` = 1). If supercompression is used, the
+DFD's `bytesPlane[0-7]` must be set to 0 as described in the next
+subsection.
 +
 This color model has a single channel with id
 `KHR_DF_CHANNEL_UASTC_HDR_RGB` (= 0) for which the
