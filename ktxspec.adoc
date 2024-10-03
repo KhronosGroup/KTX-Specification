@@ -1139,7 +1139,8 @@ The bitstream of the UASTC data is described in Chapter 25
 Basis Universal UASTC HDR Format::
 The Universal ASTC HDR image format (UASTC HDR) is indicated by
 `colorModel` `KHR_DF_MODEL_UASTC_HDR` (= 167) together with `vkFormat`
-`VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK` (= 1000066000). The DFD must be
+`VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK` (= 1000066000) or
+`VK_FORMAT_ASTC_6x6_SFLOAT_BLOCK` (= 1000066004). The DFD must be
 as described in Section ??? of <<KDF13>>. Images in this format are
 a strict RGB-only ASTC HDR subset that must be transcoded to BC6H
 or decoded to raw 16-bit floating-point values before being uploaded
@@ -1151,12 +1152,13 @@ subsection.
 +
 This color model has a single channel with id
 `KHR_DF_CHANNEL_UASTC_HDR_RGB` (= 0) for which the
-`KHR_DF_SAMPLE_DATATYPE_FLOAT` flag (= 0x80) must be set.
+`KHR_DF_SAMPLE_DATATYPE_FLOAT` qualifier (= 0x80) must be set.
 
 [NOTE]
 ====
-Although the Vulkan format names for ASTC HDR use `SFLOAT`, ASTC HDR and
-therefore UASTC HDR values cannot be < 0.
+Because void-extent blocks in ASTC HDR can have negative values the Vulkan
+format names for ASTC HDR use `SFLOAT` although regular ASTC HDR blocks
+cannot have negative values. No UASTC HDR value can be < 0.
 ====
 
 [[etc1s]]
