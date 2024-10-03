@@ -1156,9 +1156,9 @@ This color model has a single channel with id
 
 [NOTE]
 ====
-Because void-extent blocks in ASTC HDR can have negative values the Vulkan
-format names for ASTC HDR use `SFLOAT` although regular ASTC HDR blocks
-cannot have negative values. No UASTC HDR value can be < 0.
+Because void-extent blocks in ASTC HDR can have negative values the
+Vulkan format names for ASTC HDR use `SFLOAT` although regular ASTC
+HDR blocks cannot have negative values. No UASTC HDR value can be < 0.
 ====
 
 [[etc1s]]
