@@ -2295,8 +2295,9 @@ If using a skybox to render the cubemap, the (s, t, r) coordinates
 passed to the cubemap sampler need to match the KTX cubemap coordinate
 system, that is left-handed with +Y up, +Z forward and +X on the right.
 
-If using OpenGL's default object space, which is right-handed, you
-can transform your skybox cube coordinates to the necessary left-handed
+A widely used object space in OpenGL is right-handed with +Y up,
++Z out of the screen and +X to the right. If using this, you can
+transform your skybox cube coordinates to the necessary left-handed
 system by multiplying either the X or the Z coordinate by -1. The
 former places the +Z face in the +Z direction so, if using OpenGL's
 default view, that face will be behind you. The latter places the
@@ -2305,9 +2306,9 @@ to do one of these things will result in the skybox scene being a
 mirror image of reality, a common error in samples found on the
 web.
 
-While Vulkan defaults to a left-handed coordinate system it has +Y
-down, with +Z out of the screen (behind the default view) and +X
-to the right. To transform these skybox coordinates to the cubemap's
+Vulkan apps often use a similar but left-handed object space with
++Y down, +Z out of the screen (behind the default view) and +X to
+the right.  To transform these skybox coordinates to the cubemap's
 coordinate system, either
 
 * multiply both Y and Z by -1 to keep +Y up and place the +Z face
@@ -2447,6 +2448,10 @@ include::appendices/vendor-metadata.adoc[]
                                     - Prohibit YCbCr 2-plane 444 formats
                                       recently added to Vulkan.
                                     - Allow `A8B8G8R8*PACK32` formats.
+                                    - Do not use "default" in describing
+                                      the object coordinate systems
+                                      commonly used with OpenGL and
+                                      Vulkan.
 |===
 
 [discrete]
