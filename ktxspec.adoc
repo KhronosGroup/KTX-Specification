@@ -2029,6 +2029,37 @@ seconds is stem:[\texttt{duration} / \texttt{timescale}].
 This metadata entry must not be used together with
 <<KTXcubemapIncomplete,`KTXcubemapIncomplete`>>.
 
+=== KTXmapRange
+When data is input from a source with 32-bit floating point data,
+such as a .exr file, and compressed to an HDR block format, such
+as ASTC HDR, BC6H or UASTC HDR, the values in the source may be
+mapped to the more limited range of the block-compressed format.
+KTX file writers may indicate the mapping by using the key
+
+- `KTXmapRange`
+
+The value is 8 bytes representing 2 Float32 values:
+[source,c]
+----
+Float32 scale
+Float32 offset
+----
+
+A shader can restore the original 32-bit float value with
+[stem]
++++++
+effective = sampled \times scale + offset
++++++
+
+[IMPORTANT]
+====
+It's important to multiply first so that decoders can use a single
+fused multiply-add instruction to apply the scale and the offset
+at once
+====
+
+This metadata entry may be used with any floating point format.
+
 == An example KTX version 2 file:
 
 [source,c]
