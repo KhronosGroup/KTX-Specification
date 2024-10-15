@@ -2038,7 +2038,7 @@ KTX file writers may indicate the mapping by using the key
 
 - `KTXmapRange`
 
-The value is 8 bytes representing 2 Float32 values:
+The value is 8 bytes representing 2 IEEE 754 Float32 values:
 [source,c]
 ----
 Float32 scale
@@ -2054,8 +2054,7 @@ effective = sampled \times scale + offset
 [IMPORTANT]
 ====
 It's important to multiply first so that decoders can use a single
-fused multiply-add instruction to apply the scale and the offset
-at once
+fused multiply-add instruction to apply the scale and the offset.
 ====
 
 This metadata entry may be used with any floating point format.
