@@ -2030,31 +2030,34 @@ This metadata entry must not be used together with
 <<KTXcubemapIncomplete,`KTXcubemapIncomplete`>>.
 
 === KTXmapRange
-When data is input from a source with 32-bit floating point data,
-such as a .exr file, and compressed to an HDR block format, such
-as ASTC HDR, BC6H or UASTC HDR, the values in the source may be
-mapped to the more limited range of the block-compressed format.
+When the payload is a floating point format with a restricted range,
+such as ASTC HDR, RGB9E5 and FLOAT16, and data is input from a
+source with 32-bit floating point data, such as a .exr file,
+the values in the source may be mapped to the more limited range.
 KTX file writers may indicate the mapping by using the key
 
 - `KTXmapRange`
 
-The value is 8 bytes representing 2 IEEE 754 Float32 values:
+The value is 8 bytes representing two IEEE 754 single-precision
+floating-point values:
 [source,c]
 ----
 Float32 scale
 Float32 offset
 ----
 
-A shader can restore the original 32-bit float value with
+An application can restore the original 32-bit float value with
 [stem]
 +++++
 effective = sampled \times scale + offset
 +++++
+where stem:[sampled] is the value retrieved from the texture after any
+filtering.
 
-[IMPORTANT]
+[TIP]
 ====
-It's important to multiply first so that decoders can use a single
-fused multiply-add instruction to apply the scale and the offset.
+This formula allows decoders to use a single fused multiply-add
+instruction to apply the scale and the offset.
 ====
 
 This metadata entry may be used with any floating point format.
