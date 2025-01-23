@@ -1154,7 +1154,7 @@ sample's `channelType`, `qualifiers`, `bitlength`, `bitOffset`,
 
 BasisLZ supercompression works only on ETC1S blocks so
 `texelBlockDimension[01]` must be 3 and `bytesPlane0` must be
-1 or, if there is an alpha plane, 2.
+8 and, if there is an alpha plane, `bytesPlane1` must also be 8.
 
 [NOTE]
 ====
