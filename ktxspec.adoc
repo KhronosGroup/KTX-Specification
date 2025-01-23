@@ -539,7 +539,7 @@ If `faceCount` is equal to 6, `pixelHeight` must be equal to
 `pixelWidth`, and `pixelDepth` must be 0.
 
 `pixelHeight` must not be 0 for block-compressed formats, including
-BasisLZ/ETC1S, UASTC and UASTC HDR.
+BasisLZ/ETC1S, UASTC, UASTC HDR and GPU Photo
 
 `pixelDepth` must not be 0 for block-compressed formats that have
 block depth greater than 1.
@@ -965,13 +965,13 @@ A _dfDescriptor_ is useful in the following cases:
 The following restrictions must be obeyed when setting the fields of a
 _dfDescriptorBlock_.
 
-* If <<_vkformat,`vkFormat`>> is not `VK_FORMAT_UNDEFINED`, the
-  DFD's `texelBlockDimension*`, `bytesPlane*` and sample information
-  fields must match the format's definition. The `colorModel` must
-  be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA` or the matching
-  block compressed color model listed in <<KDF14>>
+* If <<_vkformat,`vkFormat`>> is not `VK_FORMAT_UNDEFINED`, the DFD's
+  `texelBlockDimension*`, `bytesPlane*` and sample information fields
+  must match the format's definition. The `colorModel` must be
+  `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA` or the matching block
+  compressed color model listed in <<KDF14>>
   {url-df-spec}#CompressedFormatModels[Section 5.6] or its successors,
-  currently `KHR_DF_MODEL_BC1A` to `KHR_DF_MODEL_UASTC_HDR`.
+  currently `KHR_DF_MODEL_BC1A` to `KHR_DF_MODEL_GPU_PHOTO`.
   `KHR_DF_MODEL_YUVSDA` should be used for all non-prohibited
   `+*_422_*+` formats.
 * If <<_vkformat,`vkFormat`>> is one of the `+*_SRGB{,_*}+` formats,
@@ -1241,17 +1241,18 @@ submitting the data to a Basis encoder then the DFD must not
 have a sample with a channelType that indicates it is alpha.
 ====
 
-Basis GPU Photo 6x6::
-The GPU Photo 6x6 format is indicated by `colorModel`
-`KHR_DF_MODEL_GPU_PHOTO_6x6` (= 168)  together with `vkFormat`
-`VK_FORMAT_UNDEFINED` (= 0). Images in this format are always
-supercompressed with the Basis GPU Photo 6x6 scheme and must be
-inflated and transcoded to either standard ASTC HDR 6x6 format, if
-supported by the device, or to raw 16-bit floating-point values,
-before being uploaded to and sampled by a GPU.
+Basis GPU Photo::
+The GPU Photo format is indicated by `colorModel` `KHR_DF_MODEL_GPU_PHOTO`
+(= 168)  together with `vkFormat` `VK_FORMAT_UNDEFINED` (= 0). The
+format supports one compression ratio defined by a texel block size
+in the DFD of 6x6. Images in this format are always supercompressed
+with the Basis GPU Photo 6x6 scheme and must be inflated and
+transcoded to either standard ASTC HDR 6x6 format, if supported by
+the device, or to raw 16-bit floating-point values, before being
+uploaded to and sampled by a GPU.
 +
 This color model has a single channel with id
-`KHR_DF_CHANNEL_GPU_PHOTO_6x6_RGB` (= 0) for which the
+`KHR_DF_CHANNEL_GPU_PHOTO_RGB` (= 0) for which the
 `KHR_DF_SAMPLE_DATATYPE_FLOAT` qualifier (= 0x80) must be set.
 
 ===== DFD for Supercompressed Data
