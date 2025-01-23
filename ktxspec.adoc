@@ -1152,19 +1152,23 @@ the _dfDescriptorBlock_ must preserve the `colorModel`, `transferFunction`,
 sample's `channelType`, `qualifiers`, `bitlength`, `bitOffset`,
 `sampleLower`, and `sampleUpper`.
 
-[NOTE]
-====
-Previous document revisions required  `bytesPlane[0-7]` to be set to
-0 to indicate an _unsized format_ in accordance with Data Formats
-v1.3.1 and unpublished drafts of <<KDF13>>. For the foreseeable future
-software must be able to handle such KTX files.
-====
+BasisLZ supercompression works only on ETC1S blocks so
+`texelBlockDimension[01]` must be 3 and `bytesPlane0` must be
+1 or, if there is an alpha plane, 2.
 
 [NOTE]
 ====
 In the event that a block-compressed format is supercompressed the
 DFD will reflect the color model of the block-compressed format
 most of which have only one or two components.
+====
+
+[NOTE]
+====
+Previous document revisions required  `bytesPlane[0-7]` to be set to
+0 to indicate an _unsized format_ in accordance with Data Formats
+v1.3.1 and unpublished drafts of <<KDF13>>. For the foreseeable future
+software must be able to handle such KTX files.
 ====
 
 <<example_rg>> shows a DFD for images that were `VK_FORMAT_R8G8_UNORM`,
