@@ -1118,10 +1118,11 @@ into the RGB and A components of the supercompressed image in any
 way they choose.  They may also offer an option to apply KTXswizzle
 metadata prior to supercompressing an uncompressed KTX file.
 +
-Images in this format are always supercompressed with BasisLZ and
-must be inflated and transcoded to a GPU-supported block-compressed
-format  or decoded to a GPU-supported uncompressed format before
-being uploaded to and sampled by a GPU. Because ETC1S images are
+Images in this format must be supercompressed. A scheme designed
+for ETC1S streams such as BasisLZ must be used.  Images must be
+inflated and transcoded to a GPU-supported block-compressed format
+or decoded to a GPU-supported uncompressed format before being
+uploaded to and sampled by a GPU. Because ETC1S images are
 supercompressed, the DFD must follow the rules described in the
 next subsection.
 
