@@ -1022,7 +1022,8 @@ function (OOTF). That is the opto-electrical transfer function
 (OETF) is the inverse of the electro-optical transfer function
 (EOTF). When a KTX file has one of these transfer functions
 
-* applications should use the EOTF to decode prior to sampling;
+* applications should use the EOTF to decode prior to sampling and
+  filtering;
 * mipmap generation should use the path EOTF → scaling → OETF.
 
 These transfer functions have no suffix in their enumerator names.
