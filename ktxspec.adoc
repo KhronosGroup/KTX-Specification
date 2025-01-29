@@ -1014,6 +1014,47 @@ Still, `KHR_DF_PRIMARIES_BT709` / `KHR_DF_PRIMARIES_SRGB` is recommended
 for standard dynamic range, standard gamut images.
 ====
 
+==== Use of Transfer Functions
+The majority of transfer functions listed in Chapter 13 _Transfer
+functions_ of <<KDF13>>, with corresponding enumerators in the
+`khr_df_transfer_e` enumeration of `khr_df.h`, have a linear
+opto-optical transfer function. That is the opto-electrical transfer
+function (OETF) is the inverse of the electro-optical transfer
+function (EOTF). When a KTX file has one of these transfer functions
+
+* applications should use the EOTF to decode prior to sampling.
+* mipmap generation should use the path EOTF → scaling → OETF.
+
+These transfer functions have no suffix in their enumerator names.
+
+The sRGB transfer function is one of these, defining an EOTF. EOTF^-1^
+is used as the OETF.
+
+Some transfer functions have a non-linear OOTF. That is the OETF
+is not the inverse of the EOTF. These have two separate enumerations,
+one with an `OETF` suffix, the other with an `EOTF` suffix. When a
+KTX file has an explicit OETF
+
+* the images are _scene referred_ and intended to be decoded to
+  scene-linear values.
+* applications should use OETF^-1^ to decode prior to sampling and
+  filtering.
+* mipmap generation should use the path OETF^-1^ → scaling → OETF.
+
+When a KTX file has an explicit EOTF
+
+* the images are _display referred_ and intended to be decoded to
+  display-linear values.
+* Application should use the EOTF (often derived from the OOTF) to
+  decode prior to sampling and filtering.
+* mipmap generation should use the path EOTF → scaling → EOTF^-1^.
+
+OETF and EOTF formulae are given in Chapter 13 _Transfer functions_ in
+<<KDF13>>
+
+Note that AdobeRGB section of KDFS is unique in not using use the term
+EOTF It should be added.
+
 ==== Providing additional information
 There are several cases where the _dfDescriptorBlock_ is used to
 provide information beyond that given by <<_vkformat,`vkFormat`>>.
