@@ -1018,9 +1018,9 @@ for standard dynamic range, standard gamut images.
 The majority of transfer functions listed in Chapter 13 _Transfer
 functions_ of <<KDF13>>, with corresponding enumerators given in
 Chapter 5 _transferFunction_, have a linear opto-optical transfer
-function. That is the opto-electrical transfer function (OETF) is
-the inverse of the electro-optical transfer function (EOTF). When
-a KTX file has one of these transfer functions
+function (OOTF). That is the opto-electrical transfer function
+(OETF) is the inverse of the electro-optical transfer function
+(EOTF). When a KTX file has one of these transfer functions
 
 * applications should use the EOTF to decode prior to sampling;
 * mipmap generation should use the path EOTF → scaling → OETF.
