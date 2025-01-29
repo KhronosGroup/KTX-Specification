@@ -1153,9 +1153,10 @@ the _dfDescriptorBlock_ must preserve the `colorModel`, `transferFunction`,
 sample's `channelType`, `qualifiers`, `bitlength`, `bitOffset`,
 `sampleLower`, and `sampleUpper`.
 
-BasisLZ supercompression works only on ETC1S blocks so
-`texelBlockDimension[01]` must be 3 and `bytesPlane0` must be
-8 and, if there is an alpha plane, `bytesPlane1` must also be 8.
+BasisLZ supercompression works only on ETC1S blocks so, when it is
+used, `texelBlockDimension[01]` must be 3, `bytesPlane0` must
+be 8 and, if there is an alpha plane, `bytesPlane1` must also be
+8.
 
 [NOTE]
 ====
