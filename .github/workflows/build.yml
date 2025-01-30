@@ -39,14 +39,18 @@ jobs:
 #      with:
 #        ruby-version: 2.7
 
-    - uses: reitzig/actions-asciidoctor@v2.0.2
+#    - uses: reitzig/actions-asciidoctor@v2.0.2
+
+    - name: Install Asciidoctor
+      run: sudo apt-get install -y asciidoctor
 
 #    - name: Force fetch provoking tag's annotation.
 #      # Work around https://github.com/actions/checkout/issues/290.
 #      if: github.ref_type == 'tag'
 #      run: git fetch -f origin ${{ github.ref }}:${{ github.ref }}
 
-    - run: ruby --version; asciidoctor --version
+    - name: Build specs
+      run: ruby --version; asciidoctor --version
 
 #    - name: Upload To Pages
 #      uses: softprops/action-gh-release@v1
