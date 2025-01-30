@@ -6,7 +6,8 @@ osx_image: xcode14.2
 
 language: ruby
 
-#branches:
+branches:
+  exclude: action-develop
 #  only:
 #  - master
 #  # Enable building of tags.
