@@ -80,7 +80,6 @@ jobs:
     # Specify runner + deployment step
     runs-on: ubuntu-latest
     steps:
-      if: 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
