@@ -25,7 +25,7 @@ on:
 
 jobs:
   build-specs:
-    name: Build KTX Cand KTX Fragments specifications
+    name: Build KTX File Format and KTX Fragment URI specifications
     runs-on: ubuntu-latest
 
     env:
@@ -34,12 +34,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-
-#    - uses: ruby/setup-ruby@v1
-#      with:
-#        ruby-version: 2.7
-
-#    - uses: reitzig/actions-asciidoctor@v2.0.2
 
     - name: Install Asciidoctor
       run: sudo apt-get install -y asciidoctor
@@ -50,7 +44,7 @@ jobs:
 #      run: git fetch -f origin ${{ github.ref }}:${{ github.ref }}
 
     - name: Build specs
-      run: ruby --version; asciidoctor --version
+      run: make
 
 #    - name: Upload To Pages
 #      uses: softprops/action-gh-release@v1
