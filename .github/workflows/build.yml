@@ -46,15 +46,7 @@ jobs:
     - name: Build specs
       run: make ghpages
 
-#    - name: Upload artifacts
-#      #id: upload-artifact
-#      # Makes a zip file of the content.
-#      uses: actions/upload-artifact@v4
-#      with:
-#        name: github-pages  # default name sought by deploy-pages.
-#        path: out/ghpages
-
-    - name: Upload static files for GitHub Pages
+    - name: Upload generated files for GitHub Pages
       id: deployment
       uses: actions/upload-pages-artifact@v3
       with:
