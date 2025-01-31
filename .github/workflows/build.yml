@@ -44,7 +44,15 @@ jobs:
 #      run: git fetch -f origin ${{ github.ref }}:${{ github.ref }}
 
     - name: Build specs
-      run: make
+      run: make ghpages
+
+    - name: upload artifacts
+      #id: upload-artifact
+      # Makes a zip file of the content.
+      uses: actions/upload-artifact@v4
+      with:
+        name: github-pages
+        path: out/ghpages
 
   generate-switches:
     name: Generate and test compile format conversion switches.
@@ -74,7 +82,8 @@ jobs:
     # Add a dependency to the build job
     needs: build-specs
     # Only deploy when building `main`.
-    if: github.ref == 'refs/heads/main'
+    #if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/action-develop'
 
     # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
     permissions:

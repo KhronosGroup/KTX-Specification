@@ -1,0 +1,27 @@
+= KTX Specifications (Latest Committed Versions)
+:author: Mark Callow
+:author_org: Edgewise Consulting
+:description: Main page for KTX GitHub pages site
+//:docrev: 3
+//:ktxver: 2.0
+//:revnumber: {ktxver}.{docrev}
+//:revdate: {docdate}
+//:version-label: Version
+:lang: en
+:docinfo1:
+:doctype: article
+:encoding: utf-8
+:stylesheet: khronos.css
+:imagesdir: images
+
+:url-khr-reg: https://registry.khronos.org
+:url-khr-ktx: {url-khr-reg}/KTX
+
+These generated documents reflect the latest commits to the main branch
+of the specification source repo. For latest released (published) versions
+see {url-khr-ktx}[the KTX Registry].
+
+* link:ktxspec.v2.html[KTX v 2.0 Specification]
+* link:ktx-frag.html[KTX Fragment URI Specification]
+
+

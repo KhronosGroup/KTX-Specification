@@ -4,6 +4,7 @@
 out=out
 out.specs = $(out)/specs
 out.switches = $(out)/switches
+out.ghpages = ${out}/ghpages
 
 ktxspec = $(out.specs)/ktxspec.v2
 ktxfrag = $(out.specs)/ktx-frag
@@ -37,12 +38,19 @@ frag_sources := ktx-frag.adoc \
                 $(frag_inlined_images) \
                 docinfo.html
 
+ghpages.index := $(out.ghpages)/index.html
+ghpages.ktxspec := $(out.ghpages)/ktxspec.v2.html
+ghpages.ktxfrag := $(out.ghpages)/ktx-frag.html
+
+# For GitHub CI to build GitHub Pages site.
+ghpages: $(ghpages.index) $(ghpages.ktxspec) $(ghpages.ktxfrag)
+
 switches := vkFormat2dxgiFormat.inl \
               vkFormat2glInternalFormat.inl  \
               vkFormat2mtlFormat.inl \
               vkFormat2glFormat.inl \
               vkFormat2glType.inl
-switches := $(addprefix $(out.switches)/,$(switches))
+switches := $(addprefix ${out.switches}/,${switches})
 
 switches: $(switches)
 
@@ -78,9 +86,15 @@ endef
 $(out.specs)/ktx-media-registration.txt: ktx-media-registration.adoc | $(out.specs)
 	ruby -e '$(pure.rb)' $< >$@
 
+$(ghpages.index): ghpages-index.adoc
+	asciidoctor --trace -v --failure-level INFO -D $(dir $@) -o $(notdir $@) $<
+
 # &: is the "grouping separator" added in GNU make 4.3 to tell Make that
 # the command generates all listed targets. Earlier versionsa treat this
 # the same as the : separator and will issue the command for each target.
+${out.ghpages}/%.html &: ${out.specs}/%.html
+	cp $< $@
+
 $(switches) &: formats.json formats.schema.json generate_format_switches.rb | $(out.switches)
 	./generate_format_switches.rb $(out.switches)
 
