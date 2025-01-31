@@ -28,20 +28,11 @@ jobs:
     name: Build KTX File Format and KTX Fragment URI specifications
     runs-on: ubuntu-latest
 
-#    env:
-#      GIT_LFS_SKIP_SMUDGE: 1
-#      WERROR: ON
-
     steps:
     - uses: actions/checkout@v4
 
     - name: Install Asciidoctor
       run: sudo apt-get install -y asciidoctor
-
-#    - name: Force fetch provoking tag's annotation.
-#      # Work around https://github.com/actions/checkout/issues/290.
-#      if: github.ref_type == 'tag'
-#      run: git fetch -f origin ${{ github.ref }}:${{ github.ref }}
 
     - name: Build specs
       run: make ghpages
@@ -70,8 +61,7 @@ jobs:
     # Add a dependency to the build job
     needs: build-specs
     # Only deploy when building `main`.
-    #if: github.ref == 'refs/heads/main'
-    if: github.ref == 'refs/heads/action-develop'
+    if: github.ref == 'refs/heads/main'
 
     # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
     permissions:
