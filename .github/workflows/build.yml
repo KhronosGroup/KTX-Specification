@@ -46,13 +46,19 @@ jobs:
     - name: Build specs
       run: make ghpages
 
-    - name: upload artifacts
-      #id: upload-artifact
-      # Makes a zip file of the content.
-      uses: actions/upload-artifact@v4
+#    - name: Upload artifacts
+#      #id: upload-artifact
+#      # Makes a zip file of the content.
+#      uses: actions/upload-artifact@v4
+#      with:
+#        name: github-pages  # default name sought by deploy-pages.
+#        path: out/ghpages
+
+    - name: Upload static files for GitHub Pages
+      id: deployment
+      uses: actions/upload-pages-artifact@v3
       with:
-        name: github-pages
-        path: out/ghpages
+        path: out/ghpages/
 
   generate-switches:
     name: Generate and test compile format conversion switches.
@@ -66,16 +72,6 @@ jobs:
 
     - name: Test compile switches
       run: make testswitches
-
-#    - name: Upload To Pages
-#      uses: softprops/action-gh-release@v1
-#      if: github.event_name == 'push' && github.ref_type == 'tag'
-#      with:
-#        draft: true
-#        prerelease: true
-#        files:  KTX-Software-${{env.KTX_VERSION}}-Android.zip*
-#      env:
-#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
     name: Deploy to GitHub Pages
