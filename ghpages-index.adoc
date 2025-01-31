@@ -21,7 +21,7 @@ These generated documents reflect the latest commits to the main branch
 of the specification source repo. For latest released (published) versions
 see {url-khr-ktx}[the KTX Registry].
 
-* link:ktxspec.v2.html[KTX v 2.0 Specification]
+* link:ktxspec.v2.html[KTX v2.0 Specification]
 * link:ktx-frag.html[KTX Fragment URI Specification]
 
 
