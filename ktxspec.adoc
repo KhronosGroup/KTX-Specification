@@ -85,7 +85,7 @@ Document Revision 1 approved by the 3D Formats WG Dec 7th, 2022.
 
 Document Revision 2 approved by the 3D Formats WG Sep 6th, 2023.
 
-Document Revision {docrev} approved by the 3D Formats WG Feb 14th, 2024.
+Document Revision 3 approved by the 3D Formats WG Feb 14th, 2024.
 
 == Introduction
 
