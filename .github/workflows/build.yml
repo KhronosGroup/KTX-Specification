@@ -61,7 +61,8 @@ jobs:
     # Add a dependency to the build job
     needs: build-specs
     # Only deploy when building `main`.
-    if: github.ref == 'refs/heads/main'
+    #if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/action-develop'
 
     # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
     permissions:
