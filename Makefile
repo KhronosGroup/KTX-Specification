@@ -89,12 +89,12 @@ $(out.specs)/ktx-media-registration.txt: ktx-media-registration.adoc | $(out.spe
 $(ghpages.index): ghpages-index.adoc
 	asciidoctor --trace -v --failure-level INFO -D $(dir $@) -o $(notdir $@) $<
 
+${out.ghpages}/%.html: ${out.specs}/%.html
+	cp $< $@
+
 # &: is the "grouping separator" added in GNU make 4.3 to tell Make that
 # the command generates all listed targets. Earlier versionsa treat this
 # the same as the : separator and will issue the command for each target.
-${out.ghpages}/%.html &: ${out.specs}/%.html
-	cp $< $@
-
 $(switches) &: formats.json formats.schema.json generate_format_switches.rb | $(out.switches)
 	./generate_format_switches.rb $(out.switches)
 
