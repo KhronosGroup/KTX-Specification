@@ -4,13 +4,24 @@
 # SPDX-License-Identifier: Apache-2.0
 
 depth := ..
-inlines := vkFormat2glFormat.inl \
-           vkFormat2glInternalFormat.inl \
-           vkFormat2glType.inl
-khrregistry := https://registry.khronos.org
 dest := build
+switches_dir ?= $(dest)
+switches := vkFormat2glFormat.inl \
+            vkFormat2glInternalFormat.inl \
+            vkFormat2glType.inl
+switches := $(addprefix ${switches_dir}/,${switches})
 
-inlines := $(addprefix ${dest}/,${inlines})
+# Make a switches dir relative to the directory $(depth) because that is where
+# generate_format_switches must be run.
+ifeq ($(switches_dir), $(dest))
+  # Produces a full path name. $(dir ...) results ends in a'/' so $(notdir ...)
+  # would return an empty string.
+  generated_switches_dir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))$(dest)
+else
+  generated_switches_dir := $(subst $(depth)/,,${switches_dir})
+endif
+
+khrregistry := https://registry.khronos.org
 
 # This is to use the specially generated vulkan_core.h with the ASTC 3D
 # format enumerators.
@@ -27,23 +38,22 @@ vkheaders := vulkan/vk_platform.h
 #             vk_video/vulkan_video_codec_av1std.h \
 #             vk_video/vulkan_video_codec_av1std_decode.h
 vkheaders := $(addprefix ${dest}/,${vkheaders})
-mkfile_dir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 default: test_compile
-inlines: $(inlines)
+switches: $(switches)
 headers: $(dest) $(addprefix ${dest}/,GL/glcorearb.h KHR/khrplatform.h vulkan/vulkan_core.h)
 test_compile: $(dest)/vk2gl.o
 
-CFLAGS := -I $(dest) -Werror -c
+CFLAGS := -I $(switches_dir) -I $(dest) -Werror -c
 
-$(dest)/vk2gl.o: inlines headers
+$(dest)/vk2gl.o: switches headers | $(dest)
 	$(CC) $(CFLAGS) -o $@ vk2gl.c
 
 # &: is the "grouping separator" added in GNU make 4.3 to tell Make that
 # the command generates all listed targets. Earlier versionsa treat this
 # the same as the : separator and will issue the command for each target.
-$(inlines) &: $(dest) $(depth)/formats.json $(depth)/generate_format_switches.rb
-	cd $(depth); ./generate_format_switches.rb $(mkfile_dir)/$(dest)
+$(switches) &: $(depth)/formats.json $(depth)/formats.schema.json $(depth)/generate_format_switches.rb |$(dest)
+	cd $(depth); ./generate_format_switches.rb $(generated_switches_dir)
 
 $(dest)/GL/glcorearb.h:
 	curl --create-dirs --output-dir $(dest)/GL -L -O $(khrregistry)/OpenGL/api/GL/glcorearb.h

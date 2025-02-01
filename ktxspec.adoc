@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification of a container format for GPU textures.
-:docrev: 3
+:docrev: 4 (draft)
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -2455,11 +2455,15 @@ include::appendices/vendor-metadata.adoc[]
                                       GL formats mapping.
                                     - Increase document width from
                                       55em to 60em.
-|      {docrev}     |  {revdate}  | - Fix `typeSize` for formats with
+|          3       |  2024-02-20  | - Fix `typeSize` for formats with
                                       `_nPACKxx` suffix.
                                     - Prohibit YCbCr 2-plane 444 formats
                                       recently added to Vulkan.
                                     - Allow `A8B8G8R8*PACK32` formats.
+|      {docrev}     |  {revdate}  | - Relax restrictions on
+                                      `colorPrimaries` values.
+                                    - Fix bit size of descriptorType in
+                                      dfdBlock.
                                     - Do not use "default" in describing
                                       the object coordinate systems
                                       commonly used with OpenGL and
