@@ -539,7 +539,7 @@ If `faceCount` is equal to 6, `pixelHeight` must be equal to
 `pixelWidth`, and `pixelDepth` must be 0.
 
 `pixelHeight` must not be 0 for block-compressed formats, including
-BasisLZ/ETC1S, UASTC, UASTC HDR and GPU Photo
+BasisLZ/ETC1S, UASTC, UASTC HDR and GPU Photo.
 
 `pixelDepth` must not be 0 for block-compressed formats that have
 block depth greater than 1.
@@ -1097,9 +1097,10 @@ The Universal ASTC image format (UASTC) is indicated by `colorModel`
 block-compressed format or decoded to a GPU-supported uncompressed
 format before being uploaded to and sampled by a GPU. UASTC images
 can be supercompressed with any scheme except BasisLZ
-(`supercompressionScheme` = 1). If supercompression is used, the
-DFD must follow the rules described in the next subsection.
-subsection.
+(`supercompressionScheme` = 1) and Basis GPU Photo 6x6
+(`supercompressionScheme` = 4). If supercompression is used, the
+DFD must follow the rules described in the next
+<<dfdSupercompressed,subsection>>.
 +
 This color model has a single channel with several possible ids,
 e.g. `KHR_DF_CHANNEL_UASTC_RGB`, that are used to indicate the
@@ -1150,8 +1151,9 @@ Images in this format must be transcoded to BC6H or decoded to raw
 16-bit floating-point values before being uploaded to and sampled
 by a GPU that does not support ASTC HDR.  UASTC HDR images can be
 supercompressed with any scheme except BasisLZ (`supercompressionScheme`
-= 1). If supercompression is used, the DFD must follow the rules
-described in the next subsection.
+= 1) and Basis GPU Photo 6x6 (`supercompressionScheme` = 4). If
+supercompression is used, the DFD must follow the rules described
+in the next <<dfdSupercompressed,subsection>>.
 +
 This color model has a single channel with id
 `KHR_DF_CHANNEL_UASTC_HDR_RGB` (= 0) for which the
@@ -1219,8 +1221,8 @@ for ETC1S streams such as BasisLZ must be used.  Images must be
 inflated and transcoded to a GPU-supported block-compressed format
 or decoded to a GPU-supported uncompressed format before being
 uploaded to and sampled by a GPU. Because ETC1S images are
-supercompressed, the DFD must follow the rules described in the
-next subsection.
+supercompressed, the DFD must follow the rules described in
+the next <<dfdSupercompressed,subsection>>.
 
 TIP: Whether the image has 1 or 2 slices
 can be determined from the DFD's sample count.
@@ -1249,12 +1251,15 @@ in the DFD of 6x6. Images in this format are always supercompressed
 with the Basis GPU Photo 6x6 scheme and must be inflated and
 transcoded to either standard ASTC HDR 6x6 format, if supported by
 the device, or to raw 16-bit floating-point values, before being
-uploaded to and sampled by a GPU.
+uploaded to and sampled by a GPU. Because GPU Photo images are
+supercompressed, the DFD must follow the rules described in
+the next <<dfdSupercompressed,subsection>>.
 +
 This color model has a single channel with id
 `KHR_DF_CHANNEL_GPU_PHOTO_RGB` (= 0) for which the
 `KHR_DF_SAMPLE_DATATYPE_FLOAT` qualifier (= 0x80) must be set.
 
+[[dfdSupercompressed]]
 ===== DFD for Supercompressed Data
 When `<<_supercompressionscheme,supercompressionScheme>>` is not 0
 the _dfDescriptorBlock_ must preserve the `colorModel`, `transferFunction`,
