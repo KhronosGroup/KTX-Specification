@@ -43,7 +43,8 @@ ghpages.ktxspec := $(out.ghpages)/ktxspec.v2.html
 ghpages.ktxfrag := $(out.ghpages)/ktx-frag.html
 
 # For GitHub CI to build GitHub Pages site.
-ghpages: $(ghpages.index) $(ghpages.ktxspec) $(ghpages.ktxfrag)
+ghpages: $(ghpages.index) $(ghpages.ktxspec) $(ghpages.ktxfrag) images/khronos.svg images/ktx.svg
+
 
 switches := vkFormat2dxgiFormat.inl \
               vkFormat2glInternalFormat.inl  \
@@ -87,7 +88,7 @@ $(out.specs)/ktx-media-registration.txt: ktx-media-registration.adoc | $(out.spe
 	ruby -e '$(pure.rb)' $< >$@
 
 $(ghpages.index): ghpages-index.adoc
-	asciidoctor --trace -v --failure-level INFO -D $(dir $@) -o $(notdir $@) $<
+	asciidoctor --trace -v --failure-level INFO -r ./inline-images.rb -D $(dir $@) -o $(notdir $@) $<
 
 ${out.ghpages}/%.html: ${out.specs}/%.html
 	cp $< $@
@@ -110,6 +111,6 @@ $(out.specs) $(out.switches): | $(out)
 clean:
 
 clobber: clean
-	rm -rf $(out)/$(out.specs) $(out)/$(out.switches) $(out)
+	rm -rf $(out.specs) $(out.switches) $(out.ghpages) $(out)
 
 # vim: ai noexpandtab tw=72 ts=4 sw=4

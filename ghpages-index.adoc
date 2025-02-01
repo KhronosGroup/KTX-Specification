@@ -13,6 +13,7 @@
 :encoding: utf-8
 :stylesheet: khronos.css
 :imagesdir: images
+:data-uri:
 
 :url-khr-reg: https://registry.khronos.org
 :url-khr-ktx: {url-khr-reg}/KTX
