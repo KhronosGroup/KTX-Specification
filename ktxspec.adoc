@@ -667,7 +667,7 @@ supercompression, e.g, scheme 2, may be ineffective on the
 block-compressed data of GPU texture formats. Compressibility can
 be improved by specially conditioning the data for LZW compression
 such as with _Rate-distortion Optimization_ <<RDO>>. Such conditioning
-in an encoding detail which is transparent to the user of the
+is an encoding detail which is transparent to the user of the
 texture.
 
 BasisLZ internally uses a universal block-compressed
@@ -2059,7 +2059,7 @@ KTX file writers may indicate the mapping by using the key
 - `KTXmapRange`
 
 The value is 8 bytes representing two IEEE 754 single-precision
-floating-point values:
+finite floating-point values:
 [source,c]
 ----
 Float32 scale
