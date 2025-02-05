@@ -1,5 +1,0 @@
-# Force line endings for unix shell scripts and other specific files
-dater eol=lf
-
-# Date expansion
-TODO.md filter=dater

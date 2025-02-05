@@ -1,8 +1,0 @@
-#! /bin/bash
-
-# Smudge driver for the dater filter for expanding $Date$ keywords.
-#
-# See README.md for usage information.
-
-last_date=$(git log --pretty=format:"%ad" -1 HEAD -- "$1")
-sed -e 's/\$Date.*\$/\$Date: '"$last_date"' \$'/
