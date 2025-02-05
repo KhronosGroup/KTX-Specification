@@ -1014,6 +1014,49 @@ Still, `KHR_DF_PRIMARIES_BT709` / `KHR_DF_PRIMARIES_SRGB` is recommended
 for standard dynamic range, standard gamut images.
 ====
 
+==== Use of Transfer Functions
+The majority of color spaces listed in Chapter 13 _Transfer functions_
+of <<KDF13>>, with corresponding enumerators given in Chapter 5
+_transferFunction_, define only an electro-optical transfer function
+(EOTF) or only an opto-electrical transfer function (OETF) as
+indicated by aliases for the enumerator value. When a KTX file
+uses an enumerator with an EOTF alias
+
+* applications should use the EOTF to decode prior to sampling and
+  filtering;
+* mipmap generation should use the path EOTF → scaling → EOTF^-1^.
+
+The sRGB color space is one of these, defining only an EOTF.
+
+When a KTX file uses an enumerator with an OETF alias
+
+* applications should use the OETF^-1^ to decode prior to sampling and
+  filtering;
+* mipmap generation should use the path OETF^-1^ → scaling → OETF.
+
+Some color spaces have a non-linear opto-optical transfer function
+(OOTF). That is they define an OETF and an EOTF and the EOTF is not
+the inverse of the OETF. These have two separate enumerators, one
+with an `OETF` suffix, the other with an `EOTF` suffix. When a KTX
+file has the enumerator with an explicit `_OETF` suffix
+
+* the images are _scene referred_ and intended to be decoded to
+  scene-linear values;
+* applications should use OETF^-1^ to decode prior to sampling and
+  filtering;
+* mipmap generation should use the path OETF^-1^ → scaling → OETF.
+
+When a KTX file has the enumerator with an explicit `_EOTF` suffix
+
+* the images are _display referred_ and intended to be decoded to
+  display-linear values;
+* applications should use the EOTF (often derived from the OOTF) to
+  decode prior to sampling and filtering;
+* mipmap generation should use the path EOTF → scaling → EOTF^-1^.
+
+OETF and EOTF formulae are given in Chapter 13 _Transfer functions_ in
+<<KDF13>>.
+
 ==== Providing additional information
 There are several cases where the _dfDescriptorBlock_ is used to
 provide information beyond that given by <<_vkformat,`vkFormat`>>.
@@ -2471,6 +2514,8 @@ include::appendices/vendor-metadata.adoc[]
                                     - Remove requirement for bytesPlane
                                       0 in DFDs of supercompressed
                                       files.
+                                    - Add rules for use of transfer
+                                      functions.
 |===
 
 [discrete]
