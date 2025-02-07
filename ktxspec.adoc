@@ -2059,12 +2059,13 @@ KTX file writers may indicate the mapping by using the key
 - `KTXmapRange`
 
 The value is 8 bytes representing two IEEE 754 single-precision
-finite floating-point values:
+floating-point values:
 [source,c]
 ----
 Float32 scale
 Float32 offset
 ----
+These values must be finite.
 
 An application can restore the original 32-bit float value with
 [stem]
