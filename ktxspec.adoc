@@ -2520,6 +2520,8 @@ include::appendices/vendor-metadata.adoc[]
                                       files.
                                     - Add rules for use of transfer
                                       functions.
+                                    - Forbid used of
+                                      `KHR_DF_TRANSFER_HLG_UNNORMALIZED_OETF`.
 |===
 
 [discrete]
