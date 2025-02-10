@@ -5,7 +5,11 @@ BasisLZ combines encoding to a block-compressed format, that can be easily trans
 
 It also contains an array of _image descriptors_ with flags for each image and the offset and length within the mip level of the data for that image.
 
-The global data structure is designed to accommodate various transcodable block-compressed formats. The format in use is indicated by the <<_data_format_descriptor, Data Format Descriptor>>. Currently BasisLZ only supports one, <<etc1s, ETC1S>> (a subset of ETC1, see Section 21.1 of <<KDF13>>).  ETC1S is a common subset of many GPU-native formats.
+The global data structure is designed to accommodate various
+transcodable block-compressed formats. The format in use is indicated by
+the <<_data_format_descriptor, Data Format Descriptor>>. Currently
+BasisLZ only supports one, <<etc1s, ETC1S>> (a subset of ETC1, see
+{url-df-spec}#ETC1S[Section 21.1] of <<KDF14>>).  ETC1S is a common subset of many GPU-native formats.
 
 The bitstreams for endpoints, selectors, Huffman tables and the image
 data are specific to the transcodable format in use. Those for ETC1S are
