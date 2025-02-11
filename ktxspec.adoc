@@ -931,7 +931,7 @@ to read the faces individually rather than as a block of size
 === Data Format Descriptor
 The Data Format Descriptor (_dfDescriptor_) describes the layout
 of the texel blocks in `data`.  The full specification for this is
-is {url-df-spec}#_formats_and_texel_access[Part 2, Chapters 2 to
+is {url-df-spec}#pass:[_formats_and_texel_access][Part 2, Chapters 2 to
 11], of the _Khronos Data Format Specification_ <<KDF14>>.
 
 The dfDescriptor is partially expanded in this specification in
@@ -1320,7 +1320,7 @@ the file is invalid.
 ====
 `dfdTotalSize` is included so that the KTX file contains a complete
 descriptor as defined in Chapter 4
-{url-df-spec}dataformatdescriptor[_Khronos Data Format Descriptor_]
+{url-df-spec}#dataformatdescriptor[_Khronos Data Format Descriptor_]
 of <<KDF14>>.
 ====
 
