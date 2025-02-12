@@ -1022,6 +1022,15 @@ Still, `KHR_DF_PRIMARIES_BT709` / `KHR_DF_PRIMARIES_SRGB` is recommended
 for standard dynamic range, standard gamut images.
 ====
 
+[TIP]
+====
+The specification allows free choice of `transferFunction` when
+<<_vkformat,`vkFormat`>> is `VK_FORMAT_UNDEFINED`. When creating a
+texture using sRGB-encoded images use of `KHR_DF_TRANSFER_SRGB` is
+highly recommended.
+====
+
+
 ==== Use of Transfer Functions
 The majority of color spaces listed in Chapter 13
 {url-df-spec}#TRANSFER_CONVERSION[_Transfer functions_]
