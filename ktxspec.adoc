@@ -2535,6 +2535,8 @@ include::appendices/vendor-metadata.adoc[]
                                       functions.
                                     - Forbid use of
                                       `KHR_DF_TRANSFER_HLG_UNNORMALIZED_OETF`.
+                                    - Update KDFS references to 1.4 and
+                                      make the links active.
 |===
 
 [discrete]
