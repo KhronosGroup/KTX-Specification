@@ -974,8 +974,6 @@ _dfDescriptorBlock_.
 * If <<_vkformat,`vkFormat`>> is not one of the `+*_SRGB{,_*}+` formats
   and an sRGB variant of that format exists, `transferFunction` should not
   be `KHR_DF_TRANSFER_SRGB`.
-* `transferFunction` must not be `KHR_DF_TRANSFER_HLG_UNNORMALIZED_OETF`.
-  This transfer function is no longer part of the HLG specification.
 * If formats for other transfer functions are added to GPU APIs in the
   future similar restrictions to those just described apply. For
   example, if formats for the HLG transfer function which have the
@@ -2542,8 +2540,6 @@ include::appendices/vendor-metadata.adoc[]
                                       files.
                                     - Add rules for use of transfer
                                       functions.
-                                    - Forbid use of
-                                      `KHR_DF_TRANSFER_HLG_UNNORMALIZED_OETF`.
                                     - Update KDFS references to 1.4 and
                                       make the links active.
 |===
