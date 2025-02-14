@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification of a container format for GPU textures.
-:docrev: 4 (draft)
+:docrev: 4 (for WG approval)
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -32,8 +32,10 @@
 :imagesdir: images
 
 :url-khr-reg: https://registry.khronos.org
-:url-khr-vulkan: {url-khr-reg}/vulkan
+:url-khr-df: {url-khr-reg}/DataFormat
 :url-khr-ktx: {url-khr-reg}/KTX
+:url-khr-vulkan: {url-khr-reg}/vulkan
+:url-df-spec: {url-khr-df}/specs/1.4/dataformat.1.4.html
 :url-khr-github: https://github.com/KhronosGroup
 :url-spec-repo: {url-khr-github}/KTX-Specification
 
@@ -86,6 +88,8 @@ Document Revision 1 approved by the 3D Formats WG Dec 7th, 2022.
 Document Revision 2 approved by the 3D Formats WG Sep 6th, 2023.
 
 Document Revision 3 approved by the 3D Formats WG Feb 14th, 2024.
+
+Document Revision 4 awaiting WG approval.
 
 == Introduction
 
@@ -258,7 +262,7 @@ num\_blocks\_x = \max\left(1, \left\lceil{\frac{\left\lfloor{{pixelWidth}*{2^{-p
 where _p_ is the level index (see <<levelCount>>) and _block_depth_,
 _block_height_ and _block_width_ are `1` for uncompressed formats and
 the block size in that dimension for block compressed formats as given
-in the format's section of the Khronos Data Format specification <<KDF13>>.
+in the format's section of the Khronos Data Format specification <<KDF14>>.
 
 A _block_ is a single pixel for uncompressed formats and
 stem:[block\_width \times block\_height \times block\_depth]
@@ -912,8 +916,9 @@ uncompressedByteLength % (faceCount * max(1, layerCount)) == 0
 Writers should be aware that block-compressed formats require the
 byte length of encoded levels be a multiple of the block size, i.e.
 the data is always a whole number of blocks regardless of the size
-in texels. The PVRTC1 format has extra restrictions. See Chapter 24
-_PVRTC Compressed Texture Image Formats_ in <<KDF13>>.
+in texels. The PVRTC1 format has extra restrictions. See Chapter
+24 {url-df-spec}#PVRTC[_PVRTC Compressed Texture Image Formats_] in
+<<KDF14>>.
 
 In versions of OpenGL < 4.5 and in OpenGL ES, faces of non-array
 cubemap textures (any texture where `faceCount` is 6 and
@@ -926,12 +931,12 @@ to read the faces individually rather than as a block of size
 === Data Format Descriptor
 The Data Format Descriptor (_dfDescriptor_) describes the layout
 of the texel blocks in `data`.  The full specification for this is
-is Part 2, Chapters 2 to 11, of the _Khronos Data Format Specification_
-version 1.3 <<KDF13>>.
+is {url-df-spec}#pass:[_formats_and_texel_access][Chapters 2 to
+11], of the _Khronos Data Format Specification_ <<KDF14>>.
 
 The dfDescriptor is partially expanded in this specification in
 order to provide sufficient information for a KTX file to be parsed
-without having to refer to <<KDF13>>. It consists of a total size
+without having to refer to <<KDF14>>. It consists of a total size
 field and one or more Descriptor Blocks (_dfDescriptorBlock_)
 described below.
 
@@ -955,12 +960,13 @@ A _dfDescriptor_ is useful in the following cases:
 The following restrictions must be obeyed when setting the fields of a
 _dfDescriptorBlock_.
 
-* If <<_vkformat,`vkFormat`>> is not `VK_FORMAT_UNDEFINED`, the DFD's
-  `texelBlockDimension*`, `bytesPlane*` and sample information fields
-  must match the format's definition. The `colorModel` must be
-  `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA` or the matching block
-  compressed color model listed in <<KDF13>> Section 5.6 or its
-  successors, currently `KHR_DF_MODEL_BC1A` to `KHR_DF_MODEL_UASTC`.
+* If <<_vkformat,`vkFormat`>> is not `VK_FORMAT_UNDEFINED`, the
+  DFD's `texelBlockDimension*`, `bytesPlane*` and sample information
+  fields must match the format's definition. The `colorModel` must
+  be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA` or the matching
+  block compressed color model listed in <<KDF14>>
+  {url-df-spec}#CompressedFormatModels[Section 5.6] or its successors,
+  currently `KHR_DF_MODEL_BC1A` to `KHR_DF_MODEL_UASTC`.
   `KHR_DF_MODEL_YUVSDA` should be used for all non-prohibited
   `+*_422_*+` formats.
 * If <<_vkformat,`vkFormat`>> is one of the `+*_SRGB{,_*}+` formats,
@@ -1014,9 +1020,19 @@ Still, `KHR_DF_PRIMARIES_BT709` / `KHR_DF_PRIMARIES_SRGB` is recommended
 for standard dynamic range, standard gamut images.
 ====
 
+[TIP]
+====
+The specification allows free choice of `transferFunction` when
+<<_vkformat,`vkFormat`>> is `VK_FORMAT_UNDEFINED`. When creating a
+texture using sRGB-encoded images use of `KHR_DF_TRANSFER_SRGB` is
+highly recommended.
+====
+
+
 ==== Use of Transfer Functions
-The majority of color spaces listed in Chapter 13 _Transfer functions_
-of <<KDF13>>, with corresponding enumerators given in Chapter 5
+The majority of color spaces listed in Chapter 13
+{url-df-spec}#TRANSFER_CONVERSION[_Transfer functions_]
+of <<KDF14>>, with corresponding enumerators given in Section 5.8
 _transferFunction_, define only an electro-optical transfer function
 (EOTF) or only an opto-electrical transfer function (OETF) as
 indicated by aliases for the enumerator value. When a KTX file
@@ -1054,8 +1070,9 @@ When a KTX file has the enumerator with an explicit `_EOTF` suffix
   decode prior to sampling and filtering;
 * mipmap generation should use the path EOTF → scaling → EOTF^-1^.
 
-OETF and EOTF formulae are given in Chapter 13 _Transfer functions_ in
-<<KDF13>>.
+OETF and EOTF formulae are given in Chapter 13
+{url-df-spec}#TRANSFER_CONVERSION[_Transfer functions_] in
+<<KDF14>>.
 
 ==== Providing additional information
 There are several cases where the _dfDescriptorBlock_ is used to
@@ -1069,14 +1086,15 @@ Premultiplied Alpha::
 Basis Universal UASTC Format::
 The Universal ASTC image format (UASTC) is indicated by `colorModel`
 `KHR_DF_MODEL_UASTC` (= 166) together with `vkFormat` `VK_FORMAT_UNDEFINED`
-(= 0). The DFD must be as described in Section 5.6.14 _KHR_DF_MODEL_UASTC_
-of <<KDF13>>. Images in this format must be transcoded to a
-GPU-supported block-compressed format or decoded to a GPU-supported
-uncompressed format before being uploaded to and sampled by a GPU.
-UASTC images can be supercompressed with Zstandard
-(`supercompressionScheme` = 2) with or without first conditioning
-the data with Rate-distortion Optimization. If supercompression is
-used, the DFD must follow the rules described in the next subsection.
+(= 0). The DFD must be as described in Section 5.6.14
+{url-df-spec}#KHR_DF_MODEL_UASTC[_KHR_DF_MODEL_UASTC_] of
+<<KDF14>>. Images in this format must be transcoded to a GPU-supported
+block-compressed format or decoded to a GPU-supported uncompressed
+format before being uploaded to and sampled by a GPU.  UASTC images
+can be supercompressed with Zstandard (`supercompressionScheme` =
+2) with or without first conditioning the data with Rate-distortion
+Optimization. If supercompression is used, the DFD must follow the
+rules described in the next subsection.
 +
 This color model provides channel Ids, e.g. `KHR_DF_CHANNEL_UASTC_RGB`
 that must be used to indicate the effective number of components
@@ -1110,18 +1128,20 @@ texture. Applications using this channel id will have to use swizzles or
 have shaders that understand this channel layout.
 ====
 +
-The bitstream of the UASTC data is described in Chapter 25 _UASTC
-Compressed Texture Image Format_ of <<KDF13>>.
+The bitstream of the UASTC data is described in Chapter 25
+{url-df-spec}#UASTC[_UASTC Compressed Texture Image Format_] of
+<<KDF14>>.
 
 [[etc1s]]
 Basis Universal ETC1S Format::
 The ETC1S image format is indicated by `colorModel` `KHR_DF_MODEL_ETC1S`
 (= 163) together with `vkFormat` `VK_FORMAT_UNDEFINED` (= 0). The
-DFD must be as described in Section 5.6.11 _KHR_DF_MODEL_ETC1S_ of
-<<KDF13>>. Because ETC1S does not support an alpha component, Basis
-Universal uses 2 _slices_, (_planes_ in DFD-speak) to represent RGBA images.
-This color model provides the following channel ids that must be used to
-indicate the use of a slice.
+DFD must be as described in Section 5.6.11
+{url-df-spec}#KHR_DF_MODEL_ETC1S[_KHR_DF_MODEL_ETC1S_] of
+<<KDF14>>. Because ETC1S does not support an alpha component, Basis
+Universal uses 2 _slices_, (_planes_ in DFD-speak) to represent
+RGBA images.  This color model provides the following channel ids
+that must be used to indicate the use of a slice.
 +
 [width=100%,align=center,cols="<30,^10,<60",options=header]
 |===
@@ -1173,9 +1193,9 @@ TIP: Whether the image has 1 or 2 slices
 can be determined from the DFD's sample count.
 
 The bitstream of the ETC1S data pre LZ deflation is described in
-Chapter 21.1 _ETC1S_ of <<KDF13>>.
+Section 21.1 {url-df-spec}#ETC1S[_ETC1S_] of <<KDF14>>.
 
-NOTE: since inflation and transcoding are typically combined in a
+NOTE: Since inflation and transcoding are typically combined in a
 single operation, this bitstream is not visible to applications.
 
 [IMPORTANT]
@@ -1212,7 +1232,7 @@ most of which have only one or two components.
 ====
 Previous document revisions required  `bytesPlane[0-7]` to be set to
 0 to indicate an _unsized format_ in accordance with Data Formats
-v1.3.1 and unpublished drafts of <<KDF13>>. For the foreseeable future
+v1.3.1 and unpublished drafts of <<KDF14>>. For the foreseeable future
 software must be able to handle such KTX files.
 ====
 
@@ -1291,7 +1311,7 @@ before deflation, i.e. have 3 signed 8-bit components.
 |================================
 
 ==== dfdTotalSize
-Called `total_size` in <<KDF13>>, `dfdTotalSize` indicates the total
+Called `total_size` in <<KDF14>>, `dfdTotalSize` indicates the total
 number of bytes in the _dfDescriptor_ including `dfdTotalSize` and
 all `dfdBlock` fields.  `<<_dfdbytelength,dfdByteLength>>`
 must equal `dfdTotalSize`.
@@ -1306,12 +1326,14 @@ the file is invalid.
 [NOTE]
 ====
 `dfdTotalSize` is included so that the KTX file contains a complete
-descriptor as defined in Chapter 4 "`Khronos Data Format Descriptor`"
-of <<KDF13>>.
+descriptor as defined in Chapter 4
+{url-df-spec}#dataformatdescriptor[_Khronos Data Format Descriptor_]
+of <<KDF14>>.
 ====
 
 ==== dfdBlock
-A `Descriptor Block` as defined in Section 4.1 of <<KDF13>>. The
+A `Descriptor Block` as defined in
+{url-df-spec}#descriptorblock[Section 4.1] of <<KDF14>>. The
 high-order 15 bits of its first UInt32 are the `descriptor_type`
 and the high-order 16 bits of the second UInt32 are the
 `descriptor_block_size`.  `descriptor_block_size` is mandated to
@@ -1483,15 +1505,16 @@ other combination of these parameters makes the KTX file invalid.
 
 * For custom formats that do not have any equivalent in GPU APIs.
 * For BasisLZ supercompressed data.
-* For compressed color models in <<KDF13>> or successors that do
-  not have corresponding Vulkan formats. If the format corresponds
-  to a format in DirectX or Metal then at least one format mapping
-  metadata item is required. One such format exists now, the
-  transcodable format with `colorModel` `KHR_DF_MODEL_UASTC` (=
-  166). This does not correspond to a DirectX or Metal format.
-* For formats from Metal or DirectX that do not have Vulkan
-  equivalents. In this case at least one API's format must be
-  recorded in a format metadata item.
+* For any formats from any GPU APIs that do not have Vulkan equivalents.
+* For compressed color models in
+  {url-df-spec}#CompressedFormatModels[Section 5.6] of <<KDF14>> or
+  successors that do not have corresponding Vulkan formats. One
+  such format exists now, the transcodable format with colorModel
+  `KHR_DF_MODEL_UASTC` (= 166).
+
+If `VK_FORMAT_UNDEFINED` is used and the format is known to OpenGL,
+Direct3D or Metal APIs, the corresponding format metadata item
+should be present.
 
 === Extending KTX
 The following sections describe ways to extend what can be contained
@@ -1516,13 +1539,14 @@ hardware vendors and open source developers.
 Formats are identified by one or more of the following:
 
 * A Vulkan VkFormat enum value.
-* A color model value from the Khronos Data Format Specification
-  <<KDF13>>.
+* A color model value from Sections
+  {url-df-spec}#COLORMODEL[5.5] or
+  {url-df-spec}#CompressedFormatModels[5.6] of <<KDF14>>.
 
 New transcodable formats can be added by:
 
 * Creating a new color model and format specification in the Khronos
-  Data format specification <<KDF13>> (as was done with UASTC).
+  Data format specification <<KDF14>> (as was done with UASTC).
 * Creating a new color model and format specification as above and
   providing a specification for a new supercompression scheme that
   incorporates this transcodable format (à la BasisLZ/ETC1S).
@@ -2113,7 +2137,7 @@ How to refer to the DF descriptor block?::
   definition of a descriptor block here which we do not want to do.
 +
 _Resolved:_ Show that `dfDescriptorBlock` is used as a shorthand for
-<<KDF13>>'s _Descriptor block_.
+<<KDF14>>'s _Descriptor block_.
 
 How to handle endianness of the DF descriptor block?::
   _Discussion_: The DF spec says data structures are assumed to be
@@ -2256,8 +2280,8 @@ query this information.
 [bibliography]
 === Normative References
 
-- [[[KDF13]]] {url-khr-reg}/DataFormat/specs/1.3/dataformat.1.3.html[Khronos
-  Data Format Specification 1.3].
+- [[[KDF14]]] {url-khr-reg}/DataFormat/specs/1.4/dataformat.1.4.html[Khronos
+  Data Format Specification 1.4].
   Andrew Garrard. The Khronos Group.
 
 - [[[OESCPT]]] {url-khr-reg}/OpenGL/extensions/OES/OES_compressed_paletted_texture.txt[GL_OES_compressed_paletted_texture].
@@ -2516,6 +2540,8 @@ include::appendices/vendor-metadata.adoc[]
                                       files.
                                     - Add rules for use of transfer
                                       functions.
+                                    - Update KDFS references to 1.4 and
+                                      make the links active.
 |===
 
 [discrete]
