@@ -1195,7 +1195,7 @@ can be determined from the DFD's sample count.
 The bitstream of the ETC1S data pre LZ deflation is described in
 Section 21.1 {url-df-spec}#ETC1S[_ETC1S_] of <<KDF14>>.
 
-NOTE: since inflation and transcoding are typically combined in a
+NOTE: Since inflation and transcoding are typically combined in a
 single operation, this bitstream is not visible to applications.
 
 [IMPORTANT]
@@ -1539,7 +1539,7 @@ hardware vendors and open source developers.
 Formats are identified by one or more of the following:
 
 * A Vulkan VkFormat enum value.
-* A color model value from Section
+* A color model value from Sections
   {url-df-spec}#COLORMODEL[5.5] or
   {url-df-spec}#CompressedFormatModels[5.6] of <<KDF14>>.
 
