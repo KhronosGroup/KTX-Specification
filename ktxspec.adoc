@@ -259,7 +259,7 @@ end
 \textit{num_blocks_x} = \max\left(1, \left\lceil{\frac{\left\lfloor{{\texttt{pixelWidth}}*{2^{-p}}}\right\rfloor}{\textit{block_width}}}\right\rceil\right)
 +++++
 
-where stem:[\textit{p}] is the level index (see <<levelCount>>) and
+where stem:[p] is the level index (see <<levelCount>>) and
 stem:[\textit{block_depth}], stem:[\textit{block_height}] and
 stem:[\textit{block_width}] are stem:[1] for uncompressed formats and
 the block size in that dimension for block compressed formats as given
@@ -852,7 +852,8 @@ An array, `levels`, giving the offset from the start of the file and
 compressed and uncompressed byte sizes of the image data for each
 mip level within the <<_mip_level_array,_Mip Level Array_>> The array is ordered
 starting with stem:[level_{base}] (the level with the largest size images)
-at index _0_. Image for stem:[level_p] will be found at index stem:[p].
+at index stem:[0]. The image for stem:[level_p] will be found at index
+stem:[p].
 
 ===== levels[p].byteOffset
 
@@ -1447,10 +1448,10 @@ When `<<_supercompressionscheme,supercompressionScheme>> != 0` these
 bytes are formatted as specified in the scheme documentation.
 
 ==== mipPadding
-`mipPadding` is between 0 and stem:[\textit{lcm}(\textit{texel_block_size}, 4) -
-1] bytes of value `0x00`. stem:[\textit{lcm}] is _least common multiple_.
-This is only required when
-`<<_supercompressionscheme,supercompressionScheme>> == 0`.
+`mipPadding` is between stem:[0] and
+stem:[\textit{lcm}(\textit{texel_block_size}, 4) - 1] bytes of value
+`0x00`. stem:[\textit{lcm}] is _least common multiple_.  This is
+only required when `<<_supercompressionscheme,supercompressionScheme>> == 0`.
 
 _Texel block size_ is as given for the `vkFormat` value in
 {url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html#formats-compatibility[section
