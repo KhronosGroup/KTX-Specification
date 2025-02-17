@@ -874,13 +874,13 @@ faces, all rows (or rows of blocks) and all pixels (or blocks) in
 each row for the mip level.
 
 The total size of the image data from
-stem:[\texttt{levels}[\textit{num_levels}-1\].\texttt{byteOffset}] (i.e.,
+stem:[\texttt{levels}[\textit{num_levels}-1\]\texttt{.byteOffset}] (i.e.,
 after the first `mipPadding`, if any) until the end of the file is:
 [stem]
 +++++
 \texttt{levels}[0].\texttt{byteLength} +
 \sum_{p=1}^{\textit{num_levels}-1}
-\left\lceil{\frac{\texttt{levels}[p].\texttt{byteLength}}{\textit{required_alignment}}}\right\rceil
+\left\lceil{\frac{\texttt{levels}[p]\texttt{.byteLength}}{\textit{required_alignment}}}\right\rceil
 \times \textit{required_alignment}
 +++++
 where
