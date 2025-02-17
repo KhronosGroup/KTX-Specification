@@ -6,6 +6,9 @@ require 'base64'
 Asciidoctor::Extensions.register do
   postprocessor do
     process do |document, output|
+      # Work around a bug in Chrome where textit blocks are no shown in
+      # italic with the default "HTML-CSS" Mathjax renderer.
+      output.sub!('TeX-MML-AM_HTMLorMML', 'TeX-MML-AM_CHTML') if document.basebackend? 'html'
       _replace_urls(output) if document.basebackend? 'html'
     end
   end
