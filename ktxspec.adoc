@@ -221,22 +221,23 @@ alignment caused by `mipPadding`.
 .levelImages Structure
 [source, c]
 ----
-align( lcm(texel_block_size, 4) ) mipPadding <1>
+align( lcm(texel_block_size, 4) ) mipPadding <1> <2>
 for each layer in max(1, layerCount)
    for each face in faceCount
-       for each z_slice_of_blocks in num_blocks_z <2>
-           for each row_of_blocks in num_blocks_y <2>
-               for each block in num_blocks_x <2>
-                   Byte data[format_specific_number_of_bytes] <3>
+       for each z_slice_of_blocks in num_blocks_z <3>
+           for each row_of_blocks in num_blocks_y <3>
+               for each block in num_blocks_x <3>
+                   Byte data[format_specific_number_of_bytes] <4>
                end
            end
        end
    end
 end
 ----
-<1> See <<mipPadding>>.
-<2> See <<levelImages_defs,the definitions>> below.
-<3> Rows of uncompressed texture images must be tightly packed,
+<1> stem:[\operatorname{lcm}] is _least common multiple_.
+<2> See <<mipPadding>>.
+<3> See <<levelImages_defs,the definitions>> below.
+<4> Rows of uncompressed texture images must be tightly packed,
     equivalent to a `GL_UNPACK_ALIGNMENT` of 1.
 
 [[levelImages_defs]]In the `levelImages` loops above,
@@ -244,32 +245,34 @@ end
 [stem]
 // num_blocks_z = max(1, ceil(level_depth / block_depth))
 +++++
-num\_blocks\_z = \max\left(1, \left\lceil{\frac{\left\lfloor{{pixelDepth}*{2^{-p}}}\right\rfloor}{block\_depth}}\right\rceil\right)
+\textit{num_blocks_z} = \max\left(1, \left\lceil{\frac{\left\lfloor{{\texttt{pixelDepth}}*{2^{-p}}}\right\rfloor}{\textit{block_depth}}}\right\rceil\right)
 +++++
 
 [stem]
 // num_blocks_y = max(1, ceil(level_height / block_height))
 +++++
-num\_blocks\_y = \max\left(1, \left\lceil{\frac{\left\lfloor{{pixelHeight}*{2^{-p}}}\right\rfloor}{block\_height}}\right\rceil\right)
+\textit{num_blocks_y} = \max\left(1, \left\lceil{\frac{\left\lfloor{{\texttt{pixelHeight}}*{2^{-p}}}\right\rfloor}{\textit{block_height}}}\right\rceil\right)
 +++++
 
 [stem]
 // num_blocks_x = max(1, ceil(level_width / block_width))
 +++++
-num\_blocks\_x = \max\left(1, \left\lceil{\frac{\left\lfloor{{pixelWidth}*{2^{-p}}}\right\rfloor}{block\_width}}\right\rceil\right)
+\textit{num_blocks_x} = \max\left(1, \left\lceil{\frac{\left\lfloor{{\texttt{pixelWidth}}*{2^{-p}}}\right\rfloor}{\textit{block_width}}}\right\rceil\right)
 +++++
 
-where _p_ is the level index (see <<levelCount>>) and _block_depth_,
-_block_height_ and _block_width_ are `1` for uncompressed formats and
+where stem:[p] is the level index (see <<levelCount>>) and
+stem:[\textit{block_depth}], stem:[\textit{block_height}] and
+stem:[\textit{block_width}] are stem:[1] for uncompressed formats and
 the block size in that dimension for block compressed formats as given
 in the format's section of the Khronos Data Format specification <<KDF14>>.
 
 A _block_ is a single pixel for uncompressed formats and
-stem:[block\_width \times block\_height \times block\_depth]
+stem:[\textit{block_width} \times \textit{block_height} \times \textit{block_depth}]
 pixels for block compressed formats.
 
-For formats whose Vulkan names have `\_422_`, _block_depth_ and _block_height_
-are `1`, and _block_width_ is `2`.
+For formats whose Vulkan names have `\_422_`, stem:[\textit{block_depth}] and
+stem:[\textit{block_height}] are stem:[1], and stem:[\textit{block_width}] is
+stem:[2].
 
 == Field Descriptions
 
@@ -506,16 +509,17 @@ are defined as in <<VULKAN12EXT>>.
 upload the data to a graphics API. When `typeSize` is greater than
 1, software on big-endian systems must endian convert all image
 data since it is little-endian. When format is `VK_FORMAT_UNDEFINED`,
-`typeSize` must equal 1. For formats whose Vulkan names have the
-suffix `_BLOCK` it must equal 1. For formats with the suffix `_PACKxx`
-or `_nPACKxx` it must equal the value of stem:[xx / 8]. For unpacked
-formats, except combined depth/stencil formats, it must equal the
-number of bytes needed for a single component which can be derived
-from the format name. E.g for `VK_FORMAT_R16G16B16_UNORM` it will
-be stem:[16 / 8].  This means it will equal 1 for any format with
-8-bit components.  For `VK_FORMAT_D16_UNORM_S8_UINT`, using the
-layout defined in this specification, the value will be 2 and for
-the other combined depth/stencil formats the value will be 4.
+`typeSize` must equal stem:[1]. For formats whose Vulkan names have
+the suffix `_BLOCK` it must equal stem:[1]. For formats with the
+suffix `_PACKxx` or `_nPACKxx` it must equal the value of
+stem:[\texttt{xx} / 8].  For unpacked formats, except combined
+depth/stencil formats, it must equal the number of bytes needed for
+a single component which can be derived from the format name. E.g.
+for `VK_FORMAT_R16G16B16_UNORM` it will be stem:[16 / 8].  This
+means it will equal stem:[1] for any format with 8-bit components.
+For `VK_FORMAT_D16_UNORM_S8_UINT`, using the layout defined in this
+specification, the value will be stem:[2] and for the other combined
+depth/stencil formats the value will be stem:[4].
 
 [NOTE]
 .Rationale
@@ -596,22 +600,23 @@ to signal which faces are present.
 Level Array_>> and, by extension, the number of indices in the
 `<<_level_index,Level Index>>` array.  A KTX file does not need to
 contain a complete mipmap pyramid.  Mip level data is ordered from
-the level with the smallest size images, stem:[level_p] to that
-with the largest size images, stem:[level_{base}] where stem:[p =
-levelCount - 1] and stem:[base = 0].  stem:[level_p] must not be
-greater than the maximum possible, stem:[level_{max}], where
+the level with the smallest size images, stem:[\textit{level}_p]
+to that with the largest size images, stem:[\textit{level}_\textit{base}]
+where stem:[p = \texttt{levelCount} - 1] and stem:[\textit{base} =
+0].  stem:[\textit{level}_p] must not be greater than the maximum
+possible, stem:[\textit{level}_{M}], where
 
 [stem]
 // max = floor(log2(max(pixelWidth, pixelHeight, pixelDepth)))
 +++++
-max = \lfloor\log _2\left(\max\left(pixelWidth, pixelHeight, pixelDepth\right)\right)\rfloor
+M = \lfloor\log _2\left(\max\left(\texttt{pixelWidth}, \texttt{pixelHeight}, \texttt{pixelDepth}\right)\right)\rfloor
 +++++
 
-stem:[levelCount = 1] means that a file contains only the
+stem:[\texttt{levelCount} = 1] means that a file contains only the
 base level and the texture isn't meant to have other levels. E.g.,
 this could be a LUT rather than a natural image.
 
-stem:[levelCount = 0] is allowed, except for block-compressed
+stem:[\texttt{levelCount} = 0] is allowed, except for block-compressed
 formats, and means that a file contains only the base level and
 consumers, particularly loaders, should generate other levels if
 needed.
@@ -849,8 +854,9 @@ value must be 0.
 An array, `levels`, giving the offset from the start of the file and
 compressed and uncompressed byte sizes of the image data for each
 mip level within the <<_mip_level_array,_Mip Level Array_>> The array is ordered
-starting with stem:[level_{base}] (the level with the largest size images)
-at index _0_. Image for stem:[level_p] will be found at index _p_.
+starting with stem:[\textit{level}_\textit{base}] (the level with the largest size images)
+at index stem:[0]. The image for stem:[\textit{level}_p] will be found at index
+stem:[p].
 
 ===== levels[p].byteOffset
 
@@ -863,40 +869,40 @@ for mip level _p_. It is the offset of the first byte after any
 The total size of the data for supercompressed mip level _p_.
 
 `levels[p].byteLength` is the number of bytes of pixel data in
-LOD stem:[level_p]. This includes all layers, all z slices, all
+LOD stem:[\textit{level}_p]. This includes all layers, all z slices, all
 faces, all rows (or rows of blocks) and all pixels (or blocks) in
 each row for the mip level.
 
 The total size of the image data from
-stem:[levels[numLevels-1\].byteOffset] (i.e., after the first
-`mipPadding`, if any) until the end of the file is:
+stem:[\texttt{levels}[\textit{num_levels}-1\]\texttt{.byteOffset}] (i.e.,
+after the first `mipPadding`, if any) until the end of the file is:
 [stem]
 +++++
-levels[0].byteLength +
-\sum_{p=1}^{numLevels-1}
-\left\lceil{\frac{levels[p].byteLength}{requiredAlignment}}\right\rceil
-\times requiredAlignment
+\texttt{levels}[0]\texttt{.byteLength} +
+\sum_{p=1}^{\textit{num_levels}-1}
+\left\lceil{\frac{\texttt{levels}[p]\texttt{.byteLength}}{\textit{required_alignment}}}\right\rceil
+\times \textit{required_alignment}
 +++++
 where
 [stem]
 +++++
-numLevels = \max\left(1, levelCount\right)
+\textit{num_levels} = \max\left(1, \texttt{levelCount}\right)
 +++++
 and
 [stem]
 +++++
-requiredAlignment =
+\textit{required_alignment} =
   \begin{cases}
-    lcm(texel\_block\_size, 4)      & (\text{supercompressionScheme} = 0) \\
-    1                               & (\text{supercompressionScheme} \neq 0)
+    \operatorname{lcm}(\textit{texel_block_size}, 4)      & (\texttt{supercompressionScheme} = 0) \\
+    1                                      & (\texttt{supercompressionScheme} \neq 0)
   \end{cases}
 +++++
-_texel_block_size_ is defined in <<mipPadding>>.
+stem:[\textit{texel_block_size}] is defined in <<mipPadding>>.
 
 ===== levels[p].uncompressedByteLength
 
 `levels[p].uncompressedByteLength` is the number of bytes of pixel
-data in LOD stem:[level_p] after reflation from supercompression.
+data in LOD stem:[\textit{level}_p] after reflation from supercompression.
 This includes all layers, all z slices, all faces, all rows (or
 rows of blocks) and all pixels (or blocks) in each row for the mip
 level. When `supercompressionScheme == 0`,
@@ -1319,7 +1325,7 @@ must equal `dfdTotalSize`.
 If
 [stem]
 +++++
-dfdTotalSize \neq kvdByteOffset - dfdByteOffset
+\texttt{dfdTotalSize} \neq \texttt{kvdByteOffset} - \texttt{dfdByteOffset}
 +++++
 the file is invalid.
 
@@ -1346,8 +1352,8 @@ pairs is such that
 [stem]
 +++++
 \sum_{i=0}^{n-1}
-\left\lceil{\frac{keyAndValueByteLength[i]}{4}}\right\rceil \times 4
-+ n \times 4 = kvdByteLength.
+\left\lceil{\frac{\texttt{keyAndValueByteLength}[i]}{4}}\right\rceil \times 4
++ n \times 4 = \texttt{kvdByteLength}
 +++++
 
 Any file that does not meet the above condition is invalid.
@@ -1421,8 +1427,8 @@ in <<basislz_gd>>.
 
 === Mip Level Array
 Mip levels in the array are ordered from the level with the
-smallest size images, stem:[level_p] to that with the largest size
-images, stem:[level_{base}].
+smallest size images, stem:[\textit{level}_p] to that with the largest size
+images, stem:[\textit{level}_{base}].
 
 [NOTE]
 .Rationale
@@ -1445,10 +1451,9 @@ When `<<_supercompressionscheme,supercompressionScheme>> != 0` these
 bytes are formatted as specified in the scheme documentation.
 
 ==== mipPadding
-`mipPadding` is between 0 and stem:[lcm(texel\_block\_size, 4) -
-1] bytes of value `0x00`. stem:[lcm] is _least common multiple_.
-This is only required when
-`<<_supercompressionscheme,supercompressionScheme>> == 0`.
+`mipPadding` is between stem:[0] and
+stem:[\operatorname{lcm}(\textit{texel_block_size}, 4) - 1] bytes of value
+`0x00`. This is only required when `<<_supercompressionscheme,supercompressionScheme>> == 0`.
 
 _Texel block size_ is as given for the `vkFormat` value in
 {url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html#formats-compatibility[section
@@ -1985,7 +1990,7 @@ UInt32 loopCount
 
 `duration` is the number of _time units_ per frame. `timescale` is the
 number of _time units_ per 1 second. Thus the duration of a frame in
-seconds is stem:[duration / timescale].
+seconds is stem:[\texttt{duration} / \texttt{timescale}].
 
 `loopCount` indicates how many times to loop the animation. Values are:
 
@@ -2451,7 +2456,7 @@ include::appendices/vendor-metadata.adoc[]
                                     - Update draft Media Type
                                       registration.
 |      pr-draft2    | 2020-09-04  | - Update status to ratified.
-                                    - Add `KTXwriteScParams`.
+                                    - Add `KTXwriterScParams`.
                                     - Update logo.
                                     - Make clarifications in size
                                       restriction tips.
