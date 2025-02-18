@@ -37,7 +37,10 @@
 :url-khr-vulkan: {url-khr-reg}/vulkan
 :url-df-spec: {url-khr-df}/specs/1.4/dataformat.1.4.html
 :url-vk-spec: {url-khr-vulkan}/specs/latest/html/vkspec.html
-:url-vk-docs: https://docs.vulkan.org/spec/latest/chapters/formats.html
+:url-vk-docs: https://docs.vulkan.org
+:url-vk-docs-spec: https://docs.vulkan.org/spec/latest
+:url-vk-docs-sp-appendices: {url-vk-docs-spec}/appendices
+:url-vk-docs-sp-chapters: {url-vk-docs-spec}/chapters
 :url-khr-github: https://github.com/KhronosGroup
 :url-spec-repo: {url-khr-github}/KTX-Specification
 
@@ -315,23 +318,12 @@ provides for immediate detection of common file-transfer problems.
 
 === vkFormat
 `vkFormat` specifies the image format using Vulkan `VkFormat` enum
-values. It can be any value defined in the Vulkan specification <<VULKAN12>>,
-future core versions or registered Vulkan extensions, except for
-values listed in <<prohibitedFormats>> and any `\*_SCALED_*` or
-`\*[2-9]PLANE*` formats added in future.
-Values defined by core Vulkan 1.2 are given in
-{url-vk-spec}#formats-definition[section 33.1
-_Format Definition_] of <<VULKAN12>>.  The list of registered
-extensions is provided in the {url-khr-vulkan}/#repos[Khronos Vulkan
-Registry]. A complete list of values defined by both core Vulkan
-1.2 and extensions can be found in
-{url-vkwext-spec}#formats-definition[section
-43.1 _Format Definition_] of <<VULKAN12EXT>>.
-
-NOTE: The section number given for <<VULKAN12EXT>> is as of this
-writing (Vulkan 1.2.175). It is subject to change as future extensions
-are added to the document but the link should remain valid as it is to
-an internal anchor.
+values. It can be any value defined in the Vulkan specification
+<<VULKAN>>, future core versions or registered Vulkan extensions,
+except for values listed in <<prohibitedFormats>> and any `\*_SCALED_*`
+or `\*[2-9]PLANE*` formats added in future. Values defined by the
+latest core Vulkan specification and registered extensions are given
+in {url-vk-docs-sp-chapters}/formats.html[Formats] on <<VULKAN-DOCS>>.
 
 Use of the value `VK_FORMAT_UNDEFINED` (0) is only permissible when
 the format of the data is a not a recognized Vulkan format, such
@@ -504,7 +496,7 @@ second word contains the S8 value in the eight LSBs and zeros in
 the MSBs.
 
 `VK_FORMAT_S8_UINT`, `VK_FORMAT_D16_UNORM` and `VK_FORMAT_D32_SFLOAT`
-are defined as in <<VULKAN12EXT>>.
+are defined as in <<VULKAN>>.
 
 === typeSize
 `typeSize` specifies the size of the data type in bytes used to
@@ -1458,9 +1450,9 @@ stem:[\operatorname{lcm}(\textit{texel_block_size}, 4) - 1] bytes of value
 `0x00`. This is only required when `<<_supercompressionscheme,supercompressionScheme>> == 0`.
 
 _Texel block size_ is as given for the `vkFormat` value in
-{url-vkwext-spec}#formats-compatibility[section
-40.1.6 _Format Compatibility Classes_] of <<VULKAN12EXT>> for all
-`vkFormat` values except the following three:
+{url-vk-docs-sp-chapters}/formats.html#formats-compatibility-classes[_Format
+Compatibility Classes_] of <<VULKAN-DOCS>> for all `vkFormat` values
+except the following three:
 
 [options="header"]
 |====
@@ -1956,7 +1948,8 @@ additional options to those previously used.
 By default, ASTC decoders produce pixel values with half-float
 precision for HDR and linear LDR blocks. KTX file writers may
 indicate that the data is compatible with more compact decoding
-modes (as defined in <<VULKAN12EXT>>, `VK_EXT_astc_decode_mode`)
+modes (as defined in
+{url-vk-docs-sp-appendices}/extensions.html#VK_EXT_astc_decode_mode[`VK_EXT_astc_decode_mode`]
 by using the key
 
 -   `KTXastcDecodeMode`
@@ -2325,23 +2318,22 @@ Bradner. IETF Network Working Group, March 1997.
   Collet, M. Kucherawy, Ed. Internet Engineering Task Force (IETF),
   October 2018.
 
-- [[[VULKAN12]]] {url-khr-vulkan}/specs/1.2/html/vkspec.html[Vulkan^®^
-  1.2 - A Specification].
-The Khronos Group, May 2020.
+- [[[VULKAN]]] {url-vk-spec}[Vulkan^®^ 1.n.p - A Specification].
+  The Khronos Group, February 2025.
 
-- [[[VULKAN12EXT]]] {url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html[Vulkan^®^
-  1.2 - A Specification (with all registered Vulkan extensions)].
-  The Khronos Group, May 2020.
+- [[[VULKAN-DOCS]]] {url-vk-docs}[Vulkan^®^ Documentation] site. An
+  alternative view of the Vulkan specification.
+  The Khronos Group, February 2025.
 
 [NOTE]
 ====
-The Vulkan 1.2 references are living documents that are updated
-weekly with corrections, clarifications and, in the case of
-<<VULKAN12EXT>>, newly released extensions. References to the
-specifications do not imply that KTX header field values are limited
-solely to those in the referenced sections or tables. These values
-may be supplemented by extensions or new versions.  They also do
-not imply that all of the texture types can be loaded in any
+The Vulkan specification is a living document that is updated weekly
+with corrections, clarifications and newly released extensions. The
+version as of this writing is 1.4.308. References to the specification
+do not imply that KTX header field values are limited solely to
+those in the referenced sections or tables of 1.4.308. These values
+may be supplemented by extensions or new core versions. They also
+do not imply that all of the texture types can be loaded in any
 particular version of OpenGL {,ES} or Vulkan.
 ====
 
@@ -2356,11 +2348,10 @@ particular version of OpenGL {,ES} or Vulkan.
 == Cubemap Orientation
 
 The KTX cubemap coordinate system in <<faceCount>> is directly
-compatible with the Vulkan and OpenGL cube samplers described by the
-face selection tables and equations for calculating (s, t) in
-{url-khr-vulkan}/specs/1.2-extensions/html/vkspec.html#_cube_map_face_selection_and_transformations[section
-16.5.3 Cube Map Face Selection and Transformations] of <<VULKAN12>>
-and
+compatible with the Vulkan and OpenGL cube samplers described by
+the face selection tables and equations for calculating (s, t) in
+{url-vk-docs-sp-chapters}/textures.html#_cube_map_face_selection_and_transformations[
+Cube Map Face Selection and Transformations] of <<VULKAN-DOCS>> and
 {url-khr-reg}/OpenGL/specs/gl/glspec46.core.pdf#nameddest=section-8.13[section
 8.13 Cube Map Texture Selection] of <<OPENGL46>>.
 
