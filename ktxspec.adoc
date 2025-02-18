@@ -496,7 +496,8 @@ second word contains the S8 value in the eight LSBs and zeros in
 the MSBs.
 
 `VK_FORMAT_S8_UINT`, `VK_FORMAT_D16_UNORM` and `VK_FORMAT_D32_SFLOAT`
-are defined as in <<VULKAN>>.
+are defined as in {url-vk-docs-sp-chapters}/formats.html[Formats]
+on <<VULKAN-DOCS>>.
 
 === typeSize
 `typeSize` specifies the size of the data type in bytes used to
