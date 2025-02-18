@@ -336,14 +336,15 @@ outlined within this specification and summarized in
 <<Use of `VK_FORMAT_UNDEFINED`>>.
 
 The table in <<formatMapping>> gives the mapping for all `VkFormat`
-enum values in Vulkan 1.2 core and the extensions known at the time
-of writing, to the equivalent OpenGL format (internal format, format
-and type values), DXGI_FORMAT and MTLPixelFormat. Applications must
-use these mappings. If <<formatMapping>> does not have an entry for
-the value of `vkFormat` and a mapping to one or more of the other
-APIs exists then, even if the value is not `VK_FORMAT_UNDEFINED`,
-the KTX writer must provide that mapping using one or more of the
-metadata items described in <<formatMappingMetadata>>.
+enum values in {url-vk-docs-sp-chapters}/formats.html[Formats] at
+the time of writing, to the equivalent OpenGL format (internal
+format, format and type values), DXGI_FORMAT and MTLPixelFormat.
+Applications must use these mappings. If <<formatMapping>> does not
+have an entry for the value of `vkFormat` and a mapping to one or
+more of the other APIs exists then, even if the value is not
+`VK_FORMAT_UNDEFINED`, the KTX writer must provide that mapping
+using one or more of the metadata items described in
+<<formatMappingMetadata>>.
 
 [TIP]
 ====
