@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification of a container format for GPU textures.
-:docrev: 4
+:docrev: 5 (draft)
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -95,6 +95,8 @@ Document Revision 2 approved by the 3D Formats WG Sep 6th, 2023.
 Document Revision 3 approved by the 3D Formats WG Feb 14th, 2024.
 
 Document Revision 4 approved by the 3D Formats WG Feb 19th, 2025.
+
+Document Revision 5 in drafting.
 
 == Introduction
 
@@ -2611,7 +2613,7 @@ include::appendices/vendor-metadata.adoc[]
                                     - Prohibit YCbCr 2-plane 444 formats
                                       recently added to Vulkan.
                                     - Allow `A8B8G8R8*PACK32` formats.
-|      {docrev}     |  {revdate}  | - Relax restrictions on
+|          4       |  2025-02-20  | - Relax restrictions on
                                       `colorPrimaries` values.
                                     - Fix bit size of descriptorType in
                                       dfdBlock.
@@ -2626,6 +2628,8 @@ include::appendices/vendor-metadata.adoc[]
                                       functions.
                                     - Update KDFS references to 1.4 and
                                       make the links active.
+|      {docrev}     |  {revdate}  | - Specify how to carry the new
+                                      Binomial HDR formats.
 |===
 
 [discrete]
