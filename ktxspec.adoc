@@ -1146,7 +1146,7 @@ two compression ratios defined by the texel block size in the DFD:
 subset so `vkFormat` must be set to whichever of
 `VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK` (= 1000066000) or
 `VK_FORMAT_ASTC_6x6_SFLOAT_BLOCK` (= 1000066004) matches the texel
-block size. The DFD must be as described in Section ??? of <<KDF13>>.
+block size. The DFD must be as described in Section ??? of <<KDF14>>.
 Images in this format must be transcoded to BC6H or decoded to raw
 16-bit floating-point values before being uploaded to and sampled
 by a GPU that does not support ASTC HDR.  UASTC HDR images can be
@@ -2070,9 +2070,9 @@ These values must be finite.
 An application can restore the original 32-bit float value with
 [stem]
 +++++
-effective = sampled \times scale + offset
+\textit{effective} = \textit{sampled} \times \textit{scale} + \textit{offset}
 +++++
-where stem:[sampled] is the value retrieved from the texture after any
+where stem:[\textit{sampled}] is the value retrieved from the texture after any
 filtering.
 
 [TIP]
