@@ -96,6 +96,8 @@ Document Revision 3 approved by the 3D Formats WG Feb 14th, 2024.
 
 Document Revision 4 approved by the 3D Formats WG Feb 19th, 2025.
 
+Document Revision 5 in drafting.
+
 == Introduction
 
 This document describes the KTX^™️^ file format version 2.0, hereafter
@@ -2636,6 +2638,8 @@ include::appendices/vendor-metadata.adoc[]
                                       can vary from format definition.
                                     - Fix incorrect offsets, sizes and comments
                                       in example KTX v2 file.
+                                    - Specify how to carry the new
+                                      Binomial HDR formats.
 |===
 
 [discrete]
