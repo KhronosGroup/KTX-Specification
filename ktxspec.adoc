@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification of a container format for GPU textures.
-:docrev: 4 (for WG approval)
+:docrev: 4
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -94,7 +94,7 @@ Document Revision 2 approved by the 3D Formats WG Sep 6th, 2023.
 
 Document Revision 3 approved by the 3D Formats WG Feb 14th, 2024.
 
-Document Revision 4 awaiting WG approval.
+Document Revision 4 approved by the 3D Formats WG Feb 19th 2025.
 
 == Introduction
 
