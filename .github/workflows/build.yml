@@ -18,6 +18,8 @@ on:
     paths-ignore:
       - .appveyor.yml
       - .travis.yml
+      - README.md
+      - CODE_OF_CONDUCT.md
 
   # Allow manual trigger
   workflow_dispatch:
