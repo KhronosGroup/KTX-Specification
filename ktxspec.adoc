@@ -94,7 +94,7 @@ Document Revision 2 approved by the 3D Formats WG Sep 6th, 2023.
 
 Document Revision 3 approved by the 3D Formats WG Feb 14th, 2024.
 
-Document Revision 4 approved by the 3D Formats WG Feb 19th 2025.
+Document Revision 4 approved by the 3D Formats WG Feb 19th, 2025.
 
 == Introduction
 
