@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification of a container format for GPU textures.
-:docrev: 4
+:docrev: 5 (draft)
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -95,6 +95,8 @@ Document Revision 2 approved by the 3D Formats WG Sep 6th, 2023.
 Document Revision 3 approved by the 3D Formats WG Feb 14th, 2024.
 
 Document Revision 4 approved by the 3D Formats WG Feb 19th, 2025.
+
+Document Revision 5 in drafting.
 
 == Introduction
 
@@ -327,12 +329,12 @@ in {url-vk-docs-sp-chapters}/formats.html[Formats] on <<VULKAN-DOCS>>.
 
 Use of the value `VK_FORMAT_UNDEFINED` (0) is only permissible when
 the format of the data is a not a recognized Vulkan format, such
-as in the case of the universal texture formats. In this case
-information about the format must be provided by the Data Format
-Descriptor and, in cases where the format is known to another GPU
-API, the KTX writer must include one or more of the metadata items
-described in <<formatMappingMetadata>>.  Some permissible uses are
-outlined within this specification and summarized in
+as in the case of some of the universal texture formats. In this
+case information about the format must be provided by the Data
+Format Descriptor and, in cases where the format is known to another
+GPU API, the KTX writer must include one or more of the metadata
+items described in <<formatMappingMetadata>>.  Some permissible
+uses are outlined within this specification and summarized in
 <<Use of `VK_FORMAT_UNDEFINED`>>.
 
 The table in <<formatMapping>> gives the mapping for all `VkFormat`
@@ -539,7 +541,7 @@ If `faceCount` is equal to 6, `pixelHeight` must be equal to
 `pixelWidth`, and `pixelDepth` must be 0.
 
 `pixelHeight` must not be 0 for block-compressed formats, including
-BasisLZ/ETC1S and UASTC.
+BasisLZ/ETC1S, UASTC, UASTC HDR and GPU Photo.
 
 `pixelDepth` must not be 0 for block-compressed formats that have
 block depth greater than 1.
@@ -661,11 +663,13 @@ inflated from the scheme prior to GPU sampling.
 
 [TIP]
 ====
-LZW-style lossless supercompression, e.g, scheme 2, is generally
-ineffective on the block-compressed data of GPU texture formats.
-It is best reserved for use with uncompressed texture formats or
-with block-compressed data that has been specially conditioned for
-LZW compression such as by _Rate-distortion Optimization_ <<RDO>>.
+Depending on the content of the image, LZW-style lossless
+supercompression, e.g, scheme 2, may be ineffective on the
+block-compressed data of GPU texture formats. Compressibility can
+be improved by specially conditioning the data for LZW compression
+such as with _Rate-distortion Optimization_ <<RDO>>. Such conditioning
+is an encoding detail which is transparent to the user of the
+texture.
 
 BasisLZ internally uses a universal block-compressed
 texture format and Rate-distortion Optimization. Encoding to the
@@ -716,7 +720,10 @@ Therefore it is applicable only to uncompressed images.
 //
 // The PR must also add a note to Vendor Scheme Notes below.
 | 0x10000              | Asobo         | KTX_SS_PROPRIETARY_ASOBO | Asobo Studio | Julien Vernay link:mailto:jvernay@asobostudio.com?subject=(KTX2-Asobo)%20...question...&body=...who%20are%20you%20and%20your%20question...[icon:send[role="black"]jvernay@asobostudio.com,window=_blank,opts=nofollow] | Proprietary | Required
-| 0x10001･･･0x1ffff    | Reserved^2^   |      |          |                              |                   |
+| 0x10001              | Basis GPU Photo 6x6 |
+KTX_SS_BASIS_GPU_PHOTO_BINOMIAL | Binomial Llc | Some Body
+link:mailto:aaa@binomial.info?subject=(KTX2-GPU%20Photo)%20...question...&body=...who%20are%20you%20and%20your%20question...[icon:send[role="black"]aaa@binomial.info,window=_blank,opts=nofollow] | https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-6x6-Intermediate-File-Format-(Basis-GPU-Photo-6x6) | n/a
+| 0x10002･･･0x1ffff    | Reserved^2^   |      |          |                              |                   |
 |===
 
 [small]
@@ -962,13 +969,13 @@ A _dfDescriptor_ is useful in the following cases:
 The following restrictions must be obeyed when setting the fields of a
 _dfDescriptorBlock_.
 
-* If <<_vkformat,`vkFormat`>> is not `VK_FORMAT_UNDEFINED`, the
-  DFD's `texelBlockDimension*`, `bytesPlane*` and sample information
-  fields must match the format's definition. The `colorModel` must
-  be `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA` or the matching
-  block compressed color model listed in <<KDF14>>
+* If <<_vkformat,`vkFormat`>> is not `VK_FORMAT_UNDEFINED`, the DFD's
+  `texelBlockDimension*`, `bytesPlane*` and sample information fields
+  must match the format's definition. The `colorModel` must be
+  `KHR_DF_MODEL_RGBSDA`, `KHR_DF_MODEL_YUVSDA` or the matching block
+  compressed color model listed in <<KDF14>>
   {url-df-spec}#CompressedFormatModels[Section 5.6] or its successors,
-  currently `KHR_DF_MODEL_BC1A` to `KHR_DF_MODEL_UASTC`.
+  currently `KHR_DF_MODEL_BC1A` to `KHR_DF_MODEL_GPU_PHOTO`.
   `KHR_DF_MODEL_YUVSDA` should be used for all non-prohibited
   `+*_422_*+` formats.
 * If <<_vkformat,`vkFormat`>> is one of the `+*_SRGB{,_*}+` formats,
@@ -1085,24 +1092,25 @@ Premultiplied Alpha::
   field if the images' RGB components have been multiplied by their
   alpha components, otherwise it must be 0.
 
-Basis Universal UASTC Format::
+Basis Universal ASTC Format::
 The Universal ASTC image format (UASTC) is indicated by `colorModel`
 `KHR_DF_MODEL_UASTC` (= 166) together with `vkFormat` `VK_FORMAT_UNDEFINED`
 (= 0). The DFD must be as described in Section 5.6.14
 {url-df-spec}#KHR_DF_MODEL_UASTC[_KHR_DF_MODEL_UASTC_] of
 <<KDF14>>. Images in this format must be transcoded to a GPU-supported
 block-compressed format or decoded to a GPU-supported uncompressed
-format before being uploaded to and sampled by a GPU.  UASTC images
-can be supercompressed with Zstandard (`supercompressionScheme` =
-2) with or without first conditioning the data with Rate-distortion
-Optimization. If supercompression is used, the DFD must follow the
-rules described in the next subsection.
+format before being uploaded to and sampled by a GPU. UASTC images
+can be supercompressed with any scheme except BasisLZ
+(`supercompressionScheme` = 1) and Basis GPU Photo 6x6
+(`supercompressionScheme` = 4). If supercompression is used, the
+DFD must follow the rules described in the next
+<<dfdSupercompressed,subsection>>.
 +
-This color model provides channel Ids, e.g. `KHR_DF_CHANNEL_UASTC_RGB`
-that must be used to indicate the effective number of components
-in the data.  Consumers use this information to help select a
-transcode target. The following ids are valid and must be used for
-the type of data indicated.
+This color model has a single channel with several possible ids,
+e.g. `KHR_DF_CHANNEL_UASTC_RGB`, that are used to indicate the
+effective number of components in the data.  Consumers use this
+information to help select a transcode target. The following ids
+are valid and must be used for the type of data indicated.
 +
 [width=100%,align=center,cols="<30,^10,<60",options=header]
 |===
@@ -1134,6 +1142,34 @@ The bitstream of the UASTC data is described in Chapter 25
 {url-df-spec}#UASTC[_UASTC Compressed Texture Image Format_] of
 <<KDF14>>.
 
+Basis Universal ASTC HDR Format::
+The Universal ASTC HDR image format (UASTC HDR) is indicated by
+`colorModel` `KHR_DF_MODEL_UASTC_HDR` (= 167). This format supports
+two compression ratios defined by the texel block size in the DFD:
+4x4 and 6x6. Images in this format are a strict RGB-only ASTC HDR
+subset so `vkFormat` must be set to whichever of
+`VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK` (= 1000066000) or
+`VK_FORMAT_ASTC_6x6_SFLOAT_BLOCK` (= 1000066004) matches the texel
+block size. The DFD must be as described in Section ??? of <<KDF14>>.
+Images in this format must be transcoded to BC6H or decoded to raw
+16-bit floating-point values before being uploaded to and sampled
+by a GPU that does not support ASTC HDR.  UASTC HDR images can be
+supercompressed with any scheme except BasisLZ (`supercompressionScheme`
+= 1) and Basis GPU Photo 6x6 (`supercompressionScheme` = 4). If
+supercompression is used, the DFD must follow the rules described
+in the next <<dfdSupercompressed,subsection>>.
++
+This color model has a single channel with id
+`KHR_DF_CHANNEL_UASTC_HDR_RGB` (= 0) for which the
+`KHR_DF_SAMPLE_DATATYPE_FLOAT` qualifier (= 0x80) must be set.
+
+[NOTE]
+====
+Because void-extent blocks in ASTC HDR can have negative values the
+Vulkan format names for ASTC HDR use `SFLOAT` although regular ASTC
+HDR blocks cannot have negative values. No UASTC HDR value can be < 0.
+====
+
 [[etc1s]]
 Basis Universal ETC1S Format::
 The ETC1S image format is indicated by `colorModel` `KHR_DF_MODEL_ETC1S`
@@ -1142,8 +1178,9 @@ DFD must be as described in Section 5.6.11
 {url-df-spec}#KHR_DF_MODEL_ETC1S[_KHR_DF_MODEL_ETC1S_] of
 <<KDF14>>. Because ETC1S does not support an alpha component, Basis
 Universal uses 2 _slices_, (_planes_ in DFD-speak) to represent
-RGBA images.  This color model provides the following channel ids
-that must be used to indicate the use of a slice.
+RGBA images. In this color model each slice has a single channel
+with the following possible channel ids that must be used to indicate
+the use of a slice.
 +
 [width=100%,align=center,cols="<30,^10,<60",options=header]
 |===
@@ -1188,8 +1225,8 @@ for ETC1S streams such as BasisLZ must be used.  Images must be
 inflated and transcoded to a GPU-supported block-compressed format
 or decoded to a GPU-supported uncompressed format before being
 uploaded to and sampled by a GPU. Because ETC1S images are
-supercompressed, the DFD must follow the rules described in the
-next subsection.
+supercompressed, the DFD must follow the rules described in
+the next <<dfdSupercompressed,subsection>>.
 
 TIP: Whether the image has 1 or 2 slices
 can be determined from the DFD's sample count.
@@ -1210,6 +1247,23 @@ submitting the data to a Basis encoder then the DFD must not
 have a sample with a channelType that indicates it is alpha.
 ====
 
+Basis GPU Photo::
+The GPU Photo format is indicated by `colorModel` `KHR_DF_MODEL_GPU_PHOTO`
+(= 168)  together with `vkFormat` `VK_FORMAT_UNDEFINED` (= 0). The
+format supports one compression ratio defined by a texel block size
+in the DFD of 6x6. Images in this format are always supercompressed
+with the Basis GPU Photo 6x6 scheme and must be inflated and
+transcoded to either standard ASTC HDR 6x6 format, if supported by
+the device, or to raw 16-bit floating-point values, before being
+uploaded to and sampled by a GPU. Because GPU Photo images are
+supercompressed, the DFD must follow the rules described in
+the next <<dfdSupercompressed,subsection>>.
++
+This color model has a single channel with id
+`KHR_DF_CHANNEL_GPU_PHOTO_RGB` (= 0) for which the
+`KHR_DF_SAMPLE_DATATYPE_FLOAT` qualifier (= 0x80) must be set.
+
+[[dfdSupercompressed]]
 ===== DFD for Supercompressed Data
 When `<<_supercompressionscheme,supercompressionScheme>>` is not 0
 the _dfDescriptorBlock_ must preserve the `colorModel`, `transferFunction`,
@@ -1999,6 +2053,40 @@ seconds is stem:[\texttt{duration} / \texttt{timescale}].
 This metadata entry must not be used together with
 <<KTXcubemapIncomplete,`KTXcubemapIncomplete`>>.
 
+=== KTXmapRange
+When the payload is a floating point format with a restricted range,
+such as ASTC HDR, RGB9E5 and FLOAT16, and data is input from a
+source with 32-bit floating point data, such as a .exr file,
+the values in the source may be mapped to the more limited range.
+KTX file writers may indicate the mapping by using the key
+
+- `KTXmapRange`
+
+The value is 8 bytes representing two IEEE 754 single-precision
+floating-point values:
+[source,c]
+----
+Float32 scale
+Float32 offset
+----
+These values must be finite.
+
+An application can restore the original 32-bit float value with
+[stem]
++++++
+\textit{effective} = \textit{sampled} \times \textit{scale} + \textit{offset}
++++++
+where stem:[\textit{sampled}] is the value retrieved from the texture after any
+filtering.
+
+[TIP]
+====
+This formula allows decoders to use a single fused multiply-add
+instruction to apply the scale and the offset.
+====
+
+This metadata entry may be used with any floating point format.
+
 == An example KTX version 2 file:
 
 [source,c]
@@ -2527,7 +2615,7 @@ include::appendices/vendor-metadata.adoc[]
                                     - Prohibit YCbCr 2-plane 444 formats
                                       recently added to Vulkan.
                                     - Allow `A8B8G8R8*PACK32` formats.
-|      {docrev}     |  {revdate}  | - Relax restrictions on
+|          4       |  2025-02-20  | - Relax restrictions on
                                       `colorPrimaries` values.
                                     - Fix bit size of descriptorType in
                                       dfdBlock.
@@ -2542,6 +2630,8 @@ include::appendices/vendor-metadata.adoc[]
                                       functions.
                                     - Update KDFS references to 1.4 and
                                       make the links active.
+|      {docrev}     |  {revdate}  | - Specify how to carry the new
+                                      Binomial HDR formats.
 |===
 
 [discrete]
