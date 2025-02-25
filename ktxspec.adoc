@@ -635,8 +635,7 @@ supercompression.
 | 1                    | BasisLZ         | <<etc1s_slice,ETC1S Slice Decoding>>  | <<basislz_gd,BasisLZ Global Data>>
 | 2                    | Zstandard       | <<RFC8478>>       | n/a
 | 3                    | ZLIB            | <<RFC1950>>       | n/a
-| 4                    | Basis GPU Photo 6x6 | https://github.com/BinomialLLC/basis_universal/wiki/ASTC-HDR-6x6-Intermediate-File-Format-(Basis-GPU-Photo-6x6)        | n/a
-| 5･･･0xffff           | Reserved^1^     |                   |
+| 4･･･0xffff           | Reserved^1^     |                   |
 | 0x10000･･･0x1ffff    | Reserved^2^     |                   |
 | 0x20000･･･0xffffffff | Reserved^3^     |                   |
 |===
@@ -721,7 +720,8 @@ Therefore it is applicable only to uncompressed images.
 //
 // The PR must also add a note to Vendor Scheme Notes below.
 | 0x10000              | Asobo         | KTX_SS_PROPRIETARY_ASOBO | Asobo Studio | Julien Vernay link:mailto:jvernay@asobostudio.com?subject=(KTX2-Asobo)%20...question...&body=...who%20are%20you%20and%20your%20question...[icon:send[role="black"]jvernay@asobostudio.com,window=_blank,opts=nofollow] | Proprietary | Required
-| 0x10001･･･0x1ffff    | Reserved^2^   |      |          |                              |                   |
+| 0x10001              | Basis GPU Photo 6x6 | KTX_SS_BASIS_GPU_PHOTO_BINOMIAL | Binomial Llc | Some Body link:mailto:aaa@binomial.info?subject=(KTX2-GPU%20Photo)%20...question...&body=...who%20are%20you%20and%20your%20question...[icon:send[role="black"]aaa@binomial.info,window=_blank,opts=nofollow] | Proprietary | Required
+| 0x10002･･･0x1ffff    | Reserved^2^   |      |          |                              |                   |
 |===
 
 [small]
