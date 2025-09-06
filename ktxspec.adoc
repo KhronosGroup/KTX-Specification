@@ -541,7 +541,7 @@ If `faceCount` is equal to 6, `pixelHeight` must be equal to
 `pixelWidth`, and `pixelDepth` must be 0.
 
 `pixelHeight` must not be 0 for block-compressed formats, including
-BasisLZ/ETC1S, UASTC, UASTC HDR and GPU Photo.
+BasisLZ/ETC1S, UASTC, UASTC HDR and UASTC HDR 6x6 Intermediate.
 
 `pixelDepth` must not be 0 for block-compressed formats that have
 block depth greater than 1.
@@ -635,7 +635,8 @@ supercompression.
 | 1                    | BasisLZ         | <<etc1s_slice,ETC1S Slice Decoding>>  | <<basislz_gd,BasisLZ Global Data>>
 | 2                    | Zstandard       | <<RFC8478>>       | n/a
 | 3                    | ZLIB            | <<RFC1950>>       | n/a
-| 4･･･0xffff           | Reserved^1^     |                   |
+| 4                    | Basis UASTC 6x6 Intermediate | <<basisuah66i_bitstream,Basis UASTC HDR 6x6 Intermediate Bitstream Specification>> | <<basisuah66i_gd, Basis UASTC HDR 6x6 Intermediate Global Data>>
+| 5･･･0xffff           | Reserved^1^     |                   |
 | 0x10000･･･0x1ffff    | Reserved^2^     |                   |
 | 0x20000･･･0xffffffff | Reserved^3^     |                   |
 |===
@@ -720,10 +721,7 @@ Therefore it is applicable only to uncompressed images.
 //
 // The PR must also add a note to Vendor Scheme Notes below.
 | 0x10000              | Asobo         | KTX_SS_PROPRIETARY_ASOBO | Asobo Studio | Julien Vernay link:mailto:jvernay@asobostudio.com?subject=(KTX2-Asobo)%20...question...&body=...who%20are%20you%20and%20your%20question...[icon:send[role="black"]jvernay@asobostudio.com,window=_blank,opts=nofollow] | Proprietary | Required
-| 0x10001              | Basis GPU Photo 6x6 |
-KTX_SS_BASIS_GPU_PHOTO_BINOMIAL | Binomial Llc | Some Body
-link:mailto:aaa@binomial.info?subject=(KTX2-GPU%20Photo)%20...question...&body=...who%20are%20you%20and%20your%20question...[icon:send[role="black"]aaa@binomial.info,window=_blank,opts=nofollow] | https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-6x6-Intermediate-File-Format-(Basis-GPU-Photo-6x6) | n/a
-| 0x10002･･･0x1ffff    | Reserved^2^   |      |          |                              |                   |
+| 0x10001･･･0x1ffff    | Reserved^2^   |      |          |                              |                   |
 |===
 
 [small]
@@ -790,6 +788,21 @@ transcode target format is selected.
   The <<_data_format_descriptor,_Data Format Descriptor_>> must
   retain pre-deflation color space information and indicate which
   components are present. See <<DFD for Supercompressed Data>>.
+
+[#basisuah66_scheme]
+===== Basis UASTC HDR 6x6 Intermediate
+* <<Basis UASTC HDR 6x6 Intermediate Bitstream Specification>>
+  describes the bitstream for a single image (slice).
+* UASTC slice locations within a mip level are defined exclusively
+  by the corresponding `ImageDesc` structures from the
+  <<basisuah66i_global_data_structure>>. The same slice data may be
+  used by multiple `ImageDesc` structures within the mip level.
+* <<_vkformat,`vkFormat`>> must be `VK_FORMAT_UNDEFINED` (0x00).
+  The <<_data_format_descriptor,_Data Format Descriptor_>> must
+  retain the pre-deflation color space information.
+  See <<DFD for Supercompressed Data>>.
+* `<<_levelsp_uncompressedbytelength,levels[p].uncompressedByteLength>>`
+  must be 0.
 
 [#vendorSchemeNotes]
 ////
@@ -1107,7 +1120,7 @@ The Universal ASTC image format (UASTC) is indicated by `colorModel`
 block-compressed format or decoded to a GPU-supported uncompressed
 format before being uploaded to and sampled by a GPU. UASTC images
 can be supercompressed with any scheme except BasisLZ
-(`supercompressionScheme` = 1) and Basis GPU Photo 6x6
+(`supercompressionScheme` = 1) and Basis UASTC HDR 6x6 Intermediate
 (`supercompressionScheme` = 4). If supercompression is used, the
 DFD must follow the rules described in the next
 <<dfdSupercompressed,subsection>>.
@@ -1148,26 +1161,55 @@ The bitstream of the UASTC data is described in Chapter 25
 {url-df-spec}#UASTC[_UASTC Compressed Texture Image Format_] of
 <<KDF14>>.
 
-Basis Universal ASTC HDR Format::
-The Universal ASTC HDR image format (UASTC HDR) is indicated by
-`colorModel` `KHR_DF_MODEL_UASTC_HDR` (= 167). This format supports
-two compression ratios defined by the texel block size in the DFD:
-4x4 and 6x6. Images in this format are a strict RGB-only ASTC HDR
-subset so `vkFormat` must be set to whichever of
-`VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK` (= 1000066000) or
-`VK_FORMAT_ASTC_6x6_SFLOAT_BLOCK` (= 1000066004) matches the texel
-block size. The DFD must be as described in Section ??? of <<KDF14>>.
-Images in this format must be transcoded to BC6H or decoded to raw
-16-bit floating-point values before being uploaded to and sampled
-by a GPU that does not support ASTC HDR.  UASTC HDR images can be
+Basis Universal ASTC HDR 4x4 Format::
+The Universal ASTC HDR 4x4 image format (UASTC HDR 4x4) is a strict
+RGB-only subset of ASTC HDR 4x4. `vkFormat` must be set to
+`VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK` (= 1000066000). The DFD must be
+as described in Section 5.6.10
+{url-df-spec}#KHR_DF_MODEL_ASTC[_KHR_DF_MODEL_ASTC_] of <<KDF14>>
+but `colorModel` must be `KHR_DF_MODEL_UASTC_HDR_4x4` (= 167) and
+`texelBlockDimension[01]` must be 4.  Images in this format must
+be transcoded to a format supported by the device before being
+uploaded to and sampled by a GPU that does not support ASTC HDR,
+e.g.  `VK_FORMAT_BC6H_UFLOAT_BLOCK`, `VK_FORMAT_E5B9G9R9_UFLOAT_PACK32`
+or `VK_FORMAT_R16G16B16A16_SFLOAT`.  UASTC HDR 4x4 images can be
 supercompressed with any scheme except BasisLZ (`supercompressionScheme`
-= 1) and Basis GPU Photo 6x6 (`supercompressionScheme` = 4). If
-supercompression is used, the DFD must follow the rules described
+= 1) and Basis UASTC HDR 6x6 Intermediate (`supercompressionScheme`
+= 4).  If supercompression is used, the DFD must follow the rules
+described in the next <<dfdSupercompressed,subsection>>.
++
+This color model has a single channel with id
+`KHR_DF_CHANNEL_UASTC_HDR_4x4_RGB` (= 0) for which the
+`KHR_DF_SAMPLE_DATATYPE_FLOAT` qualifier (= 0x80) must be set.
++
+The bitstream of the UASTC HDR 4x4 data is described in <<UASTCHDR44>>.
+
+Basis Universal ASTC HDR 6x6 Format::
+The Universal ASTC HDR 6x6 image format (UASTC HDR 6x6) is a custom
+format based off ASTC HDR 6x6 that underlies the
+<<basisuah66_scheme,Basis UASTC HDR 6x6 Intermediate>>
+supercompression scheme (`supercompressionScheme`
+= 4).  `vkFormat` must be set to `VK_FORMAT_UNDEFINED` (= 0).  The
+DFD must be as described in Section 5.6.10
+{url-df-spec}#KHR_DF_MODEL_ASTC[_KHR_DF_MODEL_ASTC_] of <<KDF14>>
+but `colorModel` must be `KHR_DF_MODEL_UASTC_6x6_HDR` (= 168) and
+`texelBlockDimension[01]` must be 6. Images in this format are
+RGB-only and are always supercompressed with the
+<<basisuah66_scheme,Basis UASTC HDR 6x6 Intermediate>>
+scheme and must be inflated and transcoded to a
+format supported by the device before being uploaded to and sampled
+by a GPU, e.g `VK_FORMAT_ASTC_6x6_SFLOAT_BLOCK`,
+`VK_FORMAT_BC6H_UFLOAT_BLOCK`, `VK_FORMAT_E5B9G9R9_UFLOAT_PACK32`
+or `VK_FORMAT_R16G16B16A16_SFLOAT`.  Because UASTC HDR 6x6 Intermediate
+images are supercompressed, the DFD must follow the rules described
 in the next <<dfdSupercompressed,subsection>>.
 +
 This color model has a single channel with id
-`KHR_DF_CHANNEL_UASTC_HDR_RGB` (= 0) for which the
+`KHR_DF_CHANNEL_UASTC_HDR_6x6_RGB` (= 0) for which the
 `KHR_DF_SAMPLE_DATATYPE_FLOAT` qualifier (= 0x80) must be set.
++
+The bitstream of UASTC HDR 6x6 data compressed with _UASTC HDR 6x6
+Intermediate_ is described in <<Basis UASTC HDR 6x6 Intermediate Bitstream Specification>>.
 
 [NOTE]
 ====
@@ -1252,22 +1294,6 @@ source image(s) alpha channel(s) that are all opaque (1.0) before
 submitting the data to a Basis encoder then the DFD must not
 have a sample with a channelType that indicates it is alpha.
 ====
-
-Basis GPU Photo::
-The GPU Photo format is indicated by `colorModel` `KHR_DF_MODEL_GPU_PHOTO`
-(= 168)  together with `vkFormat` `VK_FORMAT_UNDEFINED` (= 0). The
-format supports one compression ratio defined by a texel block size
-in the DFD of 6x6. Images in this format are always supercompressed
-with the Basis GPU Photo 6x6 scheme and must be inflated and
-transcoded to either standard ASTC HDR 6x6 format, if supported by
-the device, or to raw 16-bit floating-point values, before being
-uploaded to and sampled by a GPU. Because GPU Photo images are
-supercompressed, the DFD must follow the rules described in
-the next <<dfdSupercompressed,subsection>>.
-+
-This color model has a single channel with id
-`KHR_DF_CHANNEL_GPU_PHOTO_RGB` (= 0) for which the
-`KHR_DF_SAMPLE_DATATYPE_FLOAT` qualifier (= 0x80) must be set.
 
 [[dfdSupercompressed]]
 ===== DFD for Supercompressed Data
@@ -2414,6 +2440,11 @@ Bradner. IETF Network Working Group, March 1997.
   Collet, M. Kucherawy, Ed. Internet Engineering Task Force (IETF),
   October 2018.
 
+- [[[UASTCHDR44]]]
+  https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-4x4-Texture-Specification-v1.0[UASTC
+  HDR 4x4 Texture Specification v1.0].
+  Binomial Llc Wiki, Jan 2025.
+
 - [[[VULKAN]]] {url-vk-spec}[Vulkan^®^ 1.n.p - A Specification].
   The Khronos Group, February 2025.
 
@@ -2512,6 +2543,10 @@ include::formats.json[]
 include::appendices/basislz-gdata.adoc[]
 
 include::appendices/basislz-bitstream.adoc[]
+
+include::appendices/basisuah66i-gdata.adoc[]
+
+include::appendices/basisuah66i-bitstream.adoc[]
 
 include::appendices/vendor-metadata.adoc[]
 

@@ -139,3 +139,4 @@ in <<ETC1S Slice Huffman Tables>>.
 === extendedData
 Extended data. This is not used for ETC1S.
 
+// vim: filetype=asciidoc ai expandtab tw=0 ts=4 sts=2 sw=2
