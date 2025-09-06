@@ -1,0 +1,9 @@
+[appendix#basisuah66i]
+[#basisuah66i_bitstream]
+== Basis UASTC HDR 6x6 Intermediate Bitstream Specification
+
+_Basis UASTC HDR 6x6 Intermediate_ is a custom supercompression scheme for the Basis UASTC HDR 6x6 texture format.
+
+For now, see the https://github.com/BinomialLLC/basis_universal/wiki/ASTC-HDR-6x6-Intermediate-File-Format-(Basis-GPU-Photo-6x6)[format specification] on the basis_universal Wiki.
+
+// vim: filetype=asciidoc ai expandtab tw=0 ts=4 sts=2 sw=2
