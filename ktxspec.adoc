@@ -16,13 +16,8 @@
 // names and indented blocks, overrides the unreadable equations.
 ////
 :stem: latexmath
-// Disabling toc and numbered attributes doesn't work with a2x.
-// Use the xsltproc options instead.
-:toc!:
-// a2x: --xsltproc-opts "--stringparam generate.toc nop"
+:toc: left
 :numbered:
-// a2x: --xsltproc-opts "--stringparam chapter.autolabel 0"
-// a2x: --xsltproc-opts "--stringparam section.autolabel 0"
 //:max-width: 50em
 :data-uri:
 :icons: font
