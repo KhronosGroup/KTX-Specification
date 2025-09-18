@@ -541,7 +541,7 @@ If `faceCount` is equal to 6, `pixelHeight` must be equal to
 `pixelWidth`, and `pixelDepth` must be 0.
 
 `pixelHeight` must not be 0 for block-compressed formats, including
-BasisLZ/ETC1S, UASTC, UASTC HDR and UASTC HDR 6x6 Intermediate.
+BasisLZ/ETC1S, UASTC, UASTC HDR 4x4 and UASTC HDR 6x6 Intermediate.
 
 `pixelDepth` must not be 0 for block-compressed formats that have
 block depth greater than 1.
@@ -1161,7 +1161,7 @@ The bitstream of the UASTC data is described in Chapter 25
 {url-df-spec}#UASTC[_UASTC Compressed Texture Image Format_] of
 <<KDF14>>.
 
-Basis Universal ASTC HDR 4x4 Format::
+Basis Universal UASTC HDR 4x4 Format::
 The Universal ASTC HDR 4x4 image format (UASTC HDR 4x4) is a strict
 RGB-only subset of ASTC HDR 4x4. `vkFormat` must be set to
 `VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK` (= 1000066000). The DFD must be
@@ -1184,7 +1184,7 @@ This color model has a single channel with id
 +
 The bitstream of the UASTC HDR 4x4 data is described in <<UASTCHDR44>>.
 
-Basis Universal ASTC HDR 6x6 Format::
+Basis Universal UASTC HDR 6x6 Format::
 The Universal ASTC HDR 6x6 image format (UASTC HDR 6x6) is a custom
 format based off ASTC HDR 6x6 that underlies the
 <<basisuah66_scheme,Basis UASTC HDR 6x6 Intermediate>>
