@@ -2672,6 +2672,7 @@ include::appendices/vendor-metadata.adoc[]
                                       in example KTX v2 file.
                                     - Specify how to carry the new
                                       Binomial HDR formats.
+                                    - Add table of contents.
 |===
 
 [discrete]
