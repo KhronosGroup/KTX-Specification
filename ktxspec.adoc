@@ -1162,16 +1162,17 @@ RGB-only subset of ASTC HDR 4x4. `vkFormat` must be set to
 `VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK` (= 1000066000). The DFD must be
 as described in Section 5.6.10
 {url-df-spec}#KHR_DF_MODEL_ASTC[_KHR_DF_MODEL_ASTC_] of <<KDF14>>
-but `colorModel` must be `KHR_DF_MODEL_UASTC_HDR_4x4` (= 167) and
-`texelBlockDimension[01]` must be 4.  Images in this format must
-be transcoded to a format supported by the device before being
-uploaded to and sampled by a GPU that does not support ASTC HDR,
-e.g.  `VK_FORMAT_BC6H_UFLOAT_BLOCK`, `VK_FORMAT_E5B9G9R9_UFLOAT_PACK32`
-or `VK_FORMAT_R16G16B16A16_SFLOAT`.  UASTC HDR 4x4 images can be
-supercompressed with any scheme except BasisLZ (`supercompressionScheme`
-= 1) and Basis UASTC HDR 6x6 Intermediate (`supercompressionScheme`
-= 4).  If supercompression is used, the DFD must follow the rules
-described in the next <<dfdSupercompressed,subsection>>.
+but `colorModel` must be `KHR_DF_MODEL_UASTC_HDR_4x4` (= 167),
+`texelBlockDimension[01]` must be 3 and `sampleLower` must be 0.
+Images in this format must be transcoded to a format supported by
+the device before being uploaded to and sampled by a GPU that does
+not support ASTC HDR, e.g.  `VK_FORMAT_BC6H_UFLOAT_BLOCK`,
+`VK_FORMAT_E5B9G9R9_UFLOAT_PACK32` or `VK_FORMAT_R16G16B16A16_SFLOAT`.
+UASTC HDR 4x4 images can be supercompressed with any scheme except
+BasisLZ (`supercompressionScheme` = 1) and Basis UASTC HDR 6x6
+Intermediate (`supercompressionScheme` = 4).  If supercompression
+is used, the DFD must follow the rules described in the next
+<<dfdSupercompressed,subsection>>.
 +
 This color model has a single channel with id
 `KHR_DF_CHANNEL_UASTC_HDR_4x4_RGB` (= 0) for which the
@@ -1181,23 +1182,22 @@ The bitstream of the UASTC HDR 4x4 data is described in <<UASTCHDR44>>.
 
 Basis Universal UASTC HDR 6x6 Format::
 The Universal ASTC HDR 6x6 image format (UASTC HDR 6x6) is a custom
-format based off ASTC HDR 6x6 that underlies the
-<<basisuah66_scheme,Basis UASTC HDR 6x6 Intermediate>>
-supercompression scheme (`supercompressionScheme`
-= 4).  `vkFormat` must be set to `VK_FORMAT_UNDEFINED` (= 0).  The
-DFD must be as described in Section 5.6.10
-{url-df-spec}#KHR_DF_MODEL_ASTC[_KHR_DF_MODEL_ASTC_] of <<KDF14>>
-but `colorModel` must be `KHR_DF_MODEL_UASTC_6x6_HDR` (= 168) and
-`texelBlockDimension[01]` must be 6. Images in this format are
-RGB-only and are always supercompressed with the
-<<basisuah66_scheme,Basis UASTC HDR 6x6 Intermediate>>
-scheme and must be inflated and transcoded to a
-format supported by the device before being uploaded to and sampled
-by a GPU, e.g `VK_FORMAT_ASTC_6x6_SFLOAT_BLOCK`,
-`VK_FORMAT_BC6H_UFLOAT_BLOCK`, `VK_FORMAT_E5B9G9R9_UFLOAT_PACK32`
-or `VK_FORMAT_R16G16B16A16_SFLOAT`.  Because UASTC HDR 6x6 Intermediate
-images are supercompressed, the DFD must follow the rules described
-in the next <<dfdSupercompressed,subsection>>.
+format based off ASTC HDR 6x6 that underlies the <<basisuah66_scheme,Basis
+UASTC HDR 6x6 Intermediate>> supercompression scheme
+(`supercompressionScheme` = 4).  `vkFormat` must be set to
+`VK_FORMAT_UNDEFINED` (= 0).  The DFD must be as described in Section
+5.6.10 {url-df-spec}#KHR_DF_MODEL_ASTC[_KHR_DF_MODEL_ASTC_] of
+<<KDF14>> but `colorModel` must be `KHR_DF_MODEL_UASTC_6x6_HDR` (=
+168), `texelBlockDimension[01]` must be 5 and `sampleLower` must
+be 0. Images in this format are RGB-only and are always supercompressed
+with the <<basisuah66_scheme,Basis UASTC HDR 6x6 Intermediate>>
+scheme and must be inflated and transcoded to a format supported
+by the device before being uploaded to and sampled by a GPU, e.g
+`VK_FORMAT_ASTC_6x6_SFLOAT_BLOCK`, `VK_FORMAT_BC6H_UFLOAT_BLOCK`,
+`VK_FORMAT_E5B9G9R9_UFLOAT_PACK32` or `VK_FORMAT_R16G16B16A16_SFLOAT`.
+Because UASTC HDR 6x6 Intermediate images are supercompressed, the
+DFD must follow the rules described in the next
+<<dfdSupercompressed,subsection>>.
 +
 This color model has a single channel with id
 `KHR_DF_CHANNEL_UASTC_HDR_6x6_RGB` (= 0) for which the
