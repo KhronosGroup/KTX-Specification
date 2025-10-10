@@ -4,22 +4,8 @@
 
 _Basis UASTC HDR 6x6 Intermediate_ is a custom supercompression scheme for the Basis UASTC HDR 6x6 texture format.
 
-The bitstream is as documented in the https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-6x6-Intermediate-File-Format-(Basis-GPU-Photo-6x6)[format specification] on the basis_universal Wiki, except that the https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-6x6-Intermediate-File-Format-(Basis-GPU-Photo-6x6)#header[header] is not included when the bitstream is contained in a KTX v2 file. The compression type is signalled by the supercompressionScheme ID and the colorModel in the DFD. The image width and height can be calculated as follows:
+The bitstream is as documented in the https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-6x6-Intermediate-File-Format-(Basis-GPU-Photo-6x6)[format specification] on the basis_universal Wiki, except that the https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-6x6-Intermediate-File-Format-(Basis-GPU-Photo-6x6)#header[header] is not included when the bitstream is contained in a KTX v2 file. The compression type is signalled by `supercompressionScheme` = 4 and `colorModel` = 168. The image width and height can be calculated using <<levelImages_defs,these formulae>> for stem:[\textit{num_blocks_x}] and stem:[\textit{num_blocks_y}] with stem:[\textit{block_width}] and stem:[\textit{block_height}] stem:[1]. The number of unpacked ASTC HDR 6x6 blocks can be calculated using the <<levelImages_defs,same formulae>> but with stem:[\textit{block_width}] and stem:[\textit{block_height}] stem:[6] then calculating stem:[\textit{num_blocks_x}\times\textit{num_blocks_y}].
 
-[stem]
-// width = max(1, pixelWidth * 2**-p)
-+++++
-\textit{width} = \max\left(1, \lfloor{\texttt{pixelWidth}*{2^{-p}}}\rfloor\right)
-+++++
 
-[stem]
-// height = max(1, pixelHeight * 2**-p)
-+++++
-\textit{height} = \max\left(1, \lfloor{\texttt{pixelHeight}*{2^{-p}}}\rfloor\right)
-+++++
-
-where stem:[p] is the level index.
-
-The number of unpacked ASTC HDR 6x6 blocks in an image is given by <<levelImages_defs,these formulae>> with stem:[\textit{block_depth}] stem:[1], stem:[\textit{block_height}] stem:[6] and stem:[\textit{block_width}] stem:[6].
 
 // vim: filetype=asciidoc ai expandtab tw=0 ts=4 sts=2 sw=2
