@@ -986,8 +986,8 @@ _dfDescriptorBlock_.
   `KHR_DF_MODEL_YUVSDA` or the matching block compressed color model
   listed in <<KDF14>> {url-df-spec}#CompressedFormatModels[Section
   5.6] or its successors, currently `KHR_DF_MODEL_BC1A` to
-  `KHR_DF_MODEL_GPU_PHOTO`.  `KHR_DF_MODEL_YUVSDA` should be used for
-  all non-prohibited `+*_422_*+` formats.
+  `KHR_DF_MODEL_UASTC_6x6_HDR`.  `KHR_DF_MODEL_YUVSDA` should be
+  used for all non-prohibited `+*_422_*+` formats.
 * If <<_vkformat,`vkFormat`>> is one of the `+*_SRGB{,_*}+` formats,
   `transferFunction` must be `KHR_DF_TRANSFER_SRGB`.
 * If <<_vkformat,`vkFormat`>> is not one of the `+*_SRGB{,_*}+` formats
@@ -1106,7 +1106,7 @@ Premultiplied Alpha::
   field if the images' RGB components have been multiplied by their
   alpha components, otherwise it must be 0.
 
-Basis Universal ASTC Format::
+Basis Universal UASTC Format::
 The Universal ASTC image format (UASTC) is indicated by `colorModel`
 `KHR_DF_MODEL_UASTC` (= 166) together with `vkFormat` `VK_FORMAT_UNDEFINED`
 (= 0). The DFD must be as described in Section 5.6.14
@@ -1164,14 +1164,16 @@ as described in Section 5.6.10
 {url-df-spec}#KHR_DF_MODEL_ASTC[_KHR_DF_MODEL_ASTC_] of <<KDF14>>
 but `colorModel` must be `KHR_DF_MODEL_UASTC_HDR_4x4` (= 167),
 `texelBlockDimension[01]` must be 3 and `sampleLower` must be 0.
-Images in this format must be transcoded to a format supported by
-the device before being uploaded to and sampled by a GPU that does
-not support ASTC HDR, e.g.  `VK_FORMAT_BC6H_UFLOAT_BLOCK`,
-`VK_FORMAT_E5B9G9R9_UFLOAT_PACK32` or `VK_FORMAT_R16G16B16A16_SFLOAT`.
-UASTC HDR 4x4 images can be supercompressed with any scheme except
-BasisLZ (`supercompressionScheme` = 1) and Basis UASTC HDR 6x6
-Intermediate (`supercompressionScheme` = 4).  If supercompression
-is used, the DFD must follow the rules described in the next
+If the GPU does not support `VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK`,
+images in this format must be transcoded to a GPU-supported
+block-compressed format like `VK_FORMAT_BC6H_UFLOAT_BLOCK` or decoded
+to a GPU-supported uncompressed format like
+`VK_FORMAT_E5B9G9R9_UFLOAT_PACK32` or `VK_FORMAT_R16G16B16A16_SFLOAT`
+before being uploaded to and sampled by a GPU. UASTC HDR 4x4 images
+can be supercompressed with any scheme except BasisLZ
+(`supercompressionScheme` = 1) and Basis UASTC HDR 6x6 Intermediate
+(`supercompressionScheme` = 4).  If supercompression is used, the
+DFD must follow the rules described in the next
 <<dfdSupercompressed,subsection>>.
 +
 This color model has a single channel with id
@@ -1191,12 +1193,13 @@ UASTC HDR 6x6 Intermediate>> supercompression scheme
 168), `texelBlockDimension[01]` must be 5 and `sampleLower` must
 be 0. Images in this format are RGB-only and are always supercompressed
 with the <<basisuah66_scheme,Basis UASTC HDR 6x6 Intermediate>>
-scheme and must be inflated and transcoded to a format supported
-by the device before being uploaded to and sampled by a GPU, e.g
-`VK_FORMAT_ASTC_6x6_SFLOAT_BLOCK`, `VK_FORMAT_BC6H_UFLOAT_BLOCK`,
-`VK_FORMAT_E5B9G9R9_UFLOAT_PACK32` or `VK_FORMAT_R16G16B16A16_SFLOAT`.
-Because UASTC HDR 6x6 Intermediate images are supercompressed, the
-DFD must follow the rules described in the next
+scheme and must be inflated and transcoded to a GPU-supported
+block-compressed format like `VK_FORMAT_BC6H_UFLOAT_BLOCK` or
+`VK_FORMAT_ASTC_6x6_SFLOAT_BLOCK` or decoded to a GPU-supported
+uncompressed format like `VK_FORMAT_E5B9G9R9_UFLOAT_PACK32` or
+`VK_FORMAT_R16G16B16A16_SFLOAT` before being uploaded to and sampled
+by a GPU. Because UASTC HDR 6x6 Intermediate images are supercompressed,
+the DFD must follow the rules described in the next
 <<dfdSupercompressed,subsection>>.
 +
 This color model has a single channel with id
@@ -2081,11 +2084,13 @@ This metadata entry must not be used together with
 <<KTXcubemapIncomplete,`KTXcubemapIncomplete`>>.
 
 === KTXmapRange
-When the payload is a floating point format with a restricted range,
-such as ASTC HDR, RGB9E5 and FLOAT16, and data is input from a
-source with 32-bit floating point data, such as a .exr file,
-the values in the source may be mapped to the more limited range.
-KTX file writers may indicate the mapping by using the key
+When the payload is a floating point format with a reduced range,
+such as `ASTC_*\_SFLOAT_BLOCK`, `BC6H_[S,U]FLOAT_BLOCK`,
+`B10G11R11_UFLOAT_PACK32`, `E5B9G9R9_UFLOAT_PACK32` or
+`R16[G16[B16[A16]]]_SFLOAT` and data is input from a source with
+32-bit floating point data, such as a .exr file, the values in the
+source may be mapped to the more limited range. KTX file writers
+may indicate the mapping by using the key
 
 - `KTXmapRange`
 

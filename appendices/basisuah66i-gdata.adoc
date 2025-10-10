@@ -1,7 +1,7 @@
 [appendix#basisuah66i_gd]
 == Basis UASTC HDR 6x6 Intermediate Global Data
 
-Basis UASTC HDR 6x6 Intermediate format combines encoding to the UASTC HDR 6x6 subset of ASTC, that can be easily transcoded to BC6H or RGB9E5, with lossless supercompression. The format uses a small number of variable bit length command codes which can output one or more blocks, and which can reuse parts of previously encoded blocks. Because of the variable size of each image Basis UASTC HDR 6x6 Intermediate creates a global data structure that contains an array of _image descriptors_ with the offset and length within its mip level of the data for that image.
+Basis UASTC HDR 6x6 Intermediate format combines encoding to the UASTC HDR 6x6 subset of ASTC, that can be easily transcoded to BC6H unsigned, with lossless supercompression. The format uses a small number of variable bit length command codes which can output one or more blocks, and which can reuse parts of previously encoded blocks. Because of the variable size of each image Basis UASTC HDR 6x6 Intermediate creates a global data structure that contains an array of _image descriptors_ with the offset and length within its mip level of the data for that image.
 
 
 [[basisuah66i_global_data_structure]]
