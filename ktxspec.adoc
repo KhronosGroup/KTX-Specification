@@ -2117,7 +2117,23 @@ This formula allows decoders to use a single fused multiply-add
 instruction to apply the scale and the offset.
 ====
 
-This metadata entry may be used with any floating point format.
+This metadata entry may be used with:
+
+* any floating point format. In the case of a combined depth-stencil
+format, e.g. `D32_SFLOAT_S8_UINT` it must be applied only to the
+depth component.
+
+* any linear `*_UNORM` or `*_SNORM` format.
+
+It is incompatible with and must not be used with:
+
+* non-linear formats such as those with sRGB encoding,
+
+* true integer or boolean formats.
+
+Metadata must be applied before swizzling and must be applied only to
+existing components. E.g, if blue and alpha are missing they must remain
+as 0.0 and 1.0.
 
 == An example KTX version 2 file:
 
