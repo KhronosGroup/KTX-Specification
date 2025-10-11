@@ -18,7 +18,6 @@
 :stem: latexmath
 :toc: left
 :numbered:
-//:max-width: 50em
 :data-uri:
 :icons: font
 :source-highlighter: prettify
