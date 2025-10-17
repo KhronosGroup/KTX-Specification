@@ -2130,6 +2130,9 @@ It is incompatible with and must not be used with:
 
 * true integer or boolean formats.
 
+If `KTXmapRange` appears in a KTX file containing these formats, the
+file is invalid.
+
 Metadata must be applied before swizzling and must be applied only to
 existing components. E.g, if blue and alpha are missing they must remain
 as 0.0 and 1.0.
