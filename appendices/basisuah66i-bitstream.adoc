@@ -4,7 +4,11 @@
 
 _Basis UASTC HDR 6x6 Intermediate_ is a custom supercompression scheme for the Basis UASTC HDR 6x6 texture format.
 
-The bitstream is as documented in the https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-6x6-Intermediate-File-Format-(Basis-GPU-Photo-6x6)[format specification] on the basis_universal Wiki, except that the https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-6x6-Intermediate-File-Format-(Basis-GPU-Photo-6x6)#header[header] is not included when the bitstream is contained in a KTX v2 file. The compression type is signalled by `supercompressionScheme` = 4 and `colorModel` = 168. The image width and height can be calculated using <<levelImages_defs,these formulae>> for stem:[\textit{num_blocks_x}] and stem:[\textit{num_blocks_y}] with stem:[\textit{block_width}] and stem:[\textit{block_height}] stem:[1]. The number of unpacked ASTC HDR 6x6 blocks can be calculated using the <<levelImages_defs,same formulae>> but with stem:[\textit{block_width}] and stem:[\textit{block_height}] stem:[6] then calculating stem:[\textit{num_blocks_x}\times\textit{num_blocks_y}].
-
+The bitstream is as documented in the https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-6x6-Intermediate-File-Format-(Basis-GPU-Photo-6x6)[format specification] on the basis_universal Wiki.
+The compression type is signalled by `supercompressionScheme` = 4 and `colorModel` = 168.
+The bitstream has a https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-6x6-Intermediate-File-Format-(Basis-GPU-Photo-6x6)#header[header] of 3 little-endian 16-bit fields.
+The first field is the compression type ID and its value must match that of `rgbSliceType` in the <<basisuah66i_image_desc,ImageDesc>> that refers to the bitstream.
+The second and third fields are the width and height of the texture.
+The value of the width field must equal stem:[\textit{num_blocks_x}] and the value of the height field must equal stem:[\textit{num_blocks_y}] as calculated for the mip level using <<levelImages_defs,these formulae>> with stem:[\textit{block_width}] and stem:[\textit{block_height}] stem:[1].
 
 // vim: filetype=asciidoc ai expandtab tw=0 ts=4 sts=2 sw=2
