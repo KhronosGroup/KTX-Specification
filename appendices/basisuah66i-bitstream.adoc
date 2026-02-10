@@ -8,7 +8,7 @@ The bitstream is as documented in the https://github.com/BinomialLLC/basis_unive
 The compression type is signalled by `supercompressionScheme` = 4 and `colorModel` = 168.
 The bitstream has a https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-6x6-Intermediate-File-Format-(Basis-GPU-Photo-6x6)#header[header] of 3 little-endian 16-bit fields.
 The first field is the compression type ID and its value must match that of `rgbSliceType` in the <<basisuah66i_image_desc,ImageDesc>> that refers to the bitstream.
-The second and third fields are the width and height of the texture.
-The value of the width field must equal stem:[\textit{num_blocks_x}] and the value of the height field must equal stem:[\textit{num_blocks_y}] as calculated for the mip level using <<levelImages_defs,these formulae>> with stem:[\textit{block_width}] and stem:[\textit{block_height}] stem:[1].
+The second and third fields are the width and height of the texture image in pixels.
+The value of the width field must equal stem:[\textit{num_blocks_x}] and the value of the height field must equal stem:[\textit{num_blocks_y}] as calculated for the mip level using <<levelImages_defs,these formulae>>. Since the width and height are in pixels, stem:[\textit{block_width}] and stem:[\textit{block_height}] in those formulae must be stem:[1].
 
 // vim: filetype=asciidoc ai expandtab tw=0 ts=4 sts=2 sw=2
