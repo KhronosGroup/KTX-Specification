@@ -65,8 +65,8 @@ The offset of the start of the RGB slice within the <<levelImagesDesc,levelImage
 
 [[basisuah66i_rgbSliceType]]
 ==== rgbSliceType
-The compression type used in the bitstream for this slice.
-The least significant 16-bits (the first two bytes) of this value must equal the compression type ID, of the bitstream for this slice as described in the https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-6x6-Intermediate-File-Format-(Basis-GPU-Photo-6x6)#header[header section] of the bitstream specification.
+The combined ID field containing the entropy profile and stream semantic version used in the bitstream for this slice.
+The least significant 16-bits (the first two bytes) of this value must equal the first 16-bits of the bitstream for this slice as described in the https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-6x6-Intermediate-File-Format-(Basis-GPU-Photo-6x6)#header[header section] of the bitstream specification.
 The most significant 16-bits (the last two bytes) must be 0.
 [NOTE]
 .Rationale
