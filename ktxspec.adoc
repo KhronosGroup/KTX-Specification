@@ -2548,6 +2548,8 @@ include::appendices/vendor-metadata.adoc[]
                                       functions.
                                     - Update KDFS references to 1.4 and
                                       make the links active.
+                                    - Clarify that KHR_DF_SAMPLE_DATATYPE_LINEAR
+                                      can vary from format definition.
 |===
 
 [discrete]
