@@ -2,7 +2,7 @@
 :author: Mark Callow
 :author_org: Edgewise Consulting
 :description: Specification of a container format for GPU textures.
-:docrev: 4
+:docrev: 5 (draft)
 :ktxver: 2.0
 :revnumber: {ktxver}.{docrev}
 :revdate: {docdate}
@@ -2019,8 +2019,8 @@ This metadata entry must not be used together with
 0x08, 0x00, 0x00, 0x00, // UInt32 pixelHeight = 8
 0x00, 0x00, 0x00, 0x00, // UInt32 pixelDepth = 0
 0x00, 0x00, 0x00, 0x00, // UInt32 layerCount = 0
-0x01, 0x00, 0x00, 0x00, // UInt32 faceCount = 0
-0x01, 0x00, 0x00, 0x00, // UInt32 levelCount = 0
+0x01, 0x00, 0x00, 0x00, // UInt32 faceCount = 1
+0x01, 0x00, 0x00, 0x00, // UInt32 levelCount = 1
 0x01, 0x00, 0x00, 0x00, // UInt32 supercompressionScheme = 1 (BASISLZ)
 // Index
 0x68, 0x00, 0x00, 0x00, // Uint32 dfdByteOffset = 0x00000068
@@ -2533,7 +2533,7 @@ include::appendices/vendor-metadata.adoc[]
                                     - Prohibit YCbCr 2-plane 444 formats
                                       recently added to Vulkan.
                                     - Allow `A8B8G8R8*PACK32` formats.
-|      {docrev}     |  {revdate}  | - Relax restrictions on
+|          4       |  2025-02-20  | - Relax restrictions on
                                       `colorPrimaries` values.
                                     - Fix bit size of descriptorType in
                                       dfdBlock.
@@ -2548,8 +2548,10 @@ include::appendices/vendor-metadata.adoc[]
                                       functions.
                                     - Update KDFS references to 1.4 and
                                       make the links active.
-                                    - Clarify that KHR_DF_SAMPLE_DATATYPE_LINEAR
+|      {docrev}     |  {revdate}  | - Clarify that KHR_DF_SAMPLE_DATATYPE_LINEAR
                                       can vary from format definition.
+                                    - Fix incorrect comments in example
+                                      KTX v2 file.
 |===
 
 [discrete]
