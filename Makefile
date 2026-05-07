@@ -22,6 +22,8 @@ ktx_inlined_images := icons/ktx_favicon.ico \
 appendices=appendices
 
 ktx_sources := ktxspec.adoc \
+           $(appendices)/basisuah66i-gdata.adoc \
+           $(appendices)/basisuah66i-bitstream.adoc \
            $(appendices)/basislz-gdata.adoc \
            $(appendices)/basislz-bitstream.adoc \
            $(appendices)/vendor-metadata.adoc \
