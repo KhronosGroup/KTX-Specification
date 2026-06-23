@@ -7,7 +7,7 @@ Because of the variable size of each image Basis UASTC HDR 6x6 Intermediate crea
 
 
 [[basisuah66i_global_data_structure]]
-.Basis UASTC HDR 6x6 Global Data Structure
+.Basis UASTC HDR 6x6 Intermediate Global Data Structure
 [source,c,subs="+quotes,+attributes,+replacements"]
 ----
 ImageDesc[imageCount] imageDescs;
@@ -20,7 +20,7 @@ ImageDesc[imageCount] imageDescs;
 ----
 UInt32 rgbSliceByteOffset
 UInt32 rgbSliceByteLength
-UInt32 rgbSliceType
+UInt32 sliceProfile
 ----
 
 Descriptions in the `imageDescs` array are in the order layer, face and z_slice as if arranged by the following pseudo code.
@@ -63,11 +63,12 @@ The offset of the start of the RGB slice within the <<levelImagesDesc,levelImage
 
 `rgbSliceByteOffset + rgbSliceByteLength` must not be greater than the byte length of the corresponding mip level.
 
-[[basisuah66i_rgbSliceType]]
-==== rgbSliceType
+[[basisuah66i_sliceProfile]]
+==== sliceProfile
 The combined ID field containing the entropy profile and stream semantic version used in the bitstream for this slice.
-The least significant 16-bits (the first two bytes) of this value must equal the first 16-bits of the bitstream for this slice as described in the https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-6x6-Intermediate-File-Format-(Basis-GPU-Photo-6x6)#header[header section] of the bitstream specification.
+The least significant 16 bits (the first two bytes) of this value must equal the first 16-bits of the bitstream for this slice as described in the https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-6x6-Intermediate-File-Format-(Basis-GPU-Photo-6x6)#header[header section] of the bitstream specification.
 The most significant 16-bits (the last two bytes) must be 0.
+Implementations must fail gracefully when encountering an unknown profile or codec variant.
 [NOTE]
 .Rationale
 ====

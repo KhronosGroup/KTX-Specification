@@ -1,0 +1,18 @@
+[appendix#basisxual]
+[#basisxual_bitstream]
+== Basis XUASTC LDR Bitstream Specification
+
+_Basis XUASTC LDR_ is a custom supercompression scheme for the Basis XUASTC texture format which is a subset of ASTC.
+The first byte of the bitstream indicates which of three _entropy profiles_ the bitstream corresponds to.
+
+The Full Arithmetic and Hybrid profile bitstreams are documented in https://github.com/BinomialLLC/basis_universal/wiki/XUASTC-LDR-Arithmetic-Profile[XUASTC LDR Arithmetic Profile].
+
+The Full Zstd profile bitstream specification is documented in https://github.com/BinomialLLC/basis_universal/wiki/XUASTC-LDR-Specification-v1.0#xuastc-ldr-byte-stream---full-zstd-profile[XUASTC LDR Byte Stream - Full Zstd Profile]
+
+The compression type is signalled by `supercompressionScheme` = 5.
+The first byte of the bitstream must match bits 0-7 of `sliceProfile` in the <<basisxual_image_desc,ImageDesc>> that refers to the bitstream. The _Stream Version_, the first 5 bits of the https://github.com/BinomialLLC/basis_universal/wiki/XUASTC-LDR-Arithmetic-Profile[_System Header_] which starts at the second byte of the bitstream, must match bits 8-12 of the `sliceProfile`.
+The width and height of the texture image in pixels are given by the _Actual Width_ and _Actual Height_ fields of the _System Header_.
+They must not be zero.
+_Actual Width_ must equal stem:[\textit{num_blocks_x}] and _Actual Height_ must equal stem:[\textit{num_blocks_y}] as calculated for the mip level using <<levelImages_defs,these formulae>>. Since the width and height are in pixels, stem:[\textit{block_width}] and stem:[\textit{block_height}] in those formulae must be stem:[1].
+
+// vim: filetype=asciidoc ai expandtab tw=0 ts=4 sts=2 sw=2

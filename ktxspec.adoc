@@ -535,7 +535,8 @@ If `faceCount` is equal to 6, `pixelHeight` must be equal to
 `pixelWidth`, and `pixelDepth` must be 0.
 
 `pixelHeight` must not be 0 for block-compressed formats, including
-BasisLZ/ETC1S, UASTC, UASTC HDR 4x4 and UASTC HDR 6x6 Intermediate.
+BasisLZ/ETC1S, UASTC LDR, UASTC HDR 4x4, UASTC HDR 6x6 Intermediate
+and XUASTC LDR.
 
 `pixelDepth` must not be 0 for block-compressed formats that have
 block depth greater than 1.
@@ -629,8 +630,9 @@ supercompression.
 | 1                    | BasisLZ         | <<etc1s_slice,ETC1S Slice Decoding>>  | <<basislz_gd,BasisLZ Global Data>>
 | 2                    | Zstandard       | <<RFC8478>>       | n/a
 | 3                    | ZLIB            | <<RFC1950>>       | n/a
-| 4                    | Basis UASTC 6x6 Intermediate | <<basisuah66i_bitstream,Basis UASTC HDR 6x6 Intermediate Bitstream Specification>> | <<basisuah66i_gd, Basis UASTC HDR 6x6 Intermediate Global Data>>
-| 5･･･0xffff           | Reserved^1^     |                   |
+| 4                    | Basis UASTC HDR 6x6 Intermediate | <<basisuah66i_bitstream,Basis UASTC HDR 6x6 Intermediate Bitstream Specification>> | <<basisuah66i_gd, Basis UASTC HDR 6x6 Intermediate Global Data>>
+| 5                    | Basis XUASTC LDR | <<basisxual_bitstream,Basis XUASTC LDR Bitstream Specification>> | <<basisxual_gd, Basis XUASTC LDR Global Data>>
+| 6･･･0xffff           | Reserved^1^     |                   |
 | 0x10000･･･0x1ffff    | Reserved^2^     |                   |
 | 0x20000･･･0xffffffff | Reserved^3^     |                   |
 |===
@@ -790,6 +792,21 @@ transcode target format is selected.
 * UASTC slice locations within a mip level are defined exclusively
   by the corresponding `ImageDesc` structures from the
   <<basisuah66i_global_data_structure>>. The same slice data may be
+  used by multiple `ImageDesc` structures within the mip level.
+* <<_vkformat,`vkFormat`>> must be `VK_FORMAT_UNDEFINED` (0x00).
+  The <<_data_format_descriptor,_Data Format Descriptor_>> must
+  retain the pre-deflation color space information.
+  See <<DFD for Supercompressed Data>>.
+* `<<_levelsp_uncompressedbytelength,levels[p].uncompressedByteLength>>`
+  must be 0.
+
+[#basisxual_scheme]
+===== Basis XUASTC LDR
+* <<Basis XUASTC LDR Bitstream Specification>>
+  describes the bitstream for a single image (slice).
+* XUASTC slice locations within a mip level are defined exclusively
+  by the corresponding `ImageDesc` structures from the
+  <<basisxual_global_data_structure>>. The same slice data may be
   used by multiple `ImageDesc` structures within the mip level.
 * <<_vkformat,`vkFormat`>> must be `VK_FORMAT_UNDEFINED` (0x00).
   The <<_data_format_descriptor,_Data Format Descriptor_>> must
@@ -985,7 +1002,7 @@ _dfDescriptorBlock_.
   `KHR_DF_MODEL_YUVSDA` or the matching block compressed color model
   listed in <<KDF14>> {url-df-spec}#CompressedFormatModels[Section
   5.6] or its successors, currently `KHR_DF_MODEL_BC1A` to
-  `KHR_DF_MODEL_UASTC_6x6_HDR`.  `KHR_DF_MODEL_YUVSDA` should be
+  `KHR_DF_MODEL_XUASTC_LDR`.  `KHR_DF_MODEL_YUVSDA` should be
   used for all non-prohibited `+*_422_*+` formats.
 * If <<_vkformat,`vkFormat`>> is one of the `+*_SRGB{,_*}+` formats,
   `transferFunction` must be `KHR_DF_TRANSFER_SRGB`.
@@ -1179,7 +1196,8 @@ This color model has a single channel with id
 `KHR_DF_CHANNEL_UASTC_HDR_4x4_RGB` (= 0) for which the
 `KHR_DF_SAMPLE_DATATYPE_FLOAT` qualifier (= 0x80) must be set.
 +
-The bitstream of the UASTC HDR 4x4 data is described in <<UASTCHDR44>>.
+The ASTC HDR 4x4 subset that is UASTC HDR 4x4 data is described in <<UASTCHDR44>>.
+TODO: Update this link when KDFS is published.
 
 Basis Universal UASTC HDR 6x6 Format::
 The Universal ASTC HDR 6x6 image format (UASTC HDR 6x6) is a custom
@@ -1214,6 +1232,27 @@ Because void-extent blocks in ASTC HDR can have negative values the
 Vulkan format names for ASTC HDR use `SFLOAT` although regular ASTC
 HDR blocks cannot have negative values. No UASTC HDR value can be < 0.
 ====
+
+Basis Universal XUASTC LDR Format::
+The Universal XUASTC LDR image format (XUASTC LDR) is a custom
+format based off ASTC that underlies the <<basisxual_scheme,Basis
+XUASTC LDR>> supercompression scheme (`supercompressionScheme` =
+5).  `vkFormat` must be set to `VK_FORMAT_UNDEFINED` (= 0).  The
+DFD must be as described in Section 5.Y.ZZ
+{url-df-spec}#KHR_DF_MODEL_XUASTC_LDR[_KHR_DF_MODEL_XUASTC_LDR_] of <<KDF14>>
+with `colorModel` `KHR_DF_MODEL_XUASTC_LDR` (= 169).
+Images in this format are always supercompressed with the
+<<basisxual_scheme,Basis XUASTC LDR>> scheme and must be inflated
+and transcoded to a GPU-supported block-compressed format like
+`VK_FORMAT_ASTC_*_{SRGB,UNORM}_BLOCK` or `VK_FORMAT_BC7_{SRGB,UNORM}_BLOCK`
+or decoded to a GPU-supported uncompressed format before being
+uploaded to and sampled by a GPU.  Because XUASTC LDR images are
+supercompressed, the DFD must follow the rules described in the
+next <<dfdSupercompressed,subsection>>.  + This color model has a
+single channel with id `KHR_DF_CHANNEL_XUASTC_LDR_RGBA` (= 0).
++
+The bitstream of XUASTC LDR data compressed with _XUASTC LDR
+Intermediate_ is described in <<Basis XUASTC LDR Bitstream Specification>>.
 
 [[etc1s]]
 Basis Universal ETC1S Format::
@@ -1284,7 +1323,7 @@ single operation, this bitstream is not visible to applications.
 
 [IMPORTANT]
 ====
-The DFD for UASTC and ETC1S must reflect the components provided
+The DFD for UASTC LDR and ETC1S must reflect the components provided
 as input to the Basis encoders not those of the source image.
 Therefore, for example, if the software checks for and removes from
 source image(s) alpha channel(s) that are all opaque (1.0) before
@@ -2026,7 +2065,7 @@ If `KTXwriterScParams` is present, `KTXwriter` must also be present.
 In general only the most recent writer and most recently used options
 should be identified unless the writer is building on operations
 done previously. For example if a writer is adding Zstd supercompression
-to a file it previously encoded in UASTC, it should append the
+to a file it previously encoded in UASTC LDR, it should append the
 additional options to those previously used.
 
 === KTXastcDecodeMode
@@ -2459,9 +2498,19 @@ Bradner. IETF Network Working Group, March 1997.
   October 2018.
 
 - [[[UASTCHDR44]]]
-  https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-4x4-Texture-Specification-v1.0[UASTC
-  HDR 4x4 Texture Specification v1.0].
-  Binomial Llc Wiki, Jan 2025.
+  https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-4x4-Texture-Specification#uastc-hdr-4x4-texture-specification-v11[UASTC
+  HDR 4x4 Texture Specification v1.1].
+  Binomial Llc Wiki, Mar 2026.
+
+- [[[UASTCHDR66I]]]
+  https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-6x6-Intermediate-File-Format-(Basis-GPU-Photo-6x6)#uastc-hdr-6x6i-intermediate-specification-v12[UASTC
+  HDR 6x6i (Intermediate) Texture Specification v1.2].
+  Binomial Llc Wiki, Mar 2026.
+
+- [[[XUASTCLDR]]]
+  https://github.com/BinomialLLC/basis_universal/wiki/XUASTC-LDR-Specification-v1.0#xuastc-ldr-specification[XUASTC
+  LDR Texture Specification v1.0].
+  Binomial Llc Wiki, Apr 2026.
 
 - [[[VULKAN]]] {url-vk-spec}[Vulkan^®^ 1.n.p - A Specification].
   The Khronos Group, February 2025.
@@ -2565,6 +2614,10 @@ include::appendices/basislz-bitstream.adoc[]
 include::appendices/basisuah66i-gdata.adoc[]
 
 include::appendices/basisuah66i-bitstream.adoc[]
+
+include::appendices/basisxual-gdata.adoc[]
+
+include::appendices/basisxual-bitstream.adoc[]
 
 include::appendices/vendor-metadata.adoc[]
 
@@ -2694,7 +2747,7 @@ include::appendices/vendor-metadata.adoc[]
                                     - Fix incorrect offsets, sizes and comments
                                       in example KTX v2 file.
                                     - Specify how to carry the new
-                                      Binomial HDR formats.
+                                      Binomial UASTC HDR and XUASTC formats.
                                     - Add table of contents.
 |===
 
