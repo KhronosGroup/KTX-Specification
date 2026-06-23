@@ -55,16 +55,17 @@ $(dest)/vk2gl.o: switches headers | $(dest)
 $(switches) &: $(depth)/formats.json $(depth)/formats.schema.json $(depth)/generate_format_switches.rb |$(dest)
 	cd $(depth); ./generate_format_switches.rb $(generated_switches_dir)
 
+curl := curl --user-agent curl
 $(dest)/GL/glcorearb.h:
-	curl --create-dirs --output-dir $(dest)/GL -L -O $(khrregistry)/OpenGL/api/GL/glcorearb.h
+	$(curl) --create-dirs --output-dir $(dest)/GL -L -O $(khrregistry)/OpenGL/api/GL/glcorearb.h
 
 $(dest)/KHR/khrplatform.h:
-	curl --create-dirs --output-dir $(dest)/KHR -L -O $(khrregistry)/EGL/api/KHR/khrplatform.h
+	$(curl) --create-dirs --output-dir $(dest)/KHR -L -O $(khrregistry)/EGL/api/KHR/khrplatform.h
 
 $(dest)/vulkan/vulkan_core.h: $(vkheaders)
 
 $(dest)/vulkan/vulkan_core.h $(vkheaders):
-	curl --create-dirs --output-dir $(dir $@) -L -O $(vkheaderrepo)/$(subst ${dest}/,,$@)
+	$(curl) --create-dirs --output-dir $(dir $@) -L -O $(vkheaderrepo)/$(subst ${dest}/,,$@)
 
 $(dest):
 	mkdir -p $@
