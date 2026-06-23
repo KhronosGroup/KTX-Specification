@@ -40,7 +40,7 @@ jobs:
 
     - name: Upload generated files for GitHub Pages
       id: deployment
-      uses: actions/upload-pages-artifact@v3
+      uses: actions/upload-pages-artifact@v5
       with:
         path: out/ghpages/
 
