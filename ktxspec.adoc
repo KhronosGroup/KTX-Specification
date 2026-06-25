@@ -2176,6 +2176,32 @@ Metadata must be applied before swizzling and must be applied only to
 existing components. E.g, if blue and alpha are missing they must remain
 as 0.0 and 1.0.
 
+=== KTXxuastcBc7Transcodable
+Most 4x4, 6x6 and 8x6 XUASTC LDR blocks can be simply transcoded direct
+to BC7. Exclusive use of transcodable blocks can be signalled by using
+the key
+
+-   `KTXxuastcBc7Transcodable`
+
+The key has no value. It's presence signals transcodability.
+
+=== KTXxuastcDeblockFilter
+When XUASTC images are re-encoded to another format, an adaptive
+deblocking filter can be applied to reduce artifacts. This is done by
+default for block sizes > 8x6. Adaptive deblocking can be requested for
+other block sizes or disabled by using the key
+
+-   `KTXxuastcDeblockFilter`
+
+The value is a one-byte NUL-terminated string formatted as (<<REGEXP>>):
+
+[no-bullet]
+-   `/^[dns]{1}$/`
+
+where 'n' means do not apply a filter, 'd' means apply the default
+filter, and 's' mean apply the strong filter.
+
+
 == An example KTX version 2 file:
 
 [source,c]
