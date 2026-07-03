@@ -58,6 +58,7 @@ $(switches) &: $(depth)/formats.json $(depth)/formats.schema.json $(depth)/gener
 curl := curl --user-agent curl
 $(dest)/GL/glcorearb.h:
 	$(curl) --create-dirs --output-dir $(dest)/GL -L -O $(khrregistry)/OpenGL/api/GL/glcorearb.h?
+	cat $@
 
 $(dest)/KHR/khrplatform.h:
 	$(curl) --create-dirs --output-dir $(dest)/KHR -L -O $(khrregistry)/EGL/api/KHR/khrplatform.h?
