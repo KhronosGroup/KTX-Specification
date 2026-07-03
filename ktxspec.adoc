@@ -2189,6 +2189,19 @@ must not be set if the content includes other block dimensions. Such
 blocks must be re-encoded to BC7 preferably by bounded-time O(1) analytical
 encoding.
 
+This metadata entry may only be used with:
+
+* `vkFormat == VK_FORMAT_UNDEFINED`
+
+* `supercompressionScheme == 5`, Basis XUASTC LDR
+
+It must not be used with 
+
+* `KTXxuastcDeblockFilter` metadata.
+
+If `KTXxuastcBc7Transcodable` appears in a KTX file violating these
+constraints, the file is invalid.
+
 === KTXxuastcDeblockFilter
 When XUASTC images are re-encoded to another format, an adaptive
 deblocking filter can be applied to reduce artifacts. Typically
@@ -2206,6 +2219,19 @@ The value is a one-byte NUL-terminated string formatted as (<<REGEXP>>):
 
 where 'd' means disable filtering, 'n' means apply the normal
 filter, and 's' mean apply the strong filter.
+
+This metadata entry may only be used with:
+
+* `vkFormat == VK_FORMAT_UNDEFINED`
+
+* `supercompressionScheme == 5`, Basis XUASTC LDR
+
+It must not be used with 
+
+* `KTXxuastcBc7Transcodable` metadata.
+
+If `KTXxuastcDeblockFilter` appears in a KTX file violating these
+constraints, the file is invalid.
 
 [NOTE]
 ====
