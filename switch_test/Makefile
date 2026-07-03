@@ -56,17 +56,20 @@ $(switches) &: $(depth)/formats.json $(depth)/formats.schema.json $(depth)/gener
 	cd $(depth); ./generate_format_switches.rb $(generated_switches_dir)
 
 curl := curl --user-agent curl
+wget := wget -q
 $(dest)/GL/glcorearb.h:
-	$(curl) --create-dirs --output-dir $(dest)/GL -L -O $(khrregistry)/OpenGL/api/GL/glcorearb.h?Human=true
-	cat $@
+#	$(curl) --create-dirs --output-dir $(dest)/GL -L -O $(khrregistry)/OpenGL/api/GL/glcorearb.h?Human=true
+	$(wget) -P $(dir $@) $(khrregistry)/OpenGL/api/GL/glcorearb.h
 
 $(dest)/KHR/khrplatform.h:
-	$(curl) --create-dirs --output-dir $(dest)/KHR -L -O $(khrregistry)/EGL/api/KHR/khrplatform.h?Human=true
+#	$(curl) --create-dirs --output-dir $(dest)/KHR -L -O $(khrregistry)/EGL/api/KHR/khrplatform.h?Human=true
+	$(wget) -P $(dir $@) $(khrregistry)/EGL/api/KHR/khrplatform.h
 
 $(dest)/vulkan/vulkan_core.h: $(vkheaders)
 
 $(dest)/vulkan/vulkan_core.h $(vkheaders):
-	$(curl) --create-dirs --output-dir $(dir $@) -L -O $(vkheaderrepo)/$(subst ${dest}/,,$@)?Human=true
+#	$(curl) --create-dirs --output-dir $(dir $@) -L -O $(vkheaderrepo)/$(subst ${dest}/,,$@)?Human=true
+	$(wget) -P $(dir $@) $(vkheaderrepo)/$(subst ${dest}/,,$@)
 
 $(dest):
 	mkdir -p $@
