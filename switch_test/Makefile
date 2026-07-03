@@ -56,7 +56,7 @@ $(switches) &: $(depth)/formats.json $(depth)/formats.schema.json $(depth)/gener
 	cd $(depth); ./generate_format_switches.rb $(generated_switches_dir)
 
 curl := curl --user-agent curl
-wget := wget -q
+wget := wget
 $(dest)/GL/glcorearb.h:
 #	$(curl) --create-dirs --output-dir $(dest)/GL -L -O $(khrregistry)/OpenGL/api/GL/glcorearb.h?Human=true
 	$(wget) -P $(dir $@) $(khrregistry)/OpenGL/api/GL/glcorearb.h
