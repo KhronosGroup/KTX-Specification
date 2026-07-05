@@ -2189,15 +2189,15 @@ must not be set if the content includes other block dimensions. Such
 blocks must be re-encoded to BC7 preferably by bounded-time O(1) analytical
 encoding.
 
-This metadata entry may only be used with:
+This metadata entry may only be used if all the following are true:
 
-* `vkFormat == VK_FORMAT_UNDEFINED`
+* `vkFormat == VK_FORMAT_UNDEFINED` (0),
 
-* `supercompressionScheme == 5`, Basis XUASTC LDR
+* `supercompressionScheme == 5`, Basis XUASTC LDR,
 
-It must not be used with 
+* the DFD's `colorModel == KHR_DF_MODEL_XUASTC_LDR` (169),
 
-* `KTXxuastcDeblockFilter` metadata.
+* the file does not contain `KTXxuastcDeblockFilter`.
 
 If `KTXxuastcBc7Transcodable` appears in a KTX file violating these
 constraints, the file is invalid.
@@ -2220,15 +2220,15 @@ The value is a one-byte NUL-terminated string formatted as (<<REGEXP>>):
 where 'd' means disable filtering, 'n' means apply the normal
 filter, and 's' mean apply the strong filter.
 
-This metadata entry may only be used with:
+This metadata entry may only be used if all the following are true:
 
-* `vkFormat == VK_FORMAT_UNDEFINED`
+* `vkFormat == VK_FORMAT_UNDEFINED` (0),
 
-* `supercompressionScheme == 5`, Basis XUASTC LDR
+* `supercompressionScheme == 5`, Basis XUASTC LDR,
 
-It must not be used with 
+* the DFD's `colorModel == KHR_DF_MODEL_XUASTC_LDR` (169),
 
-* `KTXxuastcBc7Transcodable` metadata.
+* the file does not contain `KTXxuastcBc7Transcodable` metadata.
 
 If `KTXxuastcDeblockFilter` appears in a KTX file violating these
 constraints, the file is invalid.
@@ -2236,8 +2236,8 @@ constraints, the file is invalid.
 [NOTE]
 ====
 Some implementations may provide deblocking shaders for application
-which puts deblocking in the control of the application. They should
-use this metadata as a guide.
+which puts deblocking in the control of the application. Applications
+should use this metadata as a guide.
 ====
 
 
