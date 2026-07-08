@@ -31,9 +31,11 @@ vkheaders_installed := $(addprefix ${dest}/,${vkheaders_list})
 
 vkdeps_vulkan_list := $(addprefix vulkan/,vk_platform.h vulkan_core.h)
 vkdeps_vkvid_list := $(addprefix vk_video/, \
+             vulkan_video_codecs_common.h \
              vulkan_video_codec_h264std.h \
              vulkan_video_codec_h264std_encode.h \
-             vulkan_video_codecs_common.h \
+             vulkan_video_codec_h265std.h \
+             vulkan_video_codec_h265std_encode.h \
              vulkan_video_codec_av1std.h \
              vulkan_video_codec_av1std_decode.h \
              vulkan_video_codec_vp9std.h \
