@@ -1,0 +1,78 @@
+[appendix#basisuah66i_gd]
+== Basis UASTC HDR 6x6 Intermediate Global Data
+
+Basis UASTC HDR 6x6 Intermediate format combines encoding to the UASTC HDR 6x6 subset of ASTC, that can be easily transcoded to BC6H unsigned, with lossless supercompression.
+The format uses a small number of variable bit length command codes which can output one or more blocks, and which can reuse parts of previously encoded blocks.
+Because of the variable size of each image Basis UASTC HDR 6x6 Intermediate creates a global data structure that contains an array of _image descriptors_ with the offset within its mip level and the length of the data for that image.
+
+
+[[basisuah66i_global_data_structure]]
+.Basis UASTC HDR 6x6 Intermediate Global Data Structure
+[source,c,subs="+quotes,+attributes,+replacements"]
+----
+ImageDesc[imageCount] imageDescs;
+----
+
+`ImageDesc` is the following structure.
+
+.ImageDesc
+[source,c]
+----
+UInt32 rgbSliceByteOffset
+UInt32 rgbSliceByteLength
+UInt32 sliceProfile
+----
+
+Descriptions in the `imageDescs` array are in the order layer, face and z_slice as if arranged by the following pseudo code.
+[source,c]
+----
+for each level in max(levelCount, 1)
+    for each layer in max (layerCount, 1)
+        for each face in faceCount // 1 or 6
+            for each z_slice in max((pixelDepth of level), 1)
+----
+
+`imageCount` is the total number of images in the Mip Level Array.
+
+[TIP]
+====
+`imageCount` may be calculated as follows:
+[source,c]
+----
+int imageCount = max(layerCount, 1) * faceCount * layerPixelDepth;
+
+// where layerPixelDepth can be derived as
+int layerPixelDepth = max(pixelDepth, 1);
+for(int i = 1; i < levelCount; i++)
+    layerPixelDepth += max(pixelDepth >> i, 1);
+----
+====
+
+There must be no trailing bytes in the global data section after the array of image descriptors, i.e., the following condition must always be true:
+[source,c]
+----
+sgdByteLength == imageCount * 12
+----
+
+[[basisuah66i_image_desc]]
+=== ImageDesc
+==== rgbSliceByteOffset, rgbSliceByteLength
+The offset of the start of the RGB slice within the <<levelImagesDesc,levelImages>> of its mip level and its byte length. The offset of <<levelImagesDesc,levelImages>> within the file is given in the <<_level_index,Level Index>>.
+
+`rgbSliceByteLength` must not be zero.
+
+`rgbSliceByteOffset + rgbSliceByteLength` must not be greater than the byte length of the corresponding mip level.
+
+[[basisuah66i_sliceProfile]]
+==== sliceProfile
+The combined ID field containing the entropy profile and stream semantic version used in the bitstream for this slice.
+The least significant 16 bits (the first two bytes) of this value must equal the first 16-bits of the bitstream for this slice as described in the https://github.com/BinomialLLC/basis_universal/wiki/UASTC-HDR-6x6-Intermediate-File-Format-(Basis-GPU-Photo-6x6)#header[header section] of the bitstream specification.
+The most significant 16-bits (the last two bytes) must be 0.
+Implementations must fail gracefully when encountering an unknown profile or codec variant.
+[NOTE]
+.Rationale
+====
+Implementations can use this field to check for an unsupported version without having to load the data.
+====
+
+// vim: filetype=asciidoc ai expandtab tw=0 ts=4 sts=2 sw=2
