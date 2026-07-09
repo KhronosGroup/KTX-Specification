@@ -55,7 +55,7 @@ jobs:
       run: make switches
 
     - name: Test compile switches
-      run: make testswitches
+      run: make testswitches GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
   deploy:
     name: Deploy to GitHub Pages

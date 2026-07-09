@@ -64,8 +64,8 @@ $(switches) &: $(depth)/formats.json $(depth)/formats.schema.json $(depth)/gener
 	cd $(depth); ./generate_format_switches.rb $(generated_switches_dir)
 
 wget := wget --user-agent "KtxSpecBot/1.0; (+https://github.com/khronosgroup/KTX-Specification)"
-ifdef GH_TOKEN
-  wget := $(wget) --header="Authorization: token $(GH_TOKEN)"
+ifdef GITHUB_TOKEN
+  wget := $(wget) --header="Authorization: token $(GITHUB_TOKEN)"
 endif
 
 $(glheaders_installed)&: | $(dest)
