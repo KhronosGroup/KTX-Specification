@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Install Asciidoctor
       run: sudo apt-get install -y asciidoctor
@@ -40,7 +40,7 @@ jobs:
 
     - name: Upload generated files for GitHub Pages
       id: deployment
-      uses: actions/upload-pages-artifact@v3
+      uses: actions/upload-pages-artifact@v5
       with:
         path: out/ghpages/
 
@@ -49,13 +49,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Generate switches
       run: make switches
 
     - name: Test compile switches
-      run: make testswitches
+      run: make testswitches GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
   deploy:
     name: Deploy to GitHub Pages
@@ -79,4 +79,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
