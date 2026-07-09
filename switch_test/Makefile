@@ -66,7 +66,7 @@ $(dest)/vk2gl.o: $(switches) $(headers) | $(dest)
 $(switches) &: $(depth)/formats.json $(depth)/formats.schema.json $(depth)/generate_format_switches.rb | $(dest)
 	cd $(depth); ./generate_format_switches.rb $(generated_switches_dir)
 
-wget := wget --user-agent "KtxSpecBot/1.0; (+https://github.com/khronosgroup/KTX-Specification)"
+wget := wget -q --user-agent "KtxSpecBot/1.0; (+https://github.com/khronosgroup/KTX-Specification)"
 ifdef GITHUB_TOKEN
   # This header is necessary for GH Action workflows to prevent error 429 too many requests.
   # Actions can pass GITHUB_TOKEN on the make command line.
