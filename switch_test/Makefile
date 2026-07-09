@@ -33,11 +33,14 @@ vkdeps_vulkan_list := $(addprefix vulkan/,vk_platform.h vulkan_core.h)
 vkdeps_vkvid_list := $(addprefix vk_video/, \
              vulkan_video_codecs_common.h \
              vulkan_video_codec_h264std.h \
+             vulkan_video_codec_h264std_decode.h \
              vulkan_video_codec_h264std_encode.h \
              vulkan_video_codec_h265std.h \
+             vulkan_video_codec_h265std_decode.h \
              vulkan_video_codec_h265std_encode.h \
              vulkan_video_codec_av1std.h \
              vulkan_video_codec_av1std_decode.h \
+             vulkan_video_codec_av1std_encode.h \
              vulkan_video_codec_vp9std.h \
              vulkan_video_codec_vp9std_decode.h)
 vkdeps_vulkan_installed := $(addprefix ${dest}/,${vkdeps_vulkan_list})
@@ -65,6 +68,8 @@ $(switches) &: $(depth)/formats.json $(depth)/formats.schema.json $(depth)/gener
 
 wget := wget --user-agent "KtxSpecBot/1.0; (+https://github.com/khronosgroup/KTX-Specification)"
 ifdef GITHUB_TOKEN
+  # This header is necessary for GH Action workflows to prevent error 429 too many requests.
+  # Actions can pass GITHUB_TOKEN on the make command line.
   wget := $(wget) --header="Authorization: token $(GITHUB_TOKEN)"
 endif
 
