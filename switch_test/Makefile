@@ -64,6 +64,9 @@ $(switches) &: $(depth)/formats.json $(depth)/formats.schema.json $(depth)/gener
 	cd $(depth); ./generate_format_switches.rb $(generated_switches_dir)
 
 wget := wget --user-agent "KtxSpecBot/1.0; (+https://github.com/khronosgroup/KTX-Specification)"
+ifdef GH_TOKEN
+  wget := $(wget) --header="Authorization: token $(GH_TOKEN)"
+endif
 
 $(glheaders_installed)&: | $(dest)
 	$(wget) -P $(dir $@) $(addprefix $(khrregistry)/OpenGL/api/,${glheaders_list})
