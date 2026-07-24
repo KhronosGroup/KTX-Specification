@@ -28,6 +28,7 @@ files.values.each(&:close)
 
 # Some consumers may need a DXGI -> VkFormat switch (e.g., converting DDS to KTX2)
 dxgi2vkformat_file = File.open("#{dir}/dxgiFormat2vkFormat.inl", 'w')
+dxgi2vkformat_file << HEADER
 already_added_enum_values = Set[]
 formats.each do |format|
   # Here we assume that the first encountered DXGI-to-VkFormat conversion is the
