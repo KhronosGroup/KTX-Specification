@@ -26,8 +26,9 @@ end
 files.values.each(&:close)
 
 # Some consumers may need a DXGI -> VkFormat switch (e.g., converting DDS to KTX2)
+dxgi_prefix=""  # Some libraries define same enum as DXGI but add a prefix
 dxgi2vkformat_file = File.open("#{dir}/dxgiFormat2vkFormat.inl", 'w')
 formats.each do |format|
-  dxgi2vkformat_file << "case #{format[:dxgiFormat]}: return #{format[:vkFormat]};\n" if format[:dxgiFormat]
+  dxgi2vkformat_file << "case #{dxgi_prefix}#{format[:dxgiFormat]}: return #{format[:vkFormat]};\n" if format[:dxgiFormat]
 end
 dxgi2vkformat_file.close()
