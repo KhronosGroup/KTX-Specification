@@ -24,3 +24,10 @@ formats.each do |format|
   end
 end
 files.values.each(&:close)
+
+# Some consumers may need a DXGI -> VkFormat switch (e.g., converting DDS to KTX2)
+dxgi2vkformat_file = File.open("#{dir}/dxgiFormat2vkFormat.inl", 'w')
+formats.each do |format|
+  dxgi2vkformat_file << "case #{format[:dxgiFormat]}: return #{format[:vkFormat]};\n" if format[:dxgiFormat]
+end
+dxgi2vkformat_file.close()
