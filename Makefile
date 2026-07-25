@@ -47,10 +47,11 @@ ghpages: $(ghpages.index) $(ghpages.ktxspec) $(ghpages.ktxfrag) images/khronos.s
 
 
 switches := vkFormat2dxgiFormat.inl \
-              vkFormat2glInternalFormat.inl  \
-              vkFormat2mtlFormat.inl \
-              vkFormat2glFormat.inl \
-              vkFormat2glType.inl
+			vkFormat2glInternalFormat.inl  \
+			vkFormat2mtlFormat.inl \
+			vkFormat2glFormat.inl \
+			vkFormat2glType.inl \
+			dxgiFormat2vkFormat.inl
 switches := $(addprefix ${out.switches}/,${switches})
 
 switches: $(switches)

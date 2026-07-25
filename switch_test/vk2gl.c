@@ -176,4 +176,3 @@ GLenum vkFormat2glType( VkFormat vkFormat )
         default: return GL_INVALID_VALUE;
     }
 }
-

@@ -4,6 +4,7 @@
 
 require 'fileutils'
 require 'json'
+require 'set'
 formats = JSON.parse(File.read('formats.json'), :symbolize_names => true).freeze
 targets = [:glFormat, :glType, :glInternalFormat, :dxgiFormat, :mtlFormat].freeze
 HEADER = %{// Copyright 2020 The Khronos Group Inc.
@@ -24,3 +25,19 @@ formats.each do |format|
   end
 end
 files.values.each(&:close)
+
+# Some consumers may need a DXGI -> VkFormat switch (e.g., converting DDS to KTX2)
+dxgi2vkformat_file = File.open("#{dir}/dxgiFormat2vkFormat.inl", 'w')
+dxgi2vkformat_file << HEADER
+already_added_enum_values = Set[]
+formats.each do |format|
+  # Here we assume that the first encountered DXGI-to-VkFormat conversion is the
+  # most suitable DXGI-to-VkFormat conversion. Without this check we will end up
+  # with multiple similar case statements on same DXGI enum values because
+  # 'formats.json' is used to map VkFormat to other formats and can, therefore,
+  # map to same DXGI value multiple times (e.g., DXGI_FORMAT_R8G8B8A8_UNORM)
+  if format[:dxgiFormat] and already_added_enum_values.add?(format[:dxgiFormat])
+    dxgi2vkformat_file << "case #{format[:dxgiFormat]}: return #{format[:vkFormat]};\n"
+  end
+end
+dxgi2vkformat_file.close()

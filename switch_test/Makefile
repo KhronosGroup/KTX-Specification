@@ -7,8 +7,9 @@ depth := ..
 dest := build
 switches_dir ?= $(dest)
 switches := vkFormat2glFormat.inl \
-            vkFormat2glInternalFormat.inl \
-            vkFormat2glType.inl
+			vkFormat2glInternalFormat.inl \
+			vkFormat2glType.inl \
+			dxgiFormat2vkFormat.inl
 switches := $(addprefix ${switches_dir}/,${switches})
 
 # Make a switches dir relative to the directory $(depth) because that is where
@@ -28,6 +29,8 @@ khrheaders_list := $(addprefix KHR/,khrplatform.h)
 khrheaders_installed := $(addprefix ${dest}/,${khrheaders_list})
 vkheaders_list := $(addprefix vulkan/,vulkan.h)
 vkheaders_installed := $(addprefix ${dest}/,${vkheaders_list})
+dxgiheaders_list := $(addprefix dxgi/,dxgiformat.h)
+dxgiheaders_installed := $(addprefix ${dest}/,${dxgiheaders_list})
 
 vkdeps_vulkan_list := $(addprefix vulkan/,vk_platform.h vulkan_core.h)
 vkdeps_vkvid_list := $(addprefix vk_video/, \
@@ -53,15 +56,18 @@ switches := $(switches)
 headers := ${glheaders_installed} ${khrheaders_installed} ${vkheaders_installed}
 
 default: test_compile
-test_compile: $(dest)/vk2gl.o
+test_compile: $(dest)/vk2gl.o $(dest)/dxgi2vk.o
 
 CFLAGS := -I $(switches_dir) -I $(dest) -Werror -c
 
 $(dest)/vk2gl.o: $(switches) $(headers) | $(dest)
 	$(CC) $(CFLAGS) -o $@ vk2gl.c
 
+$(dest)/dxgi2vk.o: $(switches) $(vkheaders_installed) $(dxgiheaders_installed) | $(dest)
+	$(CC) $(CFLAGS) -o $@ dxgi2vk.c
+
 # &: is the "grouping separator" added in GNU make 4.3 to tell Make that
-# the command generates all listed targets. Earlier versionsa treat this
+# the command generates all listed targets. Earlier versions treat this
 # the same as the : separator and will issue the command for each target.
 $(switches) &: $(depth)/formats.json $(depth)/formats.schema.json $(depth)/generate_format_switches.rb | $(dest)
 	cd $(depth); ./generate_format_switches.rb $(generated_switches_dir)
@@ -82,6 +88,10 @@ $(khrheaders_installed)&: | $(dest)
 $(vkheaders_installed)&: | $(dest) $(vkdeps_vulkan_installed) $(vkdeps_vkvid_installed)
 	$(wget) -P $(dir $@) $(addprefix ${vkheaderrepo}/,${vkheaders_list})
 
+# There is no official registry to fetch dxgiformat.h from. We just copy it from current dir
+$(dxgiheaders_installed)&: | $(dest)
+	cp -r dxgi/ $(dir $@)
+
 $(vkdeps_vulkan_installed)&: | $(dest)
 	$(wget) -P $(dir $@) $(addprefix ${vkheaderrepo}/,${vkdeps_vulkan_list})
 
@@ -95,7 +105,7 @@ clean:
 	rm -rf $(addprefix ${dest}/,GL KHR vk_video vulkan)
 
 clobber: clean
-	rm -f $(dest)/vk2gl.o ${dest}/*.inl
+	rm -f $(dest)/vk2gl.o $(dest)/dxgi2vk.o ${dest}/*.inl
 	rmdir ${dest}
 
 # vim: ai noexpandtab ts=4 sw=4
