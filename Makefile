@@ -24,6 +24,10 @@ appendices=appendices
 ktx_sources := ktxspec.adoc \
            $(appendices)/basislz-gdata.adoc \
            $(appendices)/basislz-bitstream.adoc \
+           $(appendices)/basisuah66i-gdata.adoc \
+           $(appendices)/basisuah66i-bitstream.adoc \
+           $(appendices)/basisxual-gdata.adoc \
+           $(appendices)/basisxual-bitstream.adoc \
            $(appendices)/vendor-metadata.adoc \
            ktx-media-registration.adoc \
            license.adoc \

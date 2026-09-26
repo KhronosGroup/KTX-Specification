@@ -3,7 +3,7 @@
 
 BasisLZ combines encoding to a block-compressed format, that can be easily transcoded to various GPU-native block-compressed formats, with lossless supercompression.  Supercompression is accomplished by conditioning the block-compressed representation for entropy encoding then Huffman encoding the result. BasisLZ creates a global codebook referenced by each supercompressed image that contains the processed endpoint and selector data from the block-compression and the Huffman tables. The global data block contains this codebook.
 
-It also contains an array of _image descriptors_ with flags for each image and the offset and length within the mip level of the data for that image.
+It also contains an array of _image descriptors_ with flags for each image and the offset within its mip level and length of the data for that image.
 
 The global data structure is designed to accommodate various transcodable block-compressed formats. The format in use is indicated by the <<_data_format_descriptor, Data Format Descriptor>>. Currently BasisLZ only supports one, <<etc1s, ETC1S>> (a subset of ETC1, see {url-df-spec}#ETC1S[Section 21.1] of <<KDF14>>).  ETC1S is a common subset of many GPU-native formats.
 
@@ -139,3 +139,4 @@ in <<ETC1S Slice Huffman Tables>>.
 === extendedData
 Extended data. This is not used for ETC1S.
 
+// vim: filetype=asciidoc ai expandtab tw=0 ts=4 sts=2 sw=2
